@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muscle Map</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <h1>💪 Калькулятор мышц</h1>
+            <p class="subtitle">Выбери мышцу → узнай упражнения</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-nav active" id="navMuscles">💪 Мышцы</button>
+            <button class="btn-nav" id="navRecovery">🩹 Восстановление</button>
+            <button class="btn-nav" id="navNutrition">🍎 Питание</button>
+            <button class="btn-nav" id="navPrograms">🏋️ Программы</button>
+            <button class="btn-premium" id="premiumBtn">💰 Премиум</button>
+            <button class="btn-random" id="randomBtn">🎲 Случайная</button>
+            <button class="btn-share" id="shareBtn">📤 Поделиться</button>
+            <button class="btn-dashboard" id="dashboardBtn">📊 Прогресс</button>
+            <button class="btn-theme" id="themeToggle" title="Сменить тему">🌙</button>
+        </div>
+    </header>
+
+    <section class="quote-section" id="quoteSection">
+        <div class="quote-inner">
+            <div class="quote-label">💬 ЦИТАТА ДНЯ</div>
+            <div class="quote-text" id="quoteText">Загрузка...</div>
+            <div class="quote-author" id="quoteAuthor"></div>
+        </div>
+        <div class="quote-actions">
+            <button class="quote-btn" id="quoteShareBtn" title="Поделиться">📤</button>
+            <button class="quote-btn" id="quoteCopyBtn" title="Скопировать">📋</button>
+        </div>
+    </section>
+
+    <section class="challenges-section" id="challengesSection">
+        <div class="challenges-header">
+            <span class="challenges-title">🔥 Челленджи</span>
+            <span class="challenges-hint">Выполняй упражнения → прогресс растёт</span>
+        </div>
+        <div class="challenges-scroll" id="challengesList"></div>
+    </section>
+
+    <section class="search-section" id="searchSection">
+        <input type="text" id="searchInput" placeholder="🔍 Найти мышцу..." />
+    </section>
+
+    <section class="recovery-header" id="recoveryHeader">
+        <div class="recovery-title">🩹 Восстановление после травм</div>
+        <div class="recovery-warning">
+            ⚠️ <strong>Важно:</strong> эти упражнения — для профилактики и лёгких состояний. 
+            При острой боли, после операции или травмы — консультация врача обязательна!
+        </div>
+    </section>
+
+    <main class="main-content" id="mainContent">
+
+        <div class="view-muscles" id="viewMuscles">
+            <aside class="muscle-list" id="muscleList"></aside>
+            <section class="body-view" id="bodyView">
+                <div class="body-wrapper">
+                    <div class="body-image-container" id="bodyContainer">
+                        <img id="bodyImage" src="images/body-front_1.png" alt="Силуэт тела" />
+                        <div class="body-overlays" id="bodyOverlays"></div>
+                    </div>
+                    <button class="view-toggle-btn" id="viewToggle">🔄 Вид сзади</button>
+                </div>
+            </section>
+            <section class="info-panel" id="infoContent"></section>
+        </div>
+
+        <div class="view-recovery" id="viewRecovery" style="display: none;">
+            <aside class="recovery-list" id="recoveryList"></aside>
+            <section class="recovery-content" id="recoveryContent">
+                <div class="recovery-placeholder">
+                    <div style="font-size: 60px; margin-bottom: 16px; opacity: 0.4;">🩹</div>
+                    <div style="font-size: 20px; color: #5a5a7a;">Выбери категорию слева</div>
+                    <div style="font-size: 14px; color: #3a3a5a; margin-top: 8px;">Программы реабилитации и ЛФК</div>
+                </div>
+            </section>
+        </div>
+
+        <div class="view-nutrition" id="viewNutrition" style="display: none;">
+            <div class="nutrition-container" id="nutritionContainer"></div>
+        </div>
+
+        <div class="view-programs" id="viewPrograms" style="display: none;">
+            <div class="programs-container" id="programsContainer"></div>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer-disclaimer">
+            ⚠️ <strong>Muscle Map</strong> — образовательный проект. 
+            Перед началом тренировок или программы восстановления 
+            <strong>проконсультируйтесь с врачом</strong>. 
+            Мы не несём ответственности за травмы, полученные при самостоятельных занятиях.
+        </div>
+        <div class="footer-copy">💪 Muscle Map © 2026 — сделано с любовью к фитнесу</div>
+    </footer>
+
+    <div class="dashboard-modal" id="dashboardModal">
+        <div class="dashboard-backdrop" id="dashboardBackdrop"></div>
+        <div class="dashboard-content">
+            <button class="dashboard-close" id="dashboardClose">✕</button>
+            <h2 class="dashboard-title">📊 Твой прогресс</h2>
+            <div class="dashboard-stats" id="dashboardStats"></div>
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">📅 Календарь активности (30 дней)</h3>
+                <div class="activity-calendar" id="activityCalendar"></div>
+            </div>
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">🏆 Достижения</h3>
+                <div class="dashboard-achievements" id="dashboardAchievements"></div>
+            </div>
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">🕐 Последние выполненные</h3>
+                <div class="dashboard-history" id="dashboardHistory"></div>
+            </div>
+            <div class="dashboard-section">
+                <h3 class="dashboard-section-title">💾 Данные</h3>
+                <div class="data-actions">
+                    <button class="btn-data btn-export" id="exportBtn">📤 Скачать прогресс</button>
+                    <label class="btn-data btn-import">
+                        📥 Загрузить прогресс
+                        <input type="file" id="importFile" accept=".json" style="display:none;">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💰 МОДАЛКА ПРЕМИУМ -->
+    <div class="premium-modal" id="premiumModal">
+        <div class="premium-backdrop" id="premiumBackdrop"></div>
+        <div class="premium-content">
+            <button class="premium-close" id="premiumClose">✕</button>
+            
+            <div class="premium-hero">
+                <div class="premium-hero-icon">💎</div>
+                <h2 class="premium-hero-title">Muscle Map Премиум</h2>
+                <p class="premium-hero-subtitle">
+                    Открой все возможности для максимального прогресса
+                </p>
+            </div>
+
+            <div class="premium-features" id="premiumFeatures"></div>
+
+            <div class="premium-plans" id="premiumPlans"></div>
+
+            <div class="premium-cta">
+                <button class="btn-premium-cta" id="premiumCta">
+                    🚀 Оформить Премиум
+                </button>
+                <p class="premium-cta-hint">
+                    Первый месяц — 50% скидка. Отмена в любой момент.
+                </p>
+            </div>
+
+            <div class="premium-faq">
+                <div class="premium-faq-item">
+                    <div class="premium-faq-q">💳 Как оплатить?</div>
+                    <div class="premium-faq-a">Оплата через ЮKassa / СБП. Скоро будет доступно.</div>
+                </div>
+                <div class="premium-faq-item">
+                    <div class="premium-faq-q">❌ Как отменить?</div>
+                    <div class="premium-faq-a">В личном кабинете в 1 клик. Без вопросов.</div>
+                </div>
+                <div class="premium-faq-item">
+                    <div class="premium-faq-q">📱 Работает на телефоне?</div>
+                    <div class="premium-faq-a">Да, работает на всех устройствах.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="quotes.js"></script>
+    <script src="exercise-data.js"></script>
+    <script src="muscle-data.js"></script>
+    <script src="recovery-data.js"></script>
+    <script src="nutrition-data.js"></script>
+    <script src="programs-data.js"></script>
+    <script src="custom-exercises.js"></script>
+    <script src="premium-data.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>

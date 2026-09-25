@@ -4201,3 +4201,56 @@ body {
         padding: 6px 10px;
     }
 }
+/* ============================================
+   📱 МОБИЛЬНАЯ ШАПКА — исправление
+   ============================================ */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 12px 8px !important;
+        gap: 8px !important;
+    }
+    
+    .header-content {
+        width: 100% !important;
+        text-align: center !important;
+    }
+    
+    .header-content h1 {
+        font-size: 20px !important;
+    }
+    
+    .header-content .subtitle {
+        font-size: 12px !important;
+    }
+    
+    .header-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        width: 100% !important;
+    }
+    
+    .header-actions > button {
+        flex: 0 0 auto !important;
+        font-size: 12px !important;
+        padding: 8px 10px !important;
+    }
+    
+    .header-actions .btn-theme {
+        padding: 8px !important;
+        min-width: 36px !important;
+    }
+}
+
+/* На очень узких экранах прячем неважные кнопки */
+@media (max-width: 480px) {
+    .header-actions .btn-premium,
+    .header-actions .btn-share,
+    .header-actions .btn-random {
+        display: none !important;
+    }
+}

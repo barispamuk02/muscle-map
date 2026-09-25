@@ -4246,11 +4246,11 @@ body {
     }
 }
 
-/* На очень узких экранах прячем неважные кнопки */
-@media (max-width: 480px) {
-    .header-actions .btn-premium,
-    .header-actions .btn-share,
-    .header-actions .btn-random {
+/* На очень узких экранах — прячем неважные кнопки */
+@media screen and (max-width: 500px) {
+    html body .header .header-actions .btn-share,
+    html body .header .header-actions .btn-random {
         display: none !important;
     }
+    /* Премиум оставлен — виден всегда */
 }

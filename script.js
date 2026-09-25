@@ -5564,3 +5564,66 @@ document.addEventListener('keydown', (e) => {
 });
 
 console.log('✅ Премиум-раздел готов!');
+// ============================================
+// 📱 PWA — РЕГИСТРАЦИЯ SERVICE WORKER
+// ============================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('./service-worker.js')
+            .then((registration) => {
+                console.log('✅ Service Worker зарегистрирован:', registration.scope);
+                
+                // Проверка обновлений
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('🔄 Найдено обновление Service Worker');
+                    
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('✨ Доступно обновление приложения');
+                            
+                            // Показать пользователю уведомление
+                            if (confirm('✨ Доступно обновление Muscle Map!\n\nОбновить сейчас?')) {
+                                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                window.location.reload();
+                            }
+                        }
+                    });
+                });
+            })
+            .catch((error) => {
+                console.warn('⚠️ Service Worker не зарегистрирован:', error);
+            });
+    });
+    
+    // Перезагрузка при обновлении
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+    });
+}
+
+// ============================================
+// 📱 PWA — КНОПКА «УСТАНОВИТЬ»
+// ============================================
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('📱 Приложение можно установить');
+    
+    // Показать кнопку «Установить» (если хочешь)
+    // showInstallButton();
+});
+
+window.addEventListener('appinstalled', () => {
+    console.log('✅ Приложение установлено!');
+    deferredPrompt = null;
+    showToast('🎉 Muscle Map установлен на телефон!');
+});
+
+console.log('✅ PWA-блок загружен');

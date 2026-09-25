@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Фон -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0a12"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="muscleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="50%" stop-color="#ff4757"/>
+      <stop offset="100%" stop-color="#c44569"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Фон -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGrad)"/>
+  
+  <!-- Стилизованная мышца (двуглавая) -->
+  <path d="M 120 380 
+           Q 100 340 110 280 
+           Q 115 240 145 210 
+           Q 175 180 210 175 
+           Q 240 172 260 195 
+           Q 280 218 275 260 
+           Q 270 300 250 330 
+           Q 235 355 215 370 
+           Q 190 385 160 388 
+           Z" 
+        fill="url(#muscleGrad)" 
+        opacity="0.85"
+        filter="url(#glow)"/>
+  
+  <!-- Вторая головка мышцы -->
+  <path d="M 260 195 
+           Q 290 175 320 185 
+           Q 355 198 375 235 
+           Q 395 275 390 320 
+           Q 385 360 360 385 
+           Q 335 405 305 400 
+           Q 280 395 265 375 
+           Q 245 355 250 330 
+           Q 270 300 275 260 
+           Z" 
+        fill="url(#muscleGrad)" 
+        opacity="0.95"
+        filter="url(#glow)"/>
+  
+  <!-- Буква М (белая, поверх мышцы) -->
+  <text x="256" y="360" 
+        font-family="Arial Black, sans-serif" 
+        font-size="200" 
+        font-weight="900" 
+        fill="#ffffff" 
+        text-anchor="middle"
+        stroke="#0a0a12"
+        stroke-width="8"
+        paint-order="stroke">
+    М
+  </text>
+  
+  <!-- Акцент сверху (блик) -->
+  <ellipse cx="200" cy="200" rx="40" ry="20" 
+           fill="white" opacity="0.15" 
+           transform="rotate(-30 200 200)"/>
+</svg>

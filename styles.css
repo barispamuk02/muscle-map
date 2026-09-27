@@ -4281,38 +4281,33 @@ body {
 .body-svg-layer svg path {
     pointer-events: auto;
     cursor: pointer;
-    transition: 
-        opacity 0.3s ease, 
-        filter 0.3s ease,
-        fill 0.3s ease;
-    
-    /* 🎨 Мышца почти невидима */
-    opacity: 0.2;                      /* ← 20% прозрачности */
+    transition: filter 0.3s ease, opacity 0.3s ease;
+    opacity: 0.2;
+    animation: subtlePulse 4s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.3; }
 }
 
 .body-svg-layer svg path:hover {
-    /* 🔥 При наведении — яркая */
-    opacity: 1;                        /* ← 100% */
-    filter: 
-        brightness(1.2) 
-        drop-shadow(0 0 12px #ff4757)
-        drop-shadow(0 0 6px #ff4757);  /* ← свечение в 2 слоя */
+    opacity: 1;
+    filter: brightness(1.4) drop-shadow(0 0 10px #ff4757);
+    animation: none;
 }
 
-/* Активная мышца (после клика) */
 .body-svg-layer svg path.active {
     opacity: 1;
-    filter: 
-        brightness(1.4) 
-        drop-shadow(0 0 16px #ff4757);
+    filter: brightness(1.5) drop-shadow(0 0 15px #ff4757);
     animation: musclePulse 2s ease-in-out infinite;
 }
 
 @keyframes musclePulse {
     0%, 100% { 
-        filter: brightness(1.4) drop-shadow(0 0 16px #ff4757);
+        filter: brightness(1.4) drop-shadow(0 0 12px #ff4757);
     }
     50% { 
-        filter: brightness(1.8) drop-shadow(0 0 24px #ff4757);
+        filter: brightness(1.8) drop-shadow(0 0 20px #ff4757);
     }
 }

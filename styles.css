@@ -4282,7 +4282,7 @@ body {
     pointer-events: auto;
     cursor: pointer;
     transition: filter 0.3s ease, opacity 0.3s ease;
-    opacity: 0.2;
+    opacity: 0.1;
     animation: subtlePulse 4s ease-in-out infinite;
 }
 

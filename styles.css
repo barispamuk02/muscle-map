@@ -485,8 +485,9 @@ body::before {
     position: relative;
     max-width: 374px;
     width: 100%;
+    aspect-ratio: 707 / 1412;   /* ← ДОБАВЛЕНО */
+    margin: 0 auto;
 }
-
 .body-image-container img#bodyImage {
     width: 100%;
     height: auto;
@@ -4265,15 +4266,14 @@ body {
     height: 100%;
     pointer-events: none;
     z-index: 3;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
 }
 
 .body-svg-layer svg {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: auto;
-    max-height: 100%;
+    height: 100%;
     display: block;
     pointer-events: none;
 }
@@ -4287,10 +4287,5 @@ body {
 
 .body-svg-layer svg path:hover {
     filter: brightness(1.4) drop-shadow(0 0 10px #ff4757);
-    opacity: 1;
-}
-
-.body-svg-layer svg path.active {
-    filter: brightness(1.6) drop-shadow(0 0 15px #ff4757);
     opacity: 1;
 }

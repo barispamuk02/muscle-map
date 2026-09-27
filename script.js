@@ -5630,46 +5630,122 @@ console.log('✅ PWA-блок загружен');
 // ============================================
 // 🎨 SVG-МЫШЦЫ (тест — Большая грудная)
 // ============================================
-function loadTestSvgMuscle() {
+// ============================================
+// 🎨 ЗАГРУЗКА ВСЕХ SVG-МЫШЦ
+// ============================================
+function loadAllSvgMuscles() {
     const svgLayer = document.getElementById('bodySvgLayer');
     if (!svgLayer) {
         console.warn('⚠️ bodySvgLayer не найден');
         return;
     }
     
-    // Загружаем тестовую SVG-мышцу
-    fetch('svg/4_Pectoralis_major_muscle.svg')
-        .then(r => {
-            if (!r.ok) throw new Error('SVG не найден');
-            return r.text();
-        })
-        .then(svgContent => {
-            svgLayer.innerHTML = svgContent;
-            
-            // Привязываем клик
-            const path = svgLayer.querySelector('path');
-            if (path) {
-                path.dataset.muscleId = 'male_pectoralis_major';
-                
-                path.addEventListener('click', () => {
-                    console.log('🎯 Клик по SVG-мышце: большая грудная');
-                    if (typeof selectMuscle === 'function') {
-                        selectMuscle('male_pectoralis_major');
+    // Список всех SVG-мышц
+    const svgMuscles = [
+        // Голова и шея
+        '1_Sternocleidomastoid_muscle',
+        '2_Upper_fibers_of_the_trapezius_muscle',
+        // Грудь
+        '4_Pectoralis_major_muscle',
+        '6_Serratus_anterior_muscle',
+        // Живот
+        '7_Rectus_abdominis_muscle',
+        '8_External_oblique_muscle_of_the_abdomen',
+        '9_Internal_oblique_muscle_of_the_abdomen',
+        '10_Transversus_abdominis_muscle',
+        // Спина
+        '11_Middle_fibers_of_the_trapezius_muscle',
+        '12_Latissimus_dorsi_muscle',
+        '13_Rhomboid_muscles',
+        // Плечи
+        '15_Anterior_bundle_of_the_deltoid_muscle',
+        '16_Middle_head_of_the_deltoid_muscle',
+        '17_Posterior_deltoid',
+        // Руки
+        '18_BICEPS',
+        '19_TRICEPS',
+        '20_Brachialis',
+        '21_Wristflexors',
+        '22_Musculi_extensores_carpi',
+        // Ноги
+        '23_quadriceps',
+        '24_Posterior_thigh_muscle_group_(biceps_femoris)',
+        '25_Adductor_muscles_of_the_thigh',
+        '26_Musculus_gluteus_maximus',
+        '27_Triceps_surae_muscle_(gastrocnemius)',
+        '28_Tibialis_anterior_muscle',
+    ];
+    
+    // Загружаем все SVG параллельно
+    Promise.all(
+        svgMuscles.map(name => 
+            fetch(`svg/${name}.svg`)
+                .then(r => r.ok ? r.text() : '')
+                .catch(() => '')
+        )
+    ).then(svgContents => {
+        // Вставляем все SVG в слой
+        svgLayer.innerHTML = svgContents.join('');
+        
+        // Привязываем обработчики
+        document.querySelectorAll('.body-svg-layer svg path').forEach(path => {
+            path.addEventListener('click', () => {
+                // Ищем мышцу по названию SVG-файла
+                const svgIndex = Array.from(document.querySelectorAll('.body-svg-layer svg')).findIndex(
+                    svg => svg.contains(path)
+                );
+                if (svgIndex >= 0) {
+                    const muscleFile = svgMuscles[svgIndex];
+                    const muscleId = findMuscleIdBySvgFile(muscleFile);
+                    if (muscleId && typeof selectMuscle === 'function') {
+                        selectMuscle(muscleId);
                     }
-                });
-                
-                path.addEventListener('mouseenter', () => {
-                    console.log('👆 Hover на SVG-мышце');
-                });
-            }
-            
-            console.log('✅ SVG-мышца загружена');
-        })
-        .catch(err => {
-            console.error('❌ Ошибка загрузки SVG:', err);
+                }
+            });
         });
+        
+        console.log(`✅ Загружено SVG-мышц: ${svgContents.filter(s => s).length}/${svgMuscles.length}`);
+    });
 }
 
+// Связь SVG-файла с ID мышцы
+function findMuscleIdBySvgFile(svgFile) {
+    const map = {
+        '1_Sternocleidomastoid_muscle': 'male_sternocleidomastoid',
+        '2_Upper_fibers_of_the_trapezius_muscle': 'male_trapezius_upper',
+        '4_Pectoralis_major_muscle': 'male_pectoralis_major',
+        '6_Serratus_anterior_muscle': 'male_serratus_anterior',
+        '7_Rectus_abdominis_muscle': 'male_rectus_abdominis',
+        '8_External_oblique_muscle_of_the_abdomen': 'male_obliquus_externus',
+        '9_Internal_oblique_muscle_of_the_abdomen': 'male_obliquus_internus',
+        '10_Transversus_abdominis_muscle': 'male_transversus_abdominis',
+        '11_Middle_fibers_of_the_trapezius_muscle': 'male_trapezius_middle',
+        '12_Latissimus_dorsi_muscle': 'male_latissimus_dorsi',
+        '13_Rhomboid_muscles': 'male_rhomboids',
+        '15_Anterior_bundle_of_the_deltoid_muscle': 'male_deltoid_anterior',
+        '16_Middle_head_of_the_deltoid_muscle': 'male_deltoid_lateral',
+        '17_Posterior_deltoid': 'male_deltoid_posterior',
+        '18_BICEPS': 'male_biceps_brachii',
+        '19_TRICEPS': 'male_triceps_brachii',
+        '20_Brachialis': 'male_brachialis',
+        '21_Wristflexors': 'male_forearm_flexors',
+        '22_Musculi_extensores_carpi': 'male_forearm_extensors',
+        '23_quadriceps': 'male_quadriceps',
+        '24_Posterior_thigh_muscle_group_(biceps_femoris)': 'male_hamstrings',
+        '25_Adductor_muscles_of_the_thigh': 'male_adductors',
+        '26_Musculus_gluteus_maximus': 'male_gluteus_maximus',
+        '27_Triceps_surae_muscle_(gastrocnemius)': 'male_calf',
+        '28_Tibialis_anterior_muscle': 'male_tibialis_anterior',
+    };
+    return map[svgFile] || null;
+}
+
+// Запуск после загрузки
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadAllSvgMuscles);
+} else {
+    loadAllSvgMuscles();
+}
 // Запускаем после загрузки страницы
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadTestSvgMuscle);

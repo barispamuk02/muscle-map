@@ -5636,6 +5636,9 @@ console.log('✅ PWA-блок загружен');
 // ============================================
 // 🎨 ЗАГРУЗКА SVG-МЫШЦ С ФИЛЬТРАЦИЕЙ ПО ВИДАМ
 // ============================================
+// ============================================
+// 🎨 ЗАГРУЗКА SVG-МЫШЦ С ФИЛЬТРАЦИЕЙ ПО ВИДАМ
+// ============================================
 const SVG_MUSCLES_FRONT = [
     '1_Sternocleidomastoid_muscle',
     '2_Upper_fibers_of_the_trapezius_muscle',
@@ -5695,56 +5698,113 @@ const SVG_MUSCLE_ID_MAP = {
     '28_Tibialis_anterior_muscle': 'male_tibialis_anterior',
 };
 
-// Кешируем загруженные SVG
+// Кеш SVG
 const svgCache = {};
+let isLoadingSvg = false;
 
 async function loadAllSvgMuscles(view = 'front') {
-    const svgLayer = document.getElementById('bodySvgLayer');
-    if (!svgLayer) return;
-
-    // Определяем, какие мышцы грузить
-    const musclesToLoad = view === 'front' ? SVG_MUSCLES_FRONT : SVG_MUSCLES_BACK;
-
-    // Загружаем SVG (с кешем)
-    const svgContents = await Promise.all(
-        musclesToLoad.map(async (name) => {
-            if (svgCache[name]) return svgCache[name];
-            try {
-                const r = await fetch(`svg/${name}.svg`);
-                if (!r.ok) return '';
-                const text = await r.text();
-                svgCache[name] = text;
-                return text;
-            } catch {
-                return '';
-            }
-        })
-    );
-
-    // Вставляем все SVG
-    svgLayer.innerHTML = svgContents.join('');
-
-    // Привязываем события
-    const svgElements = svgLayer.querySelectorAll('svg');
-    svgElements.forEach((svg, index) => {
-        const muscleFile = musclesToLoad[index];
-        const muscleId = SVG_MUSCLE_ID_MAP[muscleFile];
+    // Защита от двойного запуска
+    if (isLoadingSvg) {
+        console.log('⏳ SVG уже загружаются');
+        return;
+    }
+    isLoadingSvg = true;
+    
+    try {
+        const svgLayer = document.getElementById('bodySvgLayer');
+        if (!svgLayer) {
+            console.warn('⚠️ bodySvgLayer не найден');
+            return;
+        }
         
-        const path = svg.querySelector('path');
-        if (!path || !muscleId) return;
+        // ⚡ Очищаем слой СРАЗУ
+        svgLayer.innerHTML = '';
         
-        path.dataset.muscleId = muscleId;
+        // Определяем мышцы для текущего вида
+        const musclesToLoad = view === 'front' ? SVG_MUSCLES_FRONT : SVG_MUSCLES_BACK;
         
-        path.addEventListener('click', () => {
-            if (typeof selectMuscle === 'function') {
-                selectMuscle(muscleId);
+        // Загружаем все SVG (с кешем)
+        const svgContents = await Promise.all(
+            musclesToLoad.map(async (name) => {
+                if (svgCache[name]) return svgCache[name];
+                try {
+                    const r = await fetch(`svg/${name}.svg`);
+                    if (!r.ok) {
+                        console.warn(`⚠️ Не найден: ${name}.svg`);
+                        return '';
+                    }
+                    const text = await r.text();
+                    svgCache[name] = text;
+                    return text;
+                } catch (e) {
+                    console.warn(`❌ Ошибка: ${name}.svg`, e);
+                    return '';
+                }
+            })
+        );
+        
+        // Вставляем только непустые SVG
+        svgLayer.innerHTML = svgContents.filter(s => s).join('');
+        
+        // Привязываем обработчики к каждой мышце
+        const svgElements = svgLayer.querySelectorAll('svg');
+        svgElements.forEach((svg, index) => {
+            // Находим соответствующее имя файла
+            let realIndex = 0;
+            for (let i = 0; i < musclesToLoad.length; i++) {
+                if (svgContents[i]) {
+                    if (realIndex === index) {
+                        const muscleFile = musclesToLoad[i];
+                        const muscleId = SVG_MUSCLE_ID_MAP[muscleFile];
+                        
+                        const path = svg.querySelector('path');
+                        if (!path || !muscleId) return;
+                        
+                        path.dataset.muscleId = muscleId;
+                        
+                        path.addEventListener('click', () => {
+                            if (typeof selectMuscle === 'function') {
+                                selectMuscle(muscleId);
+                            }
+                        });
+                        break;
+                    }
+                    realIndex++;
+                }
             }
         });
-    });
-
-    console.log(`✅ Загружено SVG-мышц (${view}): ${svgContents.filter(s => s).length}/${musclesToLoad.length}`);
+        
+        const loaded = svgContents.filter(s => s).length;
+        console.log(`✅ Загружено SVG (${view}): ${loaded}/${musclesToLoad.length}`);
+        
+    } finally {
+        isLoadingSvg = false;
+    }
 }
 
+// Хук на переключение вида БЕЗ задержки
+function hookToggleView() {
+    const origToggle = window.toggleView;
+    if (!origToggle || origToggle._hooked) return;
+    
+    window.toggleView = function() {
+        origToggle.call(this);
+        // currentView уже обновился в origToggle
+        loadAllSvgMuscles(currentView);
+    };
+    window.toggleView._hooked = true;
+}
+
+// Запуск после загрузки
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        loadAllSvgMuscles('front');
+        hookToggleView();
+    });
+} else {
+    loadAllSvgMuscles('front');
+    hookToggleView();
+}
 // Обновление при переключении вида
 function reloadSvgMuscles() {
     loadAllSvgMuscles(currentView);
@@ -5758,14 +5818,15 @@ if (document.readyState === 'loading') {
 }
 
 // Хук на переключение вида
+// Хук на переключение вида (без задержки)
 const originalToggleView = window.toggleView;
 if (originalToggleView) {
     window.toggleView = function() {
         originalToggleView.call(this);
-        setTimeout(() => loadAllSvgMuscles(currentView), 400);
+        // Загружаем SVG сразу — currentView уже обновился
+        loadAllSvgMuscles(currentView);
     };
-}
-// Связь SVG-файла с ID мышцы
+}// Связь SVG-файла с ID мышцы
 function findMuscleIdBySvgFile(svgFile) {
     const map = {
         '1_Sternocleidomastoid_muscle': 'male_sternocleidomastoid',

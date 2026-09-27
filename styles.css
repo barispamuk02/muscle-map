@@ -4282,10 +4282,32 @@ body {
     pointer-events: auto;
     cursor: pointer;
     transition: filter 0.3s ease, opacity 0.3s ease;
-    opacity: 0.85;
+    opacity: 0.2;                        /* ← 20% */
+    animation: subtlePulse 4s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.3; }
 }
 
 .body-svg-layer svg path:hover {
+    opacity: 1;                           /* ← 100% при hover */
     filter: brightness(1.4) drop-shadow(0 0 10px #ff4757);
+    animation: none;                      /* ← отключаем пульсацию */
+}
+
+.body-svg-layer svg path.active {
     opacity: 1;
+    filter: brightness(1.5) drop-shadow(0 0 15px #ff4757);
+    animation: musclePulse 2s ease-in-out infinite;
+}
+
+@keyframes musclePulse {
+    0%, 100% { 
+        filter: brightness(1.4) drop-shadow(0 0 12px #ff4757);
+    }
+    50% { 
+        filter: brightness(1.8) drop-shadow(0 0 20px #ff4757);
+    }
 }

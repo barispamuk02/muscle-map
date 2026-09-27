@@ -5649,6 +5649,7 @@ const SVG_MUSCLES_FRONT = [
     '9_Internal_oblique_muscle_of_the_abdomen',
     '10_Transversus_abdominis_muscle',
     '15_Anterior_bundle_of_the_deltoid_muscle',
+    '16_Middle_head_of_the_deltoid_muscle', 
     '18_BICEPS',
     '20_Brachialis',
     '21_Wristflexors',

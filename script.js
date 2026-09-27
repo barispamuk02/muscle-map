@@ -5627,3 +5627,52 @@ window.addEventListener('appinstalled', () => {
 });
 
 console.log('✅ PWA-блок загружен');
+// ============================================
+// 🎨 SVG-МЫШЦЫ (тест — Большая грудная)
+// ============================================
+function loadTestSvgMuscle() {
+    const svgLayer = document.getElementById('bodySvgLayer');
+    if (!svgLayer) {
+        console.warn('⚠️ bodySvgLayer не найден');
+        return;
+    }
+    
+    // Загружаем тестовую SVG-мышцу
+    fetch('svg/4_Pectoralis_major_muscle.svg')
+        .then(r => {
+            if (!r.ok) throw new Error('SVG не найден');
+            return r.text();
+        })
+        .then(svgContent => {
+            svgLayer.innerHTML = svgContent;
+            
+            // Привязываем клик
+            const path = svgLayer.querySelector('path');
+            if (path) {
+                path.dataset.muscleId = 'male_pectoralis_major';
+                
+                path.addEventListener('click', () => {
+                    console.log('🎯 Клик по SVG-мышце: большая грудная');
+                    if (typeof selectMuscle === 'function') {
+                        selectMuscle('male_pectoralis_major');
+                    }
+                });
+                
+                path.addEventListener('mouseenter', () => {
+                    console.log('👆 Hover на SVG-мышце');
+                });
+            }
+            
+            console.log('✅ SVG-мышца загружена');
+        })
+        .catch(err => {
+            console.error('❌ Ошибка загрузки SVG:', err);
+        });
+}
+
+// Запускаем после загрузки страницы
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadTestSvgMuscle);
+} else {
+    loadTestSvgMuscle();
+}

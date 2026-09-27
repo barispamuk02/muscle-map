@@ -5640,6 +5640,7 @@ console.log('✅ PWA-блок загружен');
 // 🎨 ЗАГРУЗКА SVG-МЫШЦ С ФИЛЬТРАЦИЕЙ ПО ВИДАМ
 // ============================================
 const SVG_MUSCLES_FRONT = [
+    const SVG_MUSCLES_FRONT = [
     '1_Sternocleidomastoid_muscle',
     '2_Upper_fibers_of_the_trapezius_muscle',
     '4_Pectoralis_major_muscle',
@@ -5649,22 +5650,28 @@ const SVG_MUSCLES_FRONT = [
     '9_Internal_oblique_muscle_of_the_abdomen',
     '10_Transversus_abdominis_muscle',
     '15_Anterior_bundle_of_the_deltoid_muscle',
-    '16_Middle_head_of_the_deltoid_muscle', 
+    '16_Middle_head_of_the_deltoid_muscle',        // ← ДОБАВЛЕНО
     '18_BICEPS',
+    '19_TRICEPS',                                  // ← ДОБАВЛЕНО
     '20_Brachialis',
     '21_Wristflexors',
+    '22_Musculi_extensores_carpi',                 // ← ДОБАВЛЕНО
     '23_quadriceps',
     '25_Adductor_muscles_of_the_thigh',
     '28_Tibialis_anterior_muscle',
+];
 ];
 
 const SVG_MUSCLES_BACK = [
     '11_Middle_fibers_of_the_trapezius_muscle',
     '12_Latissimus_dorsi_muscle',
     '13_Rhomboid_muscles',
-    '16_Middle_head_of_the_deltoid_muscle',
+    '16_Middle_head_of_the_deltoid_muscle',        // ← уже был
     '17_Posterior_deltoid',
+    '18_BICEPS',                                   // ← ДОБАВЛЕНО
     '19_TRICEPS',
+    '20_Brachialis',                               // ← ДОБАВЛЕНО
+    '21_Wristflexors',                             // ← ДОБАВЛЕНО
     '22_Musculi_extensores_carpi',
     '24_Posterior_thigh_muscle_group_(biceps_femoris)',
     '26_Musculus_gluteus_maximus',

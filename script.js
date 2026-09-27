@@ -5660,7 +5660,7 @@ const SVG_MUSCLES_FRONT = [
     '25_Adductor_muscles_of_the_thigh',
     '28_Tibialis_anterior_muscle',
 ];
-];
+
 
 const SVG_MUSCLES_BACK = [
     '11_Middle_fibers_of_the_trapezius_muscle',

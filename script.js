@@ -5748,7 +5748,7 @@ if (document.readyState === 'loading') {
 }
 // Запускаем после загрузки страницы
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadTestSvgMuscle);
+    document.addEventListener('DOMContentLoaded', loadAllSvgMuscles);
 } else {
-    loadTestSvgMuscle();
+    loadAllSvgMuscles();
 }

@@ -4287,8 +4287,8 @@ body {
 }
 
 @keyframes subtlePulse {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.1; }
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.3; }
 }
 
 .body-svg-layer svg path:hover {

@@ -5871,3 +5871,42 @@ if (document.readyState === 'loading') {
 } else {
     loadAllSvgMuscles();
 }
+// ============================================
+// 🎯 RIPPLE-ЭФФЕКТ НА КНОПКАХ
+// ============================================
+function initRipple() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        
+        // Пропускаем кнопки с disabled
+        if (btn.disabled) return;
+        
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        
+        // Удаляем старые ripple
+        const old = btn.querySelector('.ripple');
+        if (old) old.remove();
+        
+        btn.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+    });
+}
+
+// Запуск
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRipple);
+} else {
+    initRipple();
+}

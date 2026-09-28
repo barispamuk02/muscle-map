@@ -719,15 +719,25 @@ body::before {
     border-radius: 12px;
     cursor: pointer;
     margin-bottom: 8px;
-    transition: all 0.3s ease;
     overflow: hidden;
+    
+    /* 🎴 Плавные переходы */
+    transition: 
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease,
+        background 0.3s ease;
 }
 
 .exercise-card:hover {
+    /* 🎴 Приподнимается + тень */
+    transform: translateY(-4px);
+    box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.4),
+        0 4px 12px rgba(255, 71, 87, 0.15);
+    border-color: rgba(255, 71, 87, 0.3);
     background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(111, 179, 255, 0.2);
 }
-
 .exercise-card.expanded {
     background: rgba(111, 179, 255, 0.05);
     border-color: rgba(111, 179, 255, 0.25);
@@ -4281,11 +4291,18 @@ body {
 .body-svg-layer svg path {
     pointer-events: auto;
     cursor: pointer;
-    transition: filter 0.3s ease, opacity 0.3s ease;
-    opacity: 0.1;
+    transition: 
+        filter 0.4s ease, 
+        opacity 0.4s ease,
+        transform 0.4s ease;
+    opacity: 0.2;
     animation: subtlePulse 4s ease-in-out infinite;
+    
+    /* 🎨 Градиентный эффект */
+    filter: 
+        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))
+        drop-shadow(0 0 2px rgba(255, 71, 87, 0.3));
 }
-
 @keyframes subtlePulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 0.3; }
@@ -4293,8 +4310,16 @@ body {
 
 .body-svg-layer svg path:hover {
     opacity: 1;
-    filter: brightness(1.4) drop-shadow(0 0 10px #ff4757);
+    filter: 
+        brightness(1.2)
+        saturate(1.3)
+        drop-shadow(0 4px 12px rgba(255, 71, 87, 0.6))
+        drop-shadow(0 0 20px rgba(255, 71, 87, 0.4));
     animation: none;
+/* 🔍 Zoom при hover */
+    transform: scale(1.02);
+    transform-origin: center;
+
 }
 
 .body-svg-layer svg path.active {
@@ -4309,5 +4334,37 @@ body {
     }
     50% { 
         filter: brightness(1.8) drop-shadow(0 0 20px #ff4757);
+    }
+}
+/* ============================================
+   🎯 RIPPLE-ЭФФЕКТ НА КНОПКАХ
+   ============================================ */
+.btn-nav,
+.btn-premium,
+.btn-random,
+.btn-share,
+.btn-dashboard,
+.btn-theme,
+button[class*="btn"],
+button[class*="rest"] {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(0);
+    animation: rippleAnimation 0.6s ease-out;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes rippleAnimation {
+    to {
+        transform: scale(4);
+        opacity: 0;
     }
 }

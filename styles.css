@@ -4318,7 +4318,7 @@ body {
     opacity: 1;
     filter: 
         brightness(1.2)
-        saturate(0.6)
+        saturate(0.8)
         drop-shadow(0 4px 12px rgba(255, 71, 87, 0.6))
         drop-shadow(0 0 20px rgba(255, 71, 87, 0.4));
     animation: none;

@@ -5758,14 +5758,43 @@ function showSvgLayer(view) {
     if (!front || !back) return;
     
     if (view === 'front') {
+        // 🔥 Скрываем back ПРИНУДИТЕЛЬНО
         back.classList.remove('visible');
-        setTimeout(() => front.classList.add('visible'), 150);
+        back.style.pointerEvents = 'none';
+        back.style.visibility = 'hidden';
+        back.querySelectorAll('svg, svg path').forEach(el => {
+            el.style.pointerEvents = 'none';
+        });
+        
+        // Показываем front
+        setTimeout(() => {
+            front.classList.add('visible');
+            front.style.pointerEvents = '';
+            front.style.visibility = '';
+            front.querySelectorAll('svg, svg path').forEach(el => {
+                el.style.pointerEvents = '';
+            });
+        }, 150);
     } else {
+        // 🔥 Скрываем front ПРИНУДИТЕЛЬНО
         front.classList.remove('visible');
-        setTimeout(() => back.classList.add('visible'), 150);
+        front.style.pointerEvents = 'none';
+        front.style.visibility = 'hidden';
+        front.querySelectorAll('svg, svg path').forEach(el => {
+            el.style.pointerEvents = 'none';
+        });
+        
+        // Показываем back
+        setTimeout(() => {
+            back.classList.add('visible');
+            back.style.pointerEvents = '';
+            back.style.visibility = '';
+            back.querySelectorAll('svg, svg path').forEach(el => {
+                el.style.pointerEvents = '';
+            });
+        }, 150);
     }
 }
-
 // Инициализация
 async function initSvgLayers() {
     console.log('⏳ Загружаю SVG-слои...');

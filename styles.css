@@ -145,65 +145,80 @@ body::before {
 }
 
 /* --- ЦИТАТА --- */
+/* 💬 Цитата дня — красивее */
 .quote-section {
     position: relative;
-    z-index: 10;
-    padding: 14px 30px;
-    background: linear-gradient(135deg, rgba(111, 179, 255, 0.06), rgba(108, 92, 231, 0.06));
-    border-bottom: 1px solid rgba(111, 179, 255, 0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
+    background: linear-gradient(135deg, 
+        rgba(111, 179, 255, 0.08) 0%, 
+        rgba(255, 107, 107, 0.06) 100%);
+    border: 1px solid rgba(111, 179, 255, 0.15);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin: 16px 30px;
+    overflow: hidden;
 }
 
-.quote-inner { flex: 1; min-width: 250px; }
+.quote-section::before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    left: 10px;
+    font-size: 120px;
+    font-family: Georgia, serif;
+    color: rgba(111, 179, 255, 0.15);
+    line-height: 1;
+    pointer-events: none;
+}
+
+.quote-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 107, 107, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
 
 .quote-label {
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 11px;
     color: #6fb3ff;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-    opacity: 0.7;
+    letter-spacing: 2px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    opacity: 0.8;
 }
 
 .quote-text {
-    font-size: 15px;
+    font-size: 18px;
     font-style: italic;
-    color: #e0e0e8;
+    font-weight: 500;
+    color: #f0f0ff;
     line-height: 1.5;
+    position: relative;
+    z-index: 1;
+    animation: quoteFadeIn 0.6s ease;
 }
 
 .quote-author {
-    font-size: 12px;
-    color: #6fb3ff;
-    margin-top: 4px;
-    opacity: 0.85;
+    font-size: 13px;
+    color: #7a7a9a;
+    margin-top: 8px;
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
 }
 
-.quote-actions { display: flex; gap: 8px; }
-
-.quote-btn {
-    background: rgba(111, 179, 255, 0.08);
-    border: 1px solid rgba(111, 179, 255, 0.12);
-    color: #6fb3ff;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.quote-btn:hover {
-    background: rgba(111, 179, 255, 0.18);
-    transform: scale(1.1);
+@keyframes quoteFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* --- ЧЕЛЛЕНДЖИ --- */
@@ -246,62 +261,93 @@ body::before {
 .challenges-scroll::-webkit-scrollbar { height: 4px; }
 .challenges-scroll::-webkit-scrollbar-thumb { background: #1a1a3a; border-radius: 10px; }
 
+/* 🔥 Челленджи — ярче */
 .challenge-card {
-    flex: 0 0 220px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    padding: 12px 14px;
-    transition: all 0.3s ease;
+    border-radius: 14px;
+    padding: 16px;
+    transition: 
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .challenge-card:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(253, 121, 168, 0.2);
+    transform: translateY(-4px);
+    border-color: rgba(255, 107, 107, 0.3);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
 }
 
 .challenge-card.completed {
-    border-color: rgba(0, 184, 148, 0.4);
-    background: rgba(0, 184, 148, 0.06);
+    background: linear-gradient(135deg, 
+        rgba(0, 184, 148, 0.08) 0%, 
+        rgba(111, 179, 255, 0.06) 100%);
+    border-color: rgba(0, 184, 148, 0.3);
 }
 
-.challenge-emoji { font-size: 20px; margin-bottom: 4px; }
+.challenge-emoji {
+    font-size: 32px;
+    margin-bottom: 8px;
+    display: block;
+}
 
 .challenge-name {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    color: #e0e0e8;
-    margin-bottom: 6px;
-    line-height: 1.3;
+    color: #e0e0ff;
+    margin-bottom: 10px;
 }
 
 .challenge-progress {
     height: 6px;
     background: rgba(255, 255, 255, 0.06);
-    border-radius: 10px;
+    border-radius: 3px;
     overflow: hidden;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    position: relative;
 }
 
 .challenge-progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #6fb3ff, #fd79a8);
-    border-radius: 10px;
-    transition: width 0.5s ease;
+    background: linear-gradient(90deg, #ff4757, #ff6b8a, #ff6b6b);
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    box-shadow: 0 0 12px rgba(255, 71, 87, 0.5);
+}
+
+.challenge-progress-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.challenge-card.completed .challenge-progress-bar {
+    background: linear-gradient(90deg, #00b894, #55efc4);
+    box-shadow: 0 0 12px rgba(0, 184, 148, 0.5);
 }
 
 .challenge-counter {
-    font-size: 11px;
-    color: #8a8aaa;
     display: flex;
     justify-content: space-between;
+    font-size: 11px;
+    color: #7a7a9a;
 }
 
 .challenge-counter .done {
     color: #00b894;
     font-weight: 600;
 }
-
 /* --- ПОИСК --- */
 .search-section {
     position: relative;
@@ -408,10 +454,71 @@ body::before {
     font-weight: 600;
 }
 
+/* 🎴 Список мышц — карточки */
+.muscle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.list-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #ff6b6b, #c44569);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.list-item:hover {
+    transform: translateX(4px);
+    background: rgba(255, 107, 107, 0.06);
+    border-color: rgba(255, 107, 107, 0.25);
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.15);
+}
+
+.list-item:hover::before {
+    opacity: 1;
+}
+
+.list-item.active {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: rgba(255, 107, 107, 0.4);
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.2);
+}
+
+.list-item.active::before {
+    opacity: 1;
+}
+
 .list-item-content {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex: 1;
+    min-width: 0;
 }
 
 .color-dot {
@@ -419,48 +526,26 @@ body::before {
     height: 10px;
     border-radius: 50%;
     flex-shrink: 0;
+    box-shadow: 0 0 8px currentColor;
 }
 
-.muscle-list .list-item {
-    padding: 10px 16px;
-    cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #8a8aaa;
+.list-item-content span {
     font-size: 13px;
+    font-weight: 500;
+    color: #d0d0e0;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.muscle-list .list-item:hover {
-    background: rgba(255, 255, 255, 0.03);
-    border-left-color: rgba(111, 179, 255, 0.3);
-    color: #c0c0d8;
-}
-
-.muscle-list .list-item.active {
-    background: rgba(111, 179, 255, 0.06);
-    border-left-color: #6fb3ff;
-    color: #6fb3ff;
-    font-weight: 600;
-}
-
-.muscle-list .list-item .group-tag {
-    font-size: 9px;
-    color: #4a4a6a;
+.group-tag {
+    font-size: 10px;
+    color: #5a5a7a;
     background: rgba(255, 255, 255, 0.04);
-    padding: 2px 10px;
-    border-radius: 12px;
-    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
     white-space: nowrap;
-}
-
-.muscle-list .empty-state {
-    padding: 40px 20px;
-    text-align: center;
-    color: #4a4a6a;
-    font-size: 14px;
+    flex-shrink: 0;
 }
 
 /* --- МАНЕКЕН --- */
@@ -4230,10 +4315,22 @@ body {
     }
     
     .header-content h1 {
-        font-size: 20px !important;
-    }
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6fb3ff, #4488ff, #6fb3ff);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: logoShift 6s ease infinite;
+    letter-spacing: -0.5px;
+}
     
-    .header-content .subtitle {
+  @keyframes logoShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+} 
+ .header-content .subtitle {
         font-size: 12px !important;
     }
     
@@ -4368,14 +4465,30 @@ body {
 .btn-random,
 .btn-share,
 .btn-dashboard,
-.btn-theme,
-button[class*="btn"],
-button[class*="rest"] {
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
+.btn-theme {
+    transition: 
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
 
+.btn-nav:hover,
+.btn-premium:hover,
+.btn-random:hover,
+.btn-share:hover,
+.btn-dashboard:hover,
+.btn-theme:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.btn-nav.active {
+    background: rgba(111, 179, 255, 0.15);
+    border-color: rgba(111, 179, 255, 0.4);
+    box-shadow: 0 4px 16px rgba(111, 179, 255, 0.2);
+    color: #6fb3ff;
+}
 .ripple {
     position: absolute;
     border-radius: 50%;

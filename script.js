@@ -5631,8 +5631,12 @@ console.log('✅ PWA-блок загружен');
 // ============================================
 // 🎨 ЗАГРУЗКА SVG-МЫШЦ С ФИЛЬТРАЦИЕЙ ПО ВИДАМ
 // ============================================
+// ============================================
+// 🎨 SVG-МЫШЦЫ: ДВА СЛОЯ (перед/зад) — 28.09.2026
+// ============================================
+
+// Вид спереди (19 мышц)
 const SVG_MUSCLES_FRONT = [
-    
     '1_Sternocleidomastoid_muscle',
     '2_Upper_fibers_of_the_trapezius_muscle',
     '4_Pectoralis_major_muscle',
@@ -5642,35 +5646,36 @@ const SVG_MUSCLES_FRONT = [
     '9_Internal_oblique_muscle_of_the_abdomen',
     '10_Transversus_abdominis_muscle',
     '15_Anterior_bundle_of_the_deltoid_muscle',
-    '16_Middle_head_of_the_deltoid_muscle',        // ← ДОБАВЛЕНО
+    '16_Middle_head_of_the_deltoid_muscle',
     '18_BICEPS',
-    '19_TRICEPS',                                  // ← ДОБАВЛЕНО
+    '19_TRICEPS',
     '20_Brachialis',
     '21_Wristflexors',
-    '22_Musculi_extensores_carpi',                 // ← ДОБАВЛЕНО
+    '22_Musculi_extensores_carpi',
     '23_quadriceps',
     '25_Adductor_muscles_of_the_thigh',
-    '27_Triceps_surae_muscle_(gastrocnemius)',   // ← ДОБАВЛЕНО	
+    '27_Triceps_surae_muscle_(gastrocnemius)',
     '28_Tibialis_anterior_muscle',
 ];
 
-
+// Вид сзади (13 мышц)
 const SVG_MUSCLES_BACK = [
     '11_Middle_fibers_of_the_trapezius_muscle',
     '12_Latissimus_dorsi_muscle',
     '13_Rhomboid_muscles',
-    '16_Middle_head_of_the_deltoid_muscle',        // ← уже был
+    '16_Middle_head_of_the_deltoid_muscle',
     '17_Posterior_deltoid',
-    '18_BICEPS',                                   // ← ДОБАВЛЕНО
+    '18_BICEPS',
     '19_TRICEPS',
-    '20_Brachialis',                               // ← ДОБАВЛЕНО
-    '21_Wristflexors',                             // ← ДОБАВЛЕНО
+    '20_Brachialis',
+    '21_Wristflexors',
     '22_Musculi_extensores_carpi',
     '24_Posterior_thigh_muscle_group_(biceps_femoris)',
     '26_Musculus_gluteus_maximus',
     '27_Triceps_surae_muscle_(gastrocnemius)',
 ];
 
+// Связь файла с ID мышцы
 const SVG_MUSCLE_ID_MAP = {
     '1_Sternocleidomastoid_muscle': 'male_sternocleidomastoid',
     '2_Upper_fibers_of_the_trapezius_muscle': 'male_trapezius_upper',
@@ -5699,214 +5704,96 @@ const SVG_MUSCLE_ID_MAP = {
     '28_Tibialis_anterior_muscle': 'male_tibialis_anterior',
 };
 
-// Кеш SVG
 const svgCache = {};
-let isLoadingSvg = false;
 
-async function loadAllSvgMuscles(view = 'front') {
-    // Защита от двойного запуска
-    if (isLoadingSvg) {
-        console.log('⏳ SVG уже загружаются');
-        return;
+// Загрузка массива SVG в слой
+async function loadSvgLayer(layerId, muscles) {
+    const layer = document.getElementById(layerId);
+    if (!layer) {
+        console.warn(`⚠️ ${layerId} не найден`);
+        return 0;
     }
-    isLoadingSvg = true;
     
-    try {
-        const svgLayer = document.getElementById('bodySvgLayer');
-        if (!svgLayer) {
-            console.warn('⚠️ bodySvgLayer не найден');
-            return;
-        }
-        
-        // ⚡ Очищаем слой СРАЗУ
-        svgLayer.innerHTML = '';
-        
-        // Определяем мышцы для текущего вида
-        const musclesToLoad = view === 'front' ? SVG_MUSCLES_FRONT : SVG_MUSCLES_BACK;
-        
-        // Загружаем все SVG (с кешем)
-        const svgContents = await Promise.all(
-            musclesToLoad.map(async (name) => {
-                if (svgCache[name]) return svgCache[name];
-                try {
-                    const r = await fetch(`svg/${name}.svg`);
-                    if (!r.ok) {
-                        console.warn(`⚠️ Не найден: ${name}.svg`);
-                        return '';
-                    }
-                    const text = await r.text();
-                    svgCache[name] = text;
-                    return text;
-                } catch (e) {
-                    console.warn(`❌ Ошибка: ${name}.svg`, e);
-                    return '';
-                }
-            })
-        );
-        
-        // Вставляем только непустые SVG
-        svgLayer.innerHTML = svgContents.filter(s => s).join('');
-        
-        // Привязываем обработчики к каждой мышце
-        const svgElements = svgLayer.querySelectorAll('svg');
-        svgElements.forEach((svg, index) => {
-            // Находим соответствующее имя файла
-            let realIndex = 0;
-            for (let i = 0; i < musclesToLoad.length; i++) {
-                if (svgContents[i]) {
-                    if (realIndex === index) {
-                        const muscleFile = musclesToLoad[i];
-                        const muscleId = SVG_MUSCLE_ID_MAP[muscleFile];
-                        
-                        const path = svg.querySelector('path');
-                        if (!path || !muscleId) return;
-                        
-                        path.dataset.muscleId = muscleId;
-                        
-                        path.addEventListener('click', () => {
-                            if (typeof selectMuscle === 'function') {
-                                selectMuscle(muscleId);
-                            }
-                        });
-                        break;
-                    }
-                    realIndex++;
-                }
+    const contents = await Promise.all(
+        muscles.map(async (name) => {
+            if (svgCache[name]) return svgCache[name];
+            try {
+                const r = await fetch(`svg/${name}.svg`);
+                if (!r.ok) return '';
+                const text = await r.text();
+                svgCache[name] = text;
+                return text;
+            } catch (e) {
+                return '';
             }
-        });
+        })
+    );
+    
+    layer.innerHTML = contents.filter(s => s).join('');
+    
+    const svgs = layer.querySelectorAll('svg');
+    let realIndex = 0;
+    svgs.forEach((svg) => {
+        while (realIndex < muscles.length && !contents[realIndex]) realIndex++;
+        if (realIndex >= muscles.length) return;
         
-        const loaded = svgContents.filter(s => s).length;
-        console.log(`✅ Загружено SVG (${view}): ${loaded}/${musclesToLoad.length}`);
-        
-    } finally {
-        isLoadingSvg = false;
+        const muscleId = SVG_MUSCLE_ID_MAP[muscles[realIndex]];
+        const path = svg.querySelector('path');
+        if (path && muscleId) {
+            path.dataset.muscleId = muscleId;
+            path.addEventListener('click', () => {
+                if (typeof selectMuscle === 'function') selectMuscle(muscleId);
+            });
+        }
+        realIndex++;
+    });
+    
+    return contents.filter(s => s).length;
+}
+
+// Показ слоя с fade
+function showSvgLayer(view) {
+    const front = document.getElementById('bodySvgFront');
+    const back = document.getElementById('bodySvgBack');
+    if (!front || !back) return;
+    
+    if (view === 'front') {
+        back.classList.remove('visible');
+        setTimeout(() => front.classList.add('visible'), 150);
+    } else {
+        front.classList.remove('visible');
+        setTimeout(() => back.classList.add('visible'), 150);
     }
 }
 
-// Хук на переключение вида БЕЗ задержки
+// Инициализация
+async function initSvgLayers() {
+    console.log('⏳ Загружаю SVG-слои...');
+    const frontCount = await loadSvgLayer('bodySvgFront', SVG_MUSCLES_FRONT);
+    const backCount = await loadSvgLayer('bodySvgBack', SVG_MUSCLES_BACK);
+    console.log(`✅ SVG-слои: front ${frontCount}/${SVG_MUSCLES_FRONT.length}, back ${backCount}/${SVG_MUSCLES_BACK.length}`);
+    showSvgLayer('front');
+}
+
+// Хук на переключение вида
 function hookToggleView() {
     const origToggle = window.toggleView;
     if (!origToggle || origToggle._hooked) return;
     
     window.toggleView = function() {
         origToggle.call(this);
-        // currentView уже обновился в origToggle
-        loadAllSvgMuscles(currentView);
+        showSvgLayer(currentView);
     };
     window.toggleView._hooked = true;
 }
 
-// Запуск после загрузки
+// Запуск
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        loadAllSvgMuscles('front');
+        initSvgLayers();
         hookToggleView();
     });
 } else {
-    loadAllSvgMuscles('front');
+    initSvgLayers();
     hookToggleView();
-}
-// Обновление при переключении вида
-function reloadSvgMuscles() {
-    loadAllSvgMuscles(currentView);
-}
-
-// Запуск после загрузки
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => loadAllSvgMuscles('front'));
-} else {
-    loadAllSvgMuscles('front');
-}
-
-// Хук на переключение вида
-// Хук на переключение вида (без задержки)
-const originalToggleView = window.toggleView;
-if (originalToggleView) {
-    window.toggleView = function() {
-        originalToggleView.call(this);
-        // Загружаем SVG сразу — currentView уже обновился
-        loadAllSvgMuscles(currentView);
-    };
-}// Связь SVG-файла с ID мышцы
-function findMuscleIdBySvgFile(svgFile) {
-    const map = {
-        '1_Sternocleidomastoid_muscle': 'male_sternocleidomastoid',
-        '2_Upper_fibers_of_the_trapezius_muscle': 'male_trapezius_upper',
-        '4_Pectoralis_major_muscle': 'male_pectoralis_major',
-        '6_Serratus_anterior_muscle': 'male_serratus_anterior',
-        '7_Rectus_abdominis_muscle': 'male_rectus_abdominis',
-        '8_External_oblique_muscle_of_the_abdomen': 'male_obliquus_externus',
-        '9_Internal_oblique_muscle_of_the_abdomen': 'male_obliquus_internus',
-        '10_Transversus_abdominis_muscle': 'male_transversus_abdominis',
-        '11_Middle_fibers_of_the_trapezius_muscle': 'male_trapezius_middle',
-        '12_Latissimus_dorsi_muscle': 'male_latissimus_dorsi',
-        '13_Rhomboid_muscles': 'male_rhomboids',
-        '15_Anterior_bundle_of_the_deltoid_muscle': 'male_deltoid_anterior',
-        '16_Middle_head_of_the_deltoid_muscle': 'male_deltoid_lateral',
-        '17_Posterior_deltoid': 'male_deltoid_posterior',
-        '18_BICEPS': 'male_biceps_brachii',
-        '19_TRICEPS': 'male_triceps_brachii',
-        '20_Brachialis': 'male_brachialis',
-        '21_Wristflexors': 'male_forearm_flexors',
-        '22_Musculi_extensores_carpi': 'male_forearm_extensors',
-        '23_quadriceps': 'male_quadriceps',
-        '24_Posterior_thigh_muscle_group_(biceps_femoris)': 'male_hamstrings',
-        '25_Adductor_muscles_of_the_thigh': 'male_adductors',
-        '26_Musculus_gluteus_maximus': 'male_gluteus_maximus',
-        '27_Triceps_surae_muscle_(gastrocnemius)': 'male_calf',
-        '28_Tibialis_anterior_muscle': 'male_tibialis_anterior',
-    };
-    return map[svgFile] || null;
-}
-
-// Запуск после загрузки
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadAllSvgMuscles);
-} else {
-    loadAllSvgMuscles();
-}
-// Запускаем после загрузки страницы
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadAllSvgMuscles);
-} else {
-    loadAllSvgMuscles();
-}
-// ============================================
-// 🎯 RIPPLE-ЭФФЕКТ НА КНОПКАХ
-// ============================================
-function initRipple() {
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        
-        // Пропускаем кнопки с disabled
-        if (btn.disabled) return;
-        
-        const ripple = document.createElement('span');
-        ripple.className = 'ripple';
-        
-        const rect = btn.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = e.clientX - rect.left - size / 2;
-        const y = e.clientY - rect.top - size / 2;
-        
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        
-        // Удаляем старые ripple
-        const old = btn.querySelector('.ripple');
-        if (old) old.remove();
-        
-        btn.appendChild(ripple);
-        
-        setTimeout(() => ripple.remove(), 600);
-    });
-}
-
-// Запуск
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initRipple);
-} else {
-    initRipple();
 }

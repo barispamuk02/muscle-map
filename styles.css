@@ -4772,3 +4772,38 @@ button:active:not(:disabled),
     height: 8px;
     transition: height 0.3s ease;
 }
+/* ============================================
+   🔧 ФИКС ПРЫЖКОВ МОДАЛКИ ПРЕМИУМ
+   ============================================ */
+
+/* Отключаем все анимации внутри модалки */
+.premium-modal *,
+.premium-modal *::before,
+.premium-modal *::after {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Отключаем transform при hover */
+.premium-feature:hover,
+.premium-plan:hover,
+.premium-plan.popular:hover {
+    transform: none !important;
+}
+
+/* Убираем scale у популярного тарифа */
+.premium-plan.popular {
+    transform: none !important;
+}
+
+/* Стабилизируем скролл */
+.premium-content {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+}
+
+/* Запрещаем скролл body когда открыта модалка */
+body:has(.premium-modal.show) {
+    overflow: hidden;
+    padding-right: var(--scrollbar-width, 0);
+}

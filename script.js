@@ -5486,10 +5486,19 @@ function openPremium() {
     if (!premiumModal) return;
     renderPremium();
     premiumModal.classList.add('show');
+    
+    // 🔧 Фикс прыжков: блокируем скролл body
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = 
+        (window.innerWidth - document.documentElement.clientWidth) + 'px';
 }
 
 function closePremium() {
     if (premiumModal) premiumModal.classList.remove('show');
+    
+    // 🔧 Возвращаем скролл body
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
 }
 
 function renderPremium() {

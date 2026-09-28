@@ -3994,23 +3994,23 @@ function renderChallenges() {
     if (!challengesList) return;
     
     challengesList.innerHTML = challenges.map(ch => {
-        // ... существующий код (не менять) ...
+        const progress = Math.min(ch.getProgress(), ch.target);
+        const percent = Math.round((progress / ch.target) * 100);
+        const completed = progress >= ch.target;
+        return `
+            <div class="challenge-card ${completed ? 'completed' : ''}">
+                <div class="challenge-emoji">${ch.emoji}</div>
+                <div class="challenge-name">${ch.name}</div>
+                <div class="challenge-progress">
+                    <div class="challenge-progress-bar" style="width: ${percent}%"></div>
+                </div>
+                <div class="challenge-counter">
+                    <span>${ch.description}</span>
+                    <span class="${completed ? 'done' : ''}">${progress}/${ch.target}</span>
+                </div>
+            </div>
+        `;
     }).join('');
-    
-    // 🔧 Анимация ТОЛЬКО при первом рендере
-    if (!challengesList.dataset.animated) {
-        const cards = challengesList.querySelectorAll('.challenge-card');
-        cards.forEach((card, i) => {
-            card.classList.add('animate-in');
-            card.style.animationDelay = (i * 0.05) + 's';
-        });
-        challengesList.dataset.animated = 'true';
-        
-        // Убираем класс после анимации
-        setTimeout(() => {
-            cards.forEach(card => card.classList.remove('animate-in'));
-        }, 1000);
-    }
 }
 
 // ============================================

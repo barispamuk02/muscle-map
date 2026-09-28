@@ -4599,9 +4599,7 @@ button:active:not(:disabled),
     transform: translateY(0);
 }
 
-.challenge-card.animate-in {
-    animation: slideInUp 0.5s ease backwards;
-}
+
 
 @keyframes slideInUp {
     from {

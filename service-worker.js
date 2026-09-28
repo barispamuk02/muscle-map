@@ -83,50 +83,38 @@ self.addEventListener('fetch', (event) => {
     // Пропускаем внешние URL (Google Fonts и т.д.)
     if (!request.url.startsWith(self.location.origin)) return;
     
+    // ============================================
+    // СТРАТЕГИЯ: Network-first (свежие данные)
+    // ============================================
     event.respondWith(
-        caches.match(request)
-            .then((cachedResponse) => {
-                // Если есть в кеше — возвращаем
-                if (cachedResponse) {
-                    // Фоново обновляем кеш
-                    fetch(request)
-                        .then((response) => {
-                            if (response && response.status === 200) {
-                                caches.open(RUNTIME_CACHE).then((cache) => {
-                                    cache.put(request, response.clone());
-                                });
-                            }
-                        })
-                        .catch(() => {});
-                    
-                    return cachedResponse;
+        fetch(request)
+            .then((response) => {
+                // Кэшируем свежий ответ
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const responseToCache = response.clone();
+                    caches.open(RUNTIME_CACHE).then((cache) => {
+                        cache.put(request, responseToCache);
+                    });
                 }
                 
-                // Если нет — грузим из сети
-                return fetch(request)
-                    .then((response) => {
-                        // Кешируем ответ
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-                        
-                        const responseToCache = response.clone();
-                        caches.open(RUNTIME_CACHE).then((cache) => {
-                            cache.put(request, responseToCache);
-                        });
-                        
-                        return response;
-                    })
-                    .catch(() => {
-                        // Если сети нет — отдаём index.html для HTML-запросов
-                        if (request.destination === 'document') {
-                            return caches.match('./index.html');
-                        }
-                    });
+                return response;
+            })
+            .catch(() => {
+                // Если сеть недоступна — берём из кэша
+                return caches.match(request).then((cached) => {
+                    if (cached) return cached;
+                    
+                    // Для HTML-документов — отдаём index.html
+                    if (request.destination === 'document') {
+                        return caches.match('./index.html');
+                    }
+                    
+                    // Иначе — заглушка
+                    return new Response('Offline', { status: 503 });
+                });
             })
     );
 });
-
 // ============================================
 // СООБЩЕНИЯ ОТ КЛИЕНТА
 // ============================================

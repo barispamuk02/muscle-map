@@ -228,6 +228,14 @@ body::before {
     padding: 12px 30px;
     background: rgba(10, 10, 18, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    
+    /* 🔧 Фикс высоты */
+    height: 217px;              /* ← фиксированная */
+    min-height: 217px;
+    max-height: 217px;
+    overflow: hidden;
+    contain: layout;            /* ← изолирует layout */
+    box-sizing: border-box;     /* ← учитывает padding */
 }
 
 .challenges-header {
@@ -255,7 +263,14 @@ body::before {
     display: flex;
     gap: 10px;
     overflow-x: auto;
+    overflow-y: hidden;         /* ← запрещаем вертикальный скролл */
     padding-bottom: 6px;
+    min-height: 180px;
+    max-height: 180px;
+    height: 180px;
+    scrollbar-gutter: stable;   /* ← стабильный scrollbar */
+    align-items: stretch;       /* ← карточки одной высоты */
+    contain: layout;
 }
 
 .challenges-scroll::-webkit-scrollbar { height: 4px; }

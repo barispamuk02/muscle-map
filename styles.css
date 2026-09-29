@@ -4976,9 +4976,9 @@ body:has(.premium-modal.show) {
 .feedback-section {
     padding: 40px 30px;
     background: linear-gradient(180deg, 
-        rgba(255, 217, 61, 0.03) 0%, 
-        rgba(253, 121, 168, 0.03) 100%);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+        rgba(255, 217, 61, 0.06) 0%, 
+        rgba(253, 121, 168, 0.04) 100%);
+    border-top: 1px solid rgba(255, 217, 61, 0.15);
 }
 
 .feedback-inner {
@@ -4996,7 +4996,7 @@ body:has(.premium-modal.show) {
 .feedback-title {
     font-size: 26px;
     font-weight: 800;
-    color: #ffd93d;                          /* ← базовый цвет */
+    color: #ffd93d;                     /* ← базовый цвет */
     margin-bottom: 8px;
     text-shadow: 0 0 20px rgba(255, 217, 61, 0.4);
 }
@@ -5010,10 +5010,9 @@ body:has(.premium-modal.show) {
         text-shadow: none;
     }
 }
-
 .feedback-subtitle {
     font-size: 14px;
-    color: #b0b0c8;                         /* ← светлее */
+    color: #b0b0c8;                     /* ← светлее */
     line-height: 1.5;
 }
 
@@ -5026,7 +5025,7 @@ body:has(.premium-modal.show) {
     background: linear-gradient(135deg, 
         rgba(255, 217, 61, 0.08) 0%, 
         rgba(253, 121, 168, 0.06) 100%);
-    border: 2px solid rgba(255, 217, 61, 0.25);
+    border: 2px solid rgba(255, 217, 61, 0.3);
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 8px 32px rgba(255, 217, 61, 0.1);
@@ -5041,16 +5040,27 @@ body:has(.premium-modal.show) {
 .feedback-select,
 .feedback-input,
 .feedback-textarea {
-    background: rgba(10, 10, 22, 0.9);            /* ← плотнее (было 0.6) */
-    border: 2px solid rgba(255, 217, 61, 0.2);    /* ← золотая рамка (было 0.08 белая) */
+    background: rgba(10, 10, 22, 0.95);
+    border: 2px solid rgba(255, 217, 61, 0.4);   /* ← заметнее */
     border-radius: 10px;
-    padding: 14px 16px;                           /* ← больше отступ */
+    padding: 14px 16px;
     font-size: 14px;
     color: #ffffff;
     font-family: inherit;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     width: 100%;
     box-sizing: border-box;
+    box-shadow: 0 0 0 1px rgba(255, 217, 61, 0.1);  /* ← лёгкое свечение */
+}
+
+.feedback-select:focus,
+.feedback-input:focus,
+.feedback-textarea:focus {
+    outline: none;
+    border-color: rgba(255, 217, 61, 0.8);
+    box-shadow: 
+        0 0 0 4px rgba(255, 217, 61, 0.15),
+        0 0 20px rgba(255, 217, 61, 0.2);
 }
 
 .feedback-select {

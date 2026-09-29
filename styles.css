@@ -4987,7 +4987,7 @@ body:has(.premium-modal.show) {
     width: 100%;
     box-sizing: border-box;
 }
-}
+
 
 .feedback-inner {
     max-width: 700px;

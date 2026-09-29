@@ -4861,7 +4861,7 @@ function saveCurrentWorkout(workout) {
 function addSetToExercise(exerciseName, weight, reps) {
     const workout = getCurrentWorkout();
     const isPrem = isPremium();
-    const limit = isPrem ? Infinity : 5;   // ← 5 упражнений бесплатно
+    const limit = isPrem ? Infinity : 3;   // ← 5 упражнений бесплатно
     
     // 🔒 Проверка лимита упражнений
     if (!workout.exercises[exerciseName]) {
@@ -4869,7 +4869,7 @@ function addSetToExercise(exerciseName, weight, reps) {
         if (currentCount >= limit) {
             showPremiumLock(
                 'Дневник без ограничений',
-                `Бесплатно можно записать до 5 упражнений в день. Откройте Премиум, чтобы записывать без лимита.`
+                `Бесплатно можно записать до 3 упражнений в день. Откройте Премиум, чтобы записывать без лимита.`
             );
             return workout;
         }

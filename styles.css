@@ -4979,12 +4979,20 @@ body:has(.premium-modal.show) {
         rgba(255, 217, 61, 0.06) 0%, 
         rgba(253, 121, 168, 0.04) 100%);
     border-top: 1px solid rgba(255, 217, 61, 0.15);
+    
+    /* 🔧 Центрирование через flex */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
 }
 
 .feedback-inner {
     max-width: 700px;
-    margin: 0 auto;
-    padding: 0 20px;             /* ← отступы */
+    width: 100%;
+    padding: 0 20px;
     box-sizing: border-box;
 }
 

@@ -4854,3 +4854,295 @@ body:has(.premium-modal.show) {
         drop-shadow(0 6px 16px rgba(255, 71, 87, 0.7));
     animation: musclePulse 2s ease-in-out infinite;
 }
+/* ============================================
+   📊 СТАТИСТИКА ПРОЕКТА
+   ============================================ */
+.stats-section {
+    padding: 20px 30px;
+    background: linear-gradient(135deg, 
+        rgba(111, 179, 255, 0.04) 0%, 
+        rgba(255, 107, 107, 0.04) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stat-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 107, 107, 0.3);
+    box-shadow: 0 8px 24px rgba(255, 107, 107, 0.1);
+}
+
+.stat-box-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.stat-box-value {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffd93d, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 2px;
+}
+
+.stat-box-label {
+    font-size: 11px;
+    color: #8a8aaa;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 📱 Адаптив */
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .stats-section {
+        padding: 16px 12px;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .stat-box {
+        padding: 12px 8px;
+    }
+    .stat-box-icon {
+        font-size: 20px;
+    }
+    .stat-box-value {
+        font-size: 20px;
+    }
+    .stat-box-label {
+        font-size: 10px;
+    }
+}
+.footer-stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #8a8aaa;
+    font-size: 13px;
+    flex-wrap: wrap;
+}
+
+.footer-stats span {
+    color: #8a8aaa;
+}
+
+@media (max-width: 500px) {
+    .footer-stats {
+        font-size: 11px;
+        gap: 6px;
+        padding: 12px 8px;
+    }
+}
+/* ============================================
+   💬 ФОРМА ОБРАТНОЙ СВЯЗИ
+   ============================================ */
+.feedback-section {
+    padding: 40px 30px;
+    background: linear-gradient(180deg, 
+        rgba(255, 217, 61, 0.03) 0%, 
+        rgba(253, 121, 168, 0.03) 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.feedback-inner {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.feedback-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.feedback-title {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffd93d, #fd79a8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+}
+
+.feedback-subtitle {
+    font-size: 14px;
+    color: #8a8aaa;
+    line-height: 1.5;
+}
+
+.feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.feedback-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.feedback-select,
+.feedback-input,
+.feedback-textarea {
+    background: rgba(10, 10, 22, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #ffffff;
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.feedback-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8aaa' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.feedback-select option {
+    background: #1a1a2e;
+    color: #ffffff;
+}
+
+.feedback-textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.5;
+}
+
+.feedback-select:focus,
+.feedback-input:focus,
+.feedback-textarea:focus {
+    outline: none;
+    border-color: rgba(255, 217, 61, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 217, 61, 0.1);
+}
+
+.feedback-select::placeholder,
+.feedback-input::placeholder,
+.feedback-textarea::placeholder {
+    color: #5a5a7a;
+}
+
+.feedback-btn {
+    background: linear-gradient(135deg, #ffd93d, #fd79a8);
+    border: none;
+    color: #0a0a12;
+    padding: 12px 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 800;
+    font-family: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 16px rgba(255, 217, 61, 0.25);
+    white-space: nowrap;
+}
+
+.feedback-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 217, 61, 0.4);
+}
+
+.feedback-btn:active {
+    transform: translateY(0);
+}
+
+.feedback-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.feedback-success {
+    text-align: center;
+    padding: 32px 24px;
+    background: rgba(0, 184, 148, 0.05);
+    border: 1px solid rgba(0, 184, 148, 0.2);
+    border-radius: 16px;
+    animation: fadeInSuccess 0.5s ease;
+}
+
+.feedback-success-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.feedback-success-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #00b894;
+    margin-bottom: 6px;
+}
+
+.feedback-success-text {
+    font-size: 13px;
+    color: #8a8aaa;
+}
+
+@keyframes fadeInSuccess {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 📱 Адаптив */
+@media (max-width: 700px) {
+    .feedback-section {
+        padding: 32px 16px;
+    }
+    .feedback-form {
+        padding: 16px;
+    }
+    .feedback-row {
+        grid-template-columns: 1fr;
+    }
+    .feedback-title {
+        font-size: 20px;
+    }
+    .feedback-btn {
+        width: 100%;
+        padding: 14px;
+    }
+}

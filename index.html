@@ -55,6 +55,42 @@
         </div>
     </section>
 
+    <!-- 📊 Статистика проекта -->
+<section class="stats-section" id="statsSection">
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-box-icon">💪</div>
+            <div class="stat-box-value" data-count="30">0</div>
+            <div class="stat-box-label">мышц</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-icon">🏋️</div>
+            <div class="stat-box-value" data-count="1365">0</div>
+            <div class="stat-box-label">упражнений</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-icon">🎬</div>
+            <div class="stat-box-value" data-count="1300">0</div>
+            <div class="stat-box-label">видео</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-icon">💬</div>
+            <div class="stat-box-value" data-count="365">0</div>
+            <div class="stat-box-label">цитат</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-icon">🏋️</div>
+            <div class="stat-box-value" data-count="6">0</div>
+            <div class="stat-box-label">программ</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-icon">🩹</div>
+            <div class="stat-box-value" data-count="6">0</div>
+            <div class="stat-box-label">категорий ЛФК</div>
+        </div>
+    </div>
+</section>
+
     <section class="challenges-section" id="challengesSection">
         <div class="challenges-header">
             <span class="challenges-title">🔥 Челленджи</span>
@@ -114,8 +150,80 @@
         </div>
 
     </main>
+<!-- 💬 Предложить улучшение -->
+<section class="feedback-section" id="feedbackSection">
+    <div class="feedback-inner">
+        <div class="feedback-header">
+            <div class="feedback-title">💬 Есть идея или предложение?</div>
+            <div class="feedback-subtitle">
+                Предложи новое упражнение или улучшение сайта — мы рассмотрим!
+            </div>
+        </div>
+        
+        <form class="feedback-form" id="feedbackForm">
+            <div class="feedback-row">
+                <select class="feedback-select" id="feedbackType" required>
+                    <option value="">Что предложить?</option>
+                    <option value="exercise">🏋️ Новое упражнение</option>
+                    <option value="muscle">💪 Новая мышца</option>
+                    <option value="feature">✨ Улучшение сайта</option>
+                    <option value="bug">🐛 Нашёл ошибку</option>
+                    <option value="other">💬 Другое</option>
+                </select>
+                
+                <input 
+                    type="text" 
+                    class="feedback-input" 
+                    id="feedbackName" 
+                    placeholder="Как вас зовут? (необязательно)"
+                    maxlength="50"
+                >
+            </div>
+            
+            <textarea 
+                class="feedback-textarea" 
+                id="feedbackMessage" 
+                placeholder="Опишите предложение подробнее..."
+                required
+                rows="4"
+                maxlength="1000"
+            ></textarea>
+            
+            <div class="feedback-row">
+                <input 
+                    type="email" 
+                    class="feedback-input" 
+                    id="feedbackEmail" 
+                    placeholder="Email для ответа (необязательно)"
+                    maxlength="100"
+                >
+                
+                <button type="submit" class="feedback-btn" id="feedbackSubmit">
+                    📤 Отправить
+                </button>
+            </div>
+        </form>
+        
+        <div class="feedback-success" id="feedbackSuccess" style="display: none;">
+            <div class="feedback-success-icon">✅</div>
+            <div class="feedback-success-title">Спасибо за предложение!</div>
+            <div class="feedback-success-text">
+                Мы рассмотрим его и свяжемся, если нужно.
+            </div>
+        </div>
+    </div>
+</section>
 
     <footer class="footer">
+        <div class="footer-stats">
+    <span>💪 30 мышц</span>
+    <span>·</span>
+    <span>🏋️ 1365 упражнений</span>
+    <span>·</span>
+    <span>💬 365 цитат</span>
+    <span>·</span>
+    <span>🏋️ 6 программ</span>
+</div>
         <div class="footer-disclaimer">
             ⚠️ <strong>Muscle Map</strong> — образовательный проект. 
             Перед началом тренировок или программы восстановления 

@@ -5841,3 +5841,136 @@ if (document.readyState === 'loading') {
     initSvgLayers();
     hookToggleView();
 }
+// ============================================
+// 📊 АНИМАЦИЯ СЧЁТЧИКОВ
+// ============================================
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-box-value[data-count]');
+    
+    counters.forEach(counter => {
+        const target = parseInt(counter.dataset.count);
+        const duration = 1500;
+        const steps = 60;
+        const increment = target / steps;
+        let current = 0;
+        let step = 0;
+        
+        const updateCounter = () => {
+            step++;
+            current = Math.min(Math.round(increment * step), target);
+            counter.textContent = current.toLocaleString('ru-RU');
+            
+            if (step < steps) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target.toLocaleString('ru-RU') + (target === 1300 ? '+' : '');
+            }
+        };
+        
+        // Запуск при появлении в viewport
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !counter.dataset.animated) {
+                    counter.dataset.animated = 'true';
+                    updateCounter();
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        observer.observe(counter);
+    });
+}
+
+// Запуск после загрузки
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', animateCounters);
+} else {
+    animateCounters();
+}
+// ============================================
+// 💬 ФОРМА ОБРАТНОЙ СВЯЗИ
+// ============================================
+function initFeedbackForm() {
+    const form = document.getElementById('feedbackForm');
+    const success = document.getElementById('feedbackSuccess');
+    const submitBtn = document.getElementById('feedbackSubmit');
+    
+    if (!form) return;
+    
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const type = document.getElementById('feedbackType').value;
+        const name = document.getElementById('feedbackName').value.trim();
+        const message = document.getElementById('feedbackMessage').value.trim();
+        const email = document.getElementById('feedbackEmail').value.trim();
+        
+        // Валидация
+        if (!type) {
+            showToast('⚠️ Выберите тип предложения');
+            return;
+        }
+        if (!message || message.length < 5) {
+            showToast('⚠️ Напишите подробнее (мин. 5 символов)');
+            return;
+        }
+        
+        // Блокируем кнопку
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Отправка...';
+        
+        // Формируем заявку
+        const feedback = {
+            type,
+            name: name || 'Аноним',
+            email: email || 'не указан',
+            message,
+            date: new Date().toISOString(),
+            page: window.location.href,
+            userAgent: navigator.userAgent
+        };
+        
+        // Сохраняем в localStorage
+        const allFeedback = JSON.parse(localStorage.getItem('muscleMap_feedback') || '[]');
+        allFeedback.push(feedback);
+        localStorage.setItem('muscleMap_feedback', JSON.stringify(allFeedback));
+        
+        // Имитация отправки
+        setTimeout(() => {
+            // Скрываем форму
+            form.style.display = 'none';
+            
+            // Показываем success
+            success.style.display = 'block';
+            
+            // Логируем
+            console.log('📩 Заявка сохранена:', feedback);
+            console.log(`📊 Всего заявок: ${allFeedback.length}`);
+            
+            showToast('✅ Спасибо! Предложение отправлено');
+            
+            // Через 5 секунд — можно вернуться (для теста)
+            setTimeout(() => {
+                form.style.display = '';
+                form.reset();
+                success.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📤 Отправить';
+            }, 5000);
+        }, 800);
+    });
+}
+
+// Запуск
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFeedbackForm);
+} else {
+    initFeedbackForm();
+}
+
+// 📊 Просмотр всех заявок (для разработчика)
+window.viewFeedback = () => {
+    const all = JSON.parse(localStorage.getItem('muscleMap_feedback') || '[]');
+    console.table(all);
+    return all;
+};

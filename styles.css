@@ -5209,16 +5209,18 @@ body:has(.premium-modal.show) {
 .premium-lock {
     position: fixed;
     inset: 0;
-    z-index: 10001;
+    z-index: 10001;              /* ← ДОБАВИТЬ */
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: opacity 0.3s ease;
+    pointer-events: none;         /* ← ДОБАВИТЬ */
 }
 
 .premium-lock.show {
     opacity: 1;
+    pointer-events: auto;         /* ← ДОБАВИТЬ */
 }
 
 .premium-lock-backdrop {

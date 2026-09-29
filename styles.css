@@ -228,6 +228,9 @@ body::before {
     padding: 12px 30px;
     background: rgba(10, 10, 18, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    /* 🔧 Может быть лишний margin */
+    /* margin-top: -X; ← проверь */
+
     
     /* 🔧 Фикс высоты */
     height: 217px;              /* ← фиксированная */
@@ -4858,6 +4861,8 @@ body:has(.premium-modal.show) {
    📊 СТАТИСТИКА ПРОЕКТА
    ============================================ */
 .stats-section {
+    position: relative;      /* ← ДОБАВИТЬ */
+    z-index: 5;              /* ← ДОБАВИТЬ (ниже челленджей, но выше фона) */
     padding: 20px 30px;
     background: linear-gradient(135deg, 
         rgba(111, 179, 255, 0.04) 0%, 

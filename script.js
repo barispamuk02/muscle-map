@@ -6175,7 +6175,7 @@ function addTestPremiumButtons() {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         updatePremiumUI();
-        setTimeout(addTestPremiumButtons, 500);
+        // setTimeout(addTestPremiumButtons, 500);   ← закомментировано (перед публикацией удалить)
     });
 } else {
     updatePremiumUI();

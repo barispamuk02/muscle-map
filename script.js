@@ -5974,3 +5974,168 @@ window.viewFeedback = () => {
     console.table(all);
     return all;
 };
+// ============================================
+// 💎 СИСТЕМА ПРЕМИУМА
+// ============================================
+
+const PREMIUM_KEY = 'muscleMap_premium';
+
+// Проверка — премиум ли пользователь
+function isPremium() {
+    try {
+        const data = JSON.parse(localStorage.getItem(PREMIUM_KEY));
+        if (!data) return false;
+        
+        // Проверка срока
+        if (data.expires && new Date(data.expires) < new Date()) {
+            localStorage.removeItem(PREMIUM_KEY);
+            return false;
+        }
+        
+        return data.active === true;
+    } catch {
+        return false;
+    }
+}
+
+// Установка статуса Премиум
+function setPremium(active, days = 30) {
+    if (active) {
+        const expires = new Date();
+        expires.setDate(expires.getDate() + days);
+        
+        localStorage.setItem(PREMIUM_KEY, JSON.stringify({
+            active: true,
+            since: new Date().toISOString(),
+            expires: expires.toISOString(),
+            plan: days === 30 ? 'monthly' : 'yearly'
+        }));
+        
+        showToast('💎 Премиум активирован!');
+    } else {
+        localStorage.removeItem(PREMIUM_KEY);
+        showToast('❌ Премиум отключён');
+    }
+    
+    updatePremiumUI();
+    updatePremiumButtons();
+}
+
+// Обновление UI после смены статуса
+function updatePremiumUI() {
+    const isPrem = isPremium();
+    
+    // Индикатор в шапке
+    const premiumBtn = document.getElementById('premiumBtn');
+    if (premiumBtn) {
+        if (isPrem) {
+            premiumBtn.innerHTML = '💎 Премиум ✅';
+            premiumBtn.classList.add('premium-active');
+        } else {
+            premiumBtn.innerHTML = '💰 Премиум';
+            premiumBtn.classList.remove('premium-active');
+        }
+    }
+    
+    // Скрыть/показать премиум-элементы
+    document.querySelectorAll('[data-premium-only]').forEach(el => {
+        el.style.display = isPrem ? '' : 'none';
+    });
+}
+
+// Показать плашку «Премиум» для заблокированной функции
+function showPremiumLock(featureName, description = '') {
+    // Удалить старую плашку
+    const old = document.querySelector('.premium-lock');
+    if (old) old.remove();
+    
+    const lock = document.createElement('div');
+    lock.className = 'premium-lock';
+    lock.innerHTML = `
+        <div class="premium-lock-backdrop"></div>
+        <div class="premium-lock-content">
+            <div class="premium-lock-icon">💎</div>
+            <div class="premium-lock-title">Функция Премиум</div>
+            <div class="premium-lock-feature">${featureName}</div>
+            ${description ? `<div class="premium-lock-desc">${description}</div>` : ''}
+            <div class="premium-lock-actions">
+                <button class="premium-lock-open" onclick="document.querySelector('.premium-lock').remove(); openPremium();">
+                    💰 Открыть Премиум
+                </button>
+                <button class="premium-lock-close" onclick="document.querySelector('.premium-lock').remove();">
+                    Позже
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(lock);
+    
+    requestAnimationFrame(() => lock.classList.add('show'));
+}
+
+// Обновление кнопок Премиума
+function updatePremiumButtons() {
+    const isPrem = isPremium();
+    
+    // Кнопки активации/деактивации
+    const activateBtn = document.getElementById('testActivatePremium');
+    const deactivateBtn = document.getElementById('testDeactivatePremium');
+    
+    if (activateBtn) activateBtn.style.display = isPrem ? 'none' : '';
+    if (deactivateBtn) deactivateBtn.style.display = isPrem ? '' : 'none';
+}
+
+// Тестовая кнопка (временно)
+function addTestPremiumButtons() {
+    // Куда добавить? В модалку Премиума
+    const premiumModal = document.querySelector('.premium-cta');
+    if (!premiumModal) return;
+    
+    // Не добавлять дважды
+    if (document.getElementById('testPremiumBlock')) return;
+    
+    const testBlock = document.createElement('div');
+    testBlock.id = 'testPremiumBlock';
+    testBlock.style.cssText = `
+        margin-top: 20px;
+        padding: 12px;
+        border: 1px dashed rgba(255, 217, 61, 0.4);
+        border-radius: 8px;
+        text-align: center;
+        font-size: 12px;
+        color: #8a8aaa;
+    `;
+    testBlock.innerHTML = `
+        <div style="margin-bottom: 8px;">🧪 ТЕСТ (удалить потом)</div>
+        <button id="testActivatePremium" style="background: #00b894; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-right: 8px;">
+            Активировать Премиум
+        </button>
+        <button id="testDeactivatePremium" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: none;">
+            Деактивировать
+        </button>
+    `;
+    
+    premiumModal.appendChild(testBlock);
+    
+    // Привязки
+    document.getElementById('testActivatePremium').addEventListener('click', () => setPremium(true, 30));
+    document.getElementById('testDeactivatePremium').addEventListener('click', () => setPremium(false));
+    
+    updatePremiumButtons();
+}
+
+// Запуск
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        updatePremiumUI();
+        setTimeout(addTestPremiumButtons, 500);
+    });
+} else {
+    updatePremiumUI();
+    setTimeout(addTestPremiumButtons, 500);
+}
+
+// Экспорт в глобальную область (для теста через консоль)
+window.isPremium = isPremium;
+window.setPremium = setPremium;
+window.showPremiumLock = showPremiumLock;

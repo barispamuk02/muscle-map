@@ -263,17 +263,21 @@ body::before {
 }
 
 .challenges-scroll {
-    display: flex;
+   display: flex;
     gap: 10px;
     overflow-x: auto;
-    overflow-y: hidden;         /* ← запрещаем вертикальный скролл */
+    overflow-y: hidden;
     padding-bottom: 6px;
-    min-height: 180px;
-    max-height: 180px;
-    height: 180px;
-    scrollbar-gutter: stable;   /* ← стабильный scrollbar */
-    align-items: stretch;       /* ← карточки одной высоты */
-    contain: layout;
+    height: 100%;
+    align-items: center;
+    justify-content: center;      /* ← центрируем */
+    
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    /* 🔧 Защита от обрезки при скролле */
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .challenges-scroll::-webkit-scrollbar { height: 4px; }

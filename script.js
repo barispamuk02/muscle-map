@@ -6187,7 +6187,7 @@ window.isPremium = isPremium;
 window.setPremium = setPremium;
 window.showPremiumLock = showPremiumLock;
 
-/
+
 // ============================================
 // 🔧 АВТОЗАПУСК WORKOUT TRACKER (обход багов)
 // ============================================

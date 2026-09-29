@@ -4860,6 +4860,21 @@ function saveCurrentWorkout(workout) {
 
 function addSetToExercise(exerciseName, weight, reps) {
     const workout = getCurrentWorkout();
+    const isPrem = isPremium();
+    const limit = isPrem ? Infinity : 5;   // ← 5 упражнений бесплатно
+    
+    // 🔒 Проверка лимита упражнений
+    if (!workout.exercises[exerciseName]) {
+        const currentCount = Object.keys(workout.exercises).length;
+        if (currentCount >= limit) {
+            showPremiumLock(
+                'Дневник без ограничений',
+                `Бесплатно можно записать до 5 упражнений в день. Откройте Премиум, чтобы записывать без лимита.`
+            );
+            return workout;
+        }
+    }
+    
     if (!workout.exercises[exerciseName]) workout.exercises[exerciseName] = [];
     workout.exercises[exerciseName].push({
         weight: parseFloat(weight) || 0,
@@ -5077,7 +5092,12 @@ function renderWorkoutLog() {
     const container = document.getElementById('workoutLog');
     if (!container) return;
     const log = getWorkoutLog();
-    const dates = Object.keys(log).sort((a, b) => b.localeCompare(a)).slice(0, 10);
+    // 🔒 Бесплатно — 3 последних дня, Премиум — все
+const isPrem = isPremium();
+const daysLimit = isPrem ? Infinity : 3;   // ← 3 дня бесплатно
+const allDates = Object.keys(log).sort((a, b) => b.localeCompare(a));
+const dates = allDates.slice(0, daysLimit === Infinity ? allDates.length : daysLimit);
+const hiddenDays = allDates.length - dates.length;
     
     if (dates.length === 0) {
         container.innerHTML = `<div class="log-title">📓 Дневник тренировок</div><div class="log-empty">Пока нет сохранённых тренировок</div>`;
@@ -5111,9 +5131,20 @@ function renderWorkoutLog() {
     const exerciseList = Array.from(allExercises).sort();
     
     container.innerHTML = `
-        <div class="log-title">📓 Дневник тренировок <span class="log-count">${dates.length} дней</span></div>
-        
-        <div class="progress-chart-block">
+    <div class="log-title">📓 Дневник тренировок <span class="log-count">${dates.length} ${dates.length === 1 ? 'день' : dates.length < 5 ? 'дня' : 'дней'}${hiddenDays > 0 ? ` из ${allDates.length}` : ''}</span></div>
+    
+    ${hiddenDays > 0 ? `
+        <div class="log-premium-hint">
+            <div class="log-premium-hint-text">
+                💎 Ещё ${hiddenDays} ${hiddenDays === 1 ? 'день' : hiddenDays < 5 ? 'дня' : 'дней'} истории доступно в Премиуме
+            </div>
+            <button class="log-premium-hint-btn" onclick="openPremium()">
+                Открыть Премиум
+            </button>
+        </div>
+    ` : ''}
+    
+    <div class="progress-chart-block">
             <div class="progress-chart-header">
                 <div class="progress-chart-title">📈 Прогресс по упражнению</div>
                 ${renderChartSelect(exerciseList)}

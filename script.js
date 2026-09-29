@@ -5048,6 +5048,30 @@ function bindTrackerEvents() {
         if (el) el.addEventListener('keypress', (e) => { if (e.key === 'Enter') addBtn?.click(); });
     });
 }
+// ============================================
+// 📈 СЕЛЕКТОР ГРАФИКА (с ограничением Премиума)
+// ============================================
+function renderChartSelect(exerciseList) {
+    const isPrem = isPremium();
+    const limit = isPrem ? exerciseList.length : 3;
+    
+    let html = '<select class="progress-chart-select" id="progressChartSelect">';
+    
+    // Доступные упражнения
+    exerciseList.slice(0, limit).forEach((ex) => {
+        html += `<option value="${ex}">${ex}</option>`;
+    });
+    
+    // Заблокированные (только для бесплатных)
+    if (!isPrem && exerciseList.length > 3) {
+        exerciseList.slice(3).forEach(ex => {
+            html += `<option value="${ex}" disabled>💎 ${ex}</option>`;
+        });
+    }
+    
+    html += '</select>';
+    return html;
+}
 
 function renderWorkoutLog() {
     const container = document.getElementById('workoutLog');
@@ -5092,11 +5116,19 @@ function renderWorkoutLog() {
         <div class="progress-chart-block">
             <div class="progress-chart-header">
                 <div class="progress-chart-title">📈 Прогресс по упражнению</div>
-                <select class="progress-chart-select" id="progressChartSelect">
-                    ${exerciseList.map(ex => `<option value="${ex}">${ex}</option>`).join('')}
-                </select>
+                ${renderChartSelect(exerciseList)}
             </div>
             <div class="progress-chart-container" id="progressChart"></div>
+            ${!isPremium() && exerciseList.length > 3 ? `
+                <div class="chart-premium-hint">
+                    <div class="chart-premium-hint-text">
+                        💎 Ещё ${exerciseList.length - 3} ${exerciseList.length - 3 === 1 ? 'упражнение' : 'упражнений'} доступно в Премиуме
+                    </div>
+                    <button class="chart-premium-hint-btn" onclick="openPremium()">
+                        Открыть Премиум
+                    </button>
+                </div>
+            ` : ''}
         </div>
         
         <div class="log-entries">${entriesHtml}</div>
@@ -5116,8 +5148,23 @@ function renderWorkoutLog() {
     const select = document.getElementById('progressChartSelect');
     if (select && exerciseList.length > 0) {
         renderProgressChart(exerciseList[0]);
+        
         select.addEventListener('change', (e) => {
-            renderProgressChart(e.target.value);
+            const selected = e.target.value;
+            const selectedIndex = exerciseList.indexOf(selected);
+            const isPrem = isPremium();
+            
+            // Проверка Премиума
+            if (!isPrem && selectedIndex >= 3) {
+                e.target.value = exerciseList[0];
+                showPremiumLock(
+                    'Расширенный график прогресса',
+                    `Бесплатно доступно 3 упражнения. У вас их ${exerciseList.length}. Откройте Премиум, чтобы видеть все.`
+                );
+                return;
+            }
+            
+            renderProgressChart(selected);
         });
     }
 }

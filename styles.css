@@ -4984,6 +4984,8 @@ body:has(.premium-modal.show) {
 .feedback-inner {
     max-width: 700px;
     margin: 0 auto;
+    padding: 0 20px;             /* ← отступы */
+    box-sizing: border-box;
 }
 
 .feedback-header {
@@ -4992,18 +4994,26 @@ body:has(.premium-modal.show) {
 }
 
 .feedback-title {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 800;
-    background: linear-gradient(135deg, #ffd93d, #fd79a8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffd93d;                          /* ← базовый цвет */
     margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(255, 217, 61, 0.4);
+}
+
+@supports (-webkit-background-clip: text) {
+    .feedback-title {
+        background: linear-gradient(135deg, #ffd93d, #fd79a8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: none;
+    }
 }
 
 .feedback-subtitle {
     font-size: 14px;
-    color: #8a8aaa;
+    color: #b0b0c8;                         /* ← светлее */
     line-height: 1.5;
 }
 
@@ -5011,10 +5021,15 @@ body:has(.premium-modal.show) {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    
+    /* 🔧 Заметный фон */
+    background: linear-gradient(135deg, 
+        rgba(255, 217, 61, 0.08) 0%, 
+        rgba(253, 121, 168, 0.06) 100%);
+    border: 2px solid rgba(255, 217, 61, 0.25);
     border-radius: 16px;
     padding: 24px;
+    box-shadow: 0 8px 32px rgba(255, 217, 61, 0.1);
 }
 
 .feedback-row {
@@ -5026,10 +5041,10 @@ body:has(.premium-modal.show) {
 .feedback-select,
 .feedback-input,
 .feedback-textarea {
-    background: rgba(10, 10, 22, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(10, 10, 22, 0.9);            /* ← плотнее (было 0.6) */
+    border: 2px solid rgba(255, 217, 61, 0.2);    /* ← золотая рамка (было 0.08 белая) */
     border-radius: 10px;
-    padding: 12px 14px;
+    padding: 14px 16px;                           /* ← больше отступ */
     font-size: 14px;
     color: #ffffff;
     font-family: inherit;

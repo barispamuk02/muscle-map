@@ -4819,3 +4819,38 @@ body:has(.premium-modal.show) {
     overflow: hidden;
     padding-right: var(--scrollbar-width, 0);
 }
+/* ============================================
+   🔧 ГЛУБОКИЕ МЫШЦЫ — почти невидимы
+   ============================================ */
+
+/* Поперечная мышца живота */
+.body-svg-layer svg path[data-muscle-id="male_transversus_abdominis"],
+/* Внутренняя косая мышца живота */
+.body-svg-layer svg path[data-muscle-id="male_obliquus_internus"] {
+    opacity: 0.05;   /* ← почти невидимы */
+}
+
+/* 🔥 При наведении — проявляются */
+.body-svg-layer svg path[data-muscle-id="male_transversus_abdominis"]:hover,
+.body-svg-layer svg path[data-muscle-id="male_obliquus_internus"]:hover {
+    opacity: 1;
+    animation: none;
+    transform: scale(1.02);
+    filter: 
+        brightness(1.08)
+        saturate(1.1)
+        drop-shadow(0 3px 8px rgba(255, 71, 87, 0.4))
+        drop-shadow(0 0 10px rgba(255, 71, 87, 0.25));
+}
+
+/* 🔥 Активная мышца (клик в списке) — ярко видна */
+.body-svg-layer svg path[data-muscle-id="male_transversus_abdominis"].active,
+.body-svg-layer svg path[data-muscle-id="male_obliquus_internus"].active {
+    opacity: 1;
+    transform: scale(1.01);
+    filter: 
+        brightness(1.5)
+        saturate(1.4)
+        drop-shadow(0 6px 16px rgba(255, 71, 87, 0.7));
+    animation: musclePulse 2s ease-in-out infinite;
+}

@@ -5649,14 +5649,17 @@ console.log('✅ PWA-блок загружен');
 
 // Вид спереди (19 мышц)
 const SVG_MUSCLES_FRONT = [
+    // 🔧 СЛОЙ 1: Глубокие мышцы (нижний слой)
+    '10_Transversus_abdominis_muscle',
+    '9_Internal_oblique_muscle_of_the_abdomen',
+    
+    // 🔧 СЛОЙ 2: Поверхностные мышцы (перекрывают глубокие)
+    '7_Rectus_abdominis_muscle',
+    '8_External_oblique_muscle_of_the_abdomen',
     '1_Sternocleidomastoid_muscle',
     '2_Upper_fibers_of_the_trapezius_muscle',
     '4_Pectoralis_major_muscle',
     '6_Serratus_anterior_muscle',
-    '7_Rectus_abdominis_muscle',
-    '8_External_oblique_muscle_of_the_abdomen',
-    '9_Internal_oblique_muscle_of_the_abdomen',
-    '10_Transversus_abdominis_muscle',
     '15_Anterior_bundle_of_the_deltoid_muscle',
     '16_Middle_head_of_the_deltoid_muscle',
     '18_BICEPS',

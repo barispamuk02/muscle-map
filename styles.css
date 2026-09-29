@@ -4896,13 +4896,10 @@ body:has(.premium-modal.show) {
 .stat-box-value {
     font-size: 24px;
     font-weight: 800;
-    color: #ffd93d;                     /* ← запасной цвет (если градиент не сработает) */
+    color: #ffd93d;                     /* ← сплошной золотой */
     line-height: 1.1;
     margin-bottom: 2px;
-    background: linear-gradient(135deg, #ffd93d, #ff6b6b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    text-shadow: 0 0 20px rgba(255, 217, 61, 0.5);  /* ← свечение */
 }
 
 .stat-box-label {

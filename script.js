@@ -6186,3 +6186,29 @@ if (document.readyState === 'loading') {
 window.isPremium = isPremium;
 window.setPremium = setPremium;
 window.showPremiumLock = showPremiumLock;
+
+/
+// ============================================
+// 🔧 АВТОЗАПУСК WORKOUT TRACKER (обход багов)
+// ============================================
+// Следим за #programsContainer — когда заполнится, создаём #workoutTracker
+const programsObserver = new MutationObserver(() => {
+    const container = document.getElementById('programsContainer');
+    if (!container || document.getElementById('workoutTracker')) return;
+    
+    // Контейнер заполнен (не пустой) — создаём трекер
+    if (container.innerHTML.length > 100) {
+        const trackerEl = document.createElement('div');
+        trackerEl.id = 'workoutTracker';
+        container.appendChild(trackerEl);
+        renderWorkoutTracker();
+        console.log('✅ workoutTracker создан (авто)');
+    }
+});
+
+// Наблюдаем за viewPrograms
+const programsViewEl = document.getElementById('viewPrograms');
+if (programsViewEl) {
+    programsObserver.observe(programsViewEl, { childList: true, subtree: true });
+    console.log('👀 Наблюдение за программами запущено');
+}

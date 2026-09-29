@@ -406,6 +406,8 @@ body::before {
 
 /* --- ОСНОВНОЙ КОНТЕНТ --- */
 .main-content {
+    /* position: relative — оставить если нужна для внутренних absolute */
+    /* z-index: 10 — УБРАТЬ (не нужен) */
     position: relative;
     z-index: 10;
     flex: 1;
@@ -4974,13 +4976,13 @@ body:has(.premium-modal.show) {
    💬 ФОРМА ОБРАТНОЙ СВЯЗИ
    ============================================ */
 .feedback-section {
+    position: relative;              /* ← добавь */
+    z-index: 50;                     /* ← добавь (выше mainContent z=10) */
     padding: 40px 30px;
     background: linear-gradient(180deg, 
         rgba(255, 217, 61, 0.06) 0%, 
         rgba(253, 121, 168, 0.04) 100%);
     border-top: 1px solid rgba(255, 217, 61, 0.15);
-    
-    /* 🔧 Центрирование через flex */
     display: flex;
     justify-content: center;
     align-items: center;

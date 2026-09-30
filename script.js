@@ -6382,7 +6382,8 @@ doc.setFont(fontName, 'normal');
         // Лейбл
         doc.setTextColor(138, 138, 170);
         doc.setFontSize(8);
-        doc.doc.setFont(fontName, 'normal');, 'normal');
+        doc.setFont(fontName, 'normal');
+
         doc.text(stat.label, x + 5, cy + 17);
     });
     
@@ -6416,7 +6417,8 @@ doc.setFont(fontName, 'normal');
             // Объём
             doc.setTextColor(138, 138, 170);
             doc.setFontSize(9);
-            doc.doc.setFont(fontName, 'normal');, 'normal');
+            doc.setFont(fontName, 'normal');
+
             doc.text(
                 `${totalSets} подх. · ${totalVolume} кг`,
                 pageW - margin, y,
@@ -6479,7 +6481,8 @@ doc.setFont(fontName, 'normal');
             // Текст
             doc.setTextColor(255, 217, 61);
             doc.setFontSize(9);
-            doc.doc.setFont(fontName, 'normal');, 'normal');
+            doc.setFont(fontName, 'normal');
+
             doc.text(`${ach.icon} ${ach.text}`, x + 3, cy);
         });
         

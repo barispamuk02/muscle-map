@@ -6315,7 +6315,7 @@ doc.setFont(fontName, 'normal');
     
     doc.setTextColor(138, 138, 170);
     doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
+    doc.doc.setFont(fontName, 'normal');, 'normal');
     doc.text('Отчёт о прогрессе', margin, 26);
     
     // Дата
@@ -6382,7 +6382,7 @@ doc.setFont(fontName, 'normal');
         // Лейбл
         doc.setTextColor(138, 138, 170);
         doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
+        doc.doc.setFont(fontName, 'normal');, 'normal');
         doc.text(stat.label, x + 5, cy + 17);
     });
     
@@ -6416,7 +6416,7 @@ doc.setFont(fontName, 'normal');
             // Объём
             doc.setTextColor(138, 138, 170);
             doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
+            doc.doc.setFont(fontName, 'normal');, 'normal');
             doc.text(
                 `${totalSets} подх. · ${totalVolume} кг`,
                 pageW - margin, y,
@@ -6437,7 +6437,7 @@ doc.setFont(fontName, 'normal');
             if (exercises.length > 3) {
                 doc.setTextColor(138, 138, 170);
                 doc.setFontSize(8);
-                doc.setFont('helvetica', 'italic');
+                doc.doc.setFont(fontName, 'normal');, 'italic');
                 doc.text(`...и ещё ${exercises.length - 3} упражнений`, margin + 3, y);
                 y += 4;
             }
@@ -6479,7 +6479,7 @@ doc.setFont(fontName, 'normal');
             // Текст
             doc.setTextColor(255, 217, 61);
             doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
+            doc.doc.setFont(fontName, 'normal');, 'normal');
             doc.text(`${ach.icon} ${ach.text}`, x + 3, cy);
         });
         
@@ -6494,7 +6494,7 @@ doc.setFont(fontName, 'normal');
     
     doc.setTextColor(138, 138, 170);
     doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
+    doc.doc.setFont(fontName, 'normal');, 'italic');
     doc.text(
         'Muscle Map © 2026 — сделано с любовью к фитнесу',
         pageW / 2, pageH - 10,

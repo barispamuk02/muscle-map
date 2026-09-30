@@ -254,6 +254,17 @@
             <div class="dashboard-section">
                 <h3 class="dashboard-section-title">💾 Данные</h3>
                 <div class="data-actions">
+                    <div class="dashboard-section">
+    <h3 class="dashboard-section-title">💾 Данные</h3>
+    <div class="data-actions">
+        <button class="btn-data btn-export" id="exportBtn">📤 Скачать прогресс</button>
+        <label class="btn-data btn-import">
+            📥 Загрузить прогресс
+            <input type="file" id="importFile" accept=".json" style="display:none;">
+        </label>
+        <button class="btn-data btn-export-pdf" id="exportPdfBtn">📄 Скачать PDF 💎</button>
+    </div>
+</div>
                     <button class="btn-data btn-export" id="exportBtn">📤 Скачать прогресс</button>
                     <label class="btn-data btn-import">
                         📥 Загрузить прогресс
@@ -316,6 +327,8 @@
     <script src="programs-data.js"></script>
     <script src="custom-exercises.js"></script>
     <script src="premium-data.js"></script>
+    <!-- 📄 jsPDF для экспорта -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
 
 </body>

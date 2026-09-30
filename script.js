@@ -4467,8 +4467,23 @@ function importProgress(event) {
 setTimeout(() => {
     const exportBtn = document.getElementById('exportBtn');
     const importFile = document.getElementById('importFile');
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    
     if (exportBtn) exportBtn.addEventListener('click', exportProgress);
     if (importFile) importFile.addEventListener('change', importProgress);
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', () => {
+            // Проверка Премиума
+            if (!isPremium()) {
+                showPremiumLock(
+                    'Экспорт в PDF',
+                    'Скачивай красивые отчёты о прогрессе: статистика, график, тренировки, достижения. Доступно только в Премиуме.'
+                );
+                return;
+            }
+            exportToPDF();
+        });
+    }
 }, 500);
 
 const _origOpenDashboard = openDashboard;
@@ -6243,3 +6258,239 @@ if (programsViewEl) {
     programsObserver.observe(programsViewEl, { childList: true, subtree: true });
     console.log('👀 Наблюдение за программами запущено');
 }
+
+// ============================================
+// 📄 ЭКСПОРТ В PDF (Премиум)
+// ============================================
+function exportToPDF() {
+    // 🔒 Проверка Премиума
+    if (!isPremium()) {
+        showPremiumLock(
+            'Экспорт в PDF',
+            'Скачивай красивые отчёты о прогрессе: статистика, график, тренировки, достижения. Доступно только в Премиуме.'
+        );
+        return;
+    }
+    
+    // Проверка библиотеки
+    if (typeof window.jspdf === 'undefined') {
+        showToast('⚠️ Библиотека PDF не загружена');
+        return;
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    const pageW = 210;
+    const pageH = 297;
+    const margin = 15;
+    let y = margin;
+    
+    // ========== ЗАГОЛОВОК ==========
+    // Фон шапки
+    doc.setFillColor(10, 10, 18);
+    doc.rect(0, 0, pageW, 40, 'F');
+    
+    // Логотип
+    doc.setTextColor(255, 217, 61);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('💪 Muscle Map', margin, 18);
+    
+    doc.setTextColor(138, 138, 170);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Отчёт о прогрессе', margin, 26);
+    
+    // Дата
+    const now = new Date();
+    doc.setTextColor(138, 138, 170);
+    doc.setFontSize(10);
+    doc.text(
+        `Дата: ${now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+        pageW - margin, 26,
+        { align: 'right' }
+    );
+    
+    y = 55;
+    
+    // ========== СТАТИСТИКА ==========
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('📊 Статистика', margin, y);
+    y += 10;
+    
+    // Соберём данные
+    const viewedMuscles = getViewedMusclesCount();
+    const totalMuscles = Object.keys(muscleDatabase).length;
+    const completedExercises = Object.keys(getCompleted()).length;
+    const streak = getStreakData().days;
+    const favorites = getFavorites().length;
+    const workoutLog = getWorkoutLog();
+    const totalWorkouts = Object.keys(workoutLog).length;
+    
+    // Карточки статистики
+    const stats = [
+        { label: 'Мышц изучено', value: `${viewedMuscles}/${totalMuscles}`, color: [111, 179, 255] },
+        { label: 'Упражнений', value: completedExercises, color: [255, 107, 107] },
+        { label: 'Дней подряд', value: streak, color: [0, 184, 148] },
+        { label: 'Тренировок', value: totalWorkouts, color: [255, 217, 61] },
+        { label: 'В избранном', value: favorites, color: [253, 121, 168] },
+        { label: 'Всего упражнений', value: '1365', color: [162, 155, 254] }
+    ];
+    
+    const cardW = (pageW - margin * 2 - 10) / 3;
+    const cardH = 22;
+    
+    stats.forEach((stat, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = margin + col * (cardW + 5);
+        const cy = y + row * (cardH + 5);
+        
+        // Фон
+        doc.setFillColor(20, 20, 40);
+        doc.roundedRect(x, cy, cardW, cardH, 3, 3, 'F');
+        
+        // Цветная полоска
+        doc.setFillColor(...stat.color);
+        doc.rect(x, cy, 2, cardH, 'F');
+        
+        // Значение
+        doc.setTextColor(...stat.color);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(String(stat.value), x + 5, cy + 10);
+        
+        // Лейбл
+        doc.setTextColor(138, 138, 170);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text(stat.label, x + 5, cy + 17);
+    });
+    
+    y += cardH * 2 + 15;
+    
+    // ========== ПОСЛЕДНИЕ ТРЕНИРОВКИ ==========
+    const dates = Object.keys(workoutLog).sort((a, b) => b.localeCompare(a)).slice(0, 5);
+    
+    if (dates.length > 0) {
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('🏋️ Последние тренировки', margin, y);
+        y += 10;
+        
+        dates.forEach(date => {
+            const dayData = workoutLog[date];
+            const exercises = Object.entries(dayData);
+            const totalVolume = getWorkoutVolume(dayData);
+            const totalSets = exercises.reduce((sum, [, sets]) => sum + sets.length, 0);
+            
+            // Дата
+            doc.setTextColor(111, 179, 255);
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text(
+                `📅 ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`,
+                margin, y
+            );
+            
+            // Объём
+            doc.setTextColor(138, 138, 170);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text(
+                `${totalSets} подх. · ${totalVolume} кг`,
+                pageW - margin, y,
+                { align: 'right' }
+            );
+            y += 5;
+            
+            // Упражнения (макс 3)
+            exercises.slice(0, 3).forEach(([name, sets]) => {
+                const maxW = Math.max(...sets.map(s => s.weight || 0));
+                doc.setTextColor(180, 180, 200);
+                doc.setFontSize(9);
+                doc.text(`• ${name}`, margin + 3, y);
+                doc.text(`${sets.length} подх. · макс ${maxW} кг`, pageW - margin, y, { align: 'right' });
+                y += 4;
+            });
+            
+            if (exercises.length > 3) {
+                doc.setTextColor(138, 138, 170);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'italic');
+                doc.text(`...и ещё ${exercises.length - 3} упражнений`, margin + 3, y);
+                y += 4;
+            }
+            
+            y += 3;
+        });
+        
+        y += 5;
+    }
+    
+    // ========== ДОСТИЖЕНИЯ ==========
+    const achievements = achievementsDefinitions.filter(a => a.check());
+    
+    if (achievements.length > 0) {
+        // Новая страница, если мало места
+        if (y > pageH - 60) {
+            doc.addPage();
+            y = margin;
+        }
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('🏆 Достижения', margin, y);
+        y += 10;
+        
+        achievements.forEach((ach, i) => {
+            const col = i % 2;
+            const row = Math.floor(i / 2);
+            const w = (pageW - margin * 2 - 5) / 2;
+            const x = margin + col * (w + 5);
+            const cy = y + row * 10;
+            
+            // Фон
+            doc.setFillColor(255, 217, 61, 0.1);
+            doc.setFillColor(30, 25, 15);
+            doc.roundedRect(x, cy - 5, w, 8, 2, 2, 'F');
+            
+            // Текст
+            doc.setTextColor(255, 217, 61);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`${ach.icon} ${ach.text}`, x + 3, cy);
+        });
+        
+        const achRows = Math.ceil(achievements.length / 2);
+        y += achRows * 10 + 10;
+    }
+    
+    // ========== ФУТЕР ==========
+    // Фон футера
+    doc.setFillColor(10, 10, 18);
+    doc.rect(0, pageH - 20, pageW, 20, 'F');
+    
+    doc.setTextColor(138, 138, 170);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.text(
+        'Muscle Map © 2026 — сделано с любовью к фитнесу',
+        pageW / 2, pageH - 10,
+        { align: 'center' }
+    );
+    
+    // ========== СОХРАНЕНИЕ ==========
+    const dateStr = now.toISOString().split('T')[0];
+    doc.save(`muscle-map-progress-${dateStr}.pdf`);
+    
+    showToast('📄 PDF скачан!');
+}
+
+// Экспорт в глобальную область
+window.exportToPDF = exportToPDF;

@@ -6315,7 +6315,7 @@ doc.setFont(fontName, 'normal');
     
     doc.setTextColor(138, 138, 170);
     doc.setFontSize(11);
-    doc.doc.setFont(fontName, 'normal');, 'normal');
+    doc.setFont(fontName, 'normal');
     doc.text('Отчёт о прогрессе', margin, 26);
     
     // Дата

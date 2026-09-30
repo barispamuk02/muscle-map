@@ -1,7 +1,8 @@
 // Автоматически сгенерированный файл
-// Всего переводов: 1283
+// Всего переводов: 1285
 
 const exerciseNameRU = {
+    "3/4 sit-up": "3/4 подъёма корпуса",
     "45° side bend": "Боковые наклоны 45°",
     "air bike": "Велосипед",
     "all fours squad stretch": "Растяжка приседания на четвереньках",
@@ -1284,5 +1285,6 @@ const exerciseNameRU = {
     "straddle maltese": "крест в широкой стойке на руках",
     "straddle planche": "планш в широкой стойке",
     "straight leg outer hip abductor": "отведение прямой ноги для наружной поверхности бедра",
-    "superman push-up": "отжимания «супермен»"
+    "superman push-up": "отжимания «супермен»",
+    "suspended abdominal fallout": "разгибание корпуса с опорой на подвесных ремнях"
 };

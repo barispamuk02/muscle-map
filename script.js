@@ -6439,7 +6439,7 @@ doc.setFont(fontName, 'normal');
             if (exercises.length > 3) {
                 doc.setTextColor(138, 138, 170);
                 doc.setFontSize(8);
-                doc.doc.setFont(fontName, 'normal');, 'italic');
+                doc.doc.setFont(fontName, 'normal');
                 doc.text(`...и ещё ${exercises.length - 3} упражнений`, margin + 3, y);
                 y += 4;
             }
@@ -6497,7 +6497,7 @@ doc.setFont(fontName, 'normal');
     
     doc.setTextColor(138, 138, 170);
     doc.setFontSize(8);
-    doc.doc.setFont(fontName, 'normal');, 'italic');
+    doc.doc.setFont(fontName, 'normal');
     doc.text(
         'Muscle Map © 2026 — сделано с любовью к фитнесу',
         pageW / 2, pageH - 10,

@@ -3675,63 +3675,16 @@ exerciseNameDict.sort((a, b) => b[0].length - a[0].length);
 // 🌐 ПЕРЕВОД НАЗВАНИЙ УПРАЖНЕНИЙ
 // ============================================
 function translateExerciseName(ex) {
-    let en = (ex.name_en || '').toLowerCase().trim();
-    if (!en) return ex.name || '';
-    
-    // 1) Убираем модификаторы в скобках ПЕРЕД переводом
-    en = en.replace(/\s*\(male\)/gi, '');
-    en = en.replace(/\s*\(female\)/gi, '');
-    en = en.replace(/\s*\(kneeling\)/gi, '');
-    en = en.replace(/\s*\(with towel\)/gi, '');
-    en = en.replace(/\s*\(with arm blaster\)/gi, '');
-    en = en.replace(/\s*\(with rope\)/gi, '');
-    en = en.replace(/\s*\(with support\)/gi, '');
-    en = en.replace(/\s*\(stirrups\)/gi, '');
-    en = en.replace(/\s*\(sz-bar\)/gi, '');
-    en = en.replace(/\s*\(v-bar\)/gi, '');
-    en = en.replace(/\s*\(pro lat bar\)/gi, '');
-    en = en.replace(/\s*\(on knee\)/gi, '');
-    en = en.replace(/\s*\(support head\)/gi, '');
-    en = en.replace(/\s*\(squat style\)/gi, '');
-    en = en.replace(/\s*\(back pov\)/gi, '');
-    en = en.replace(/\s*\(side pov\)/gi, '');
-    en = en.replace(/\s*v\.\s*\d+/gi, '');
-    en = en.replace(/\s*_shoulder/gi, '');
-    en = en.trim();
-    
-    // 2) Точное совпадение с фразой
-    if (exerciseWordDict[en]) {
-        return capitalize(exerciseWordDict[en]);
+    // 1. Ручной перевод из JSON (приоритет)
+    if (typeof exerciseNameRU !== 'undefined') {
+        const key = (ex.name_en || '').toLowerCase().trim();
+        if (key && exerciseNameRU[key]) {
+            return exerciseNameRU[key];
+        }
     }
     
-    // 3) Замена фраз (длинные первыми)
-    let result = ' ' + en + ' ';
-    const sortedKeys = Object.keys(exerciseWordDict).sort((a, b) => b.length - a.length);
-    sortedKeys.forEach(key => {
-        if (key.includes(' ') || key.includes('-')) {
-            const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`\\b${escaped}\\b`, 'gi');
-            result = result.replace(regex, ` ${exerciseWordDict[key]} `);
-        }
-    });
-    
-    // 4. Разбиваем на слова
-    const words = result.split(/\s+/);
-    const translated = words.map(w => {
-        const clean = w.toLowerCase().replace(/[()]/g, '').replace(/[,.]/g, '');
-        if (exerciseWordDict[clean]) return exerciseWordDict[clean];
-        if (clean.includes('-')) {
-            const parts = clean.split('-');
-            const translatedParts = parts.map(p => exerciseWordDict[p] || p);
-            return translatedParts.join('-');
-        }
-        return w;
-    });
-    
-    result = translated.join(' ');
-    result = result.replace(/\s+/g, ' ').trim();
-    
-    return capitalize(result);
+    // 2. Fallback — name (уже русский)
+    return ex.name || ex.name_en || '';
 }
 // ============================================
 // 📝 ПЕРЕВОД ПО ИМЕНИ (для трекера/дневника)

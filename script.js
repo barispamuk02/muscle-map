@@ -6278,24 +6278,24 @@ function exportToPDF() {
         return;
     }
     
-    const { jsPDF } = window.jspdf;
+const { jsPDF } = window.jspdf;
 const doc = new jsPDF('p', 'mm', 'a4');
 
 // 🔧 Подключаем русский шрифт
+let fontName = 'helvetica';
 try {
-    if (typeof ROBOTO_FONT_BASE64 !== 'undefined') {
+    if (typeof ROBOTO_FONT_BASE64 !== 'undefined' && ROBOTO_FONT_BASE64.length > 1000) {
         doc.addFileToVFS('Roboto-Regular.ttf', ROBOTO_FONT_BASE64);
         doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
-        doc.setFont('Roboto', 'normal');
+        fontName = 'Roboto';
         console.log('✅ Roboto шрифт подключён');
     } else {
-        console.warn('⚠️ ROBOTO_FONT_BASE64 не найден');
-        doc.setFont('Roboto', 'normal');
+        console.warn('⚠️ ROBOTO_FONT_BASE64 пуст');
     }
 } catch (e) {
     console.warn('⚠️ Ошибка шрифта:', e);
-    doc.setFont('Roboto', 'normal');
 }
+doc.setFont(fontName, 'normal');
     
     const pageW = 210;
     const pageH = 297;
@@ -6310,7 +6310,7 @@ try {
     // Логотип
     doc.setTextColor(255, 217, 61);
     doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(fontName, 'normal');
     doc.text('💪 Muscle Map', margin, 18);
     
     doc.setTextColor(138, 138, 170);
@@ -6333,7 +6333,7 @@ try {
     // ========== СТАТИСТИКА ==========
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(fontName, 'normal');
     doc.text('📊 Статистика', margin, y);
     y += 10;
     
@@ -6376,7 +6376,7 @@ try {
         // Значение
         doc.setTextColor(...stat.color);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont(fontName, 'normal');
         doc.text(String(stat.value), x + 5, cy + 10);
         
         // Лейбл
@@ -6394,7 +6394,7 @@ try {
     if (dates.length > 0) {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont(fontName, 'normal');
         doc.text('🏋️ Последние тренировки', margin, y);
         y += 10;
         
@@ -6407,7 +6407,7 @@ try {
             // Дата
             doc.setTextColor(111, 179, 255);
             doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
+            doc.setFont(fontName, 'normal');
             doc.text(
                 `📅 ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`,
                 margin, y
@@ -6460,7 +6460,7 @@ try {
         
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont(fontName, 'normal');
         doc.text('🏆 Достижения', margin, y);
         y += 10;
         

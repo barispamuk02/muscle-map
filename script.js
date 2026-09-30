@@ -3733,6 +3733,17 @@ function translateExerciseName(ex) {
     
     return capitalize(result);
 }
+// ============================================
+// 📝 ПЕРЕВОД ПО ИМЕНИ (для трекера/дневника)
+// ============================================
+function translateByName(name) {
+    if (!name) return name;
+    const ex = exerciseDatabase.find(e => e.name === name);
+    if (ex) {
+        return translateExerciseName(ex);
+    }
+    return name;
+}
 
 function capitalize(s) {
     return s.charAt(0).toUpperCase() + s.slice(1);
@@ -3757,7 +3768,7 @@ function renderExerciseCard(ex) {
                 <div class="exercise-header">
                     <div class="exercise-image">
                         ${gifPath 
-                            ? `<img src="${gifPath}" alt="${ex.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">` 
+                            ? `<img src="${gifPath}" alt="${displayName}" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">` 
                             : '💪'}
                     </div>
                     <div class="exercise-info">
@@ -3770,10 +3781,10 @@ function renderExerciseCard(ex) {
                     ${gifPath ? `
                         <div class="exercise-gif">
                             <img src="${gifPath}" 
-                                 alt="${ex.name}" 
+                                 alt="${displayName}" 
                                  loading="lazy" 
                                  data-gif="${gifPath}" 
-                                 data-name="${ex.name}"
+                                 data-name="${displayName}"
                                  onerror="this.parentElement.style.display='none';">
                         </div>
                     ` : ''}
@@ -4042,7 +4053,7 @@ function openDashboard() {
     const completed = getCompleted();
     const entries = Object.entries(completed).sort((a, b) => b[1] - a[1]).slice(0, 20).map(([exId, timestamp]) => {
         const ex = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.id === exId) : null;
-        const name = ex ? ex.name : `Упражнение ${exId}`;
+        const name = ex ? translateExerciseName(ex) : `Упражнение ${exId}`;
         const date = new Date(timestamp);
         const dateStr = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
         return `<div class="history-item"><div class="history-item-name">${name}</div><div class="history-item-date">${dateStr}</div></div>`;
@@ -4972,7 +4983,7 @@ function renderWorkoutTracker() {
             return `
                 <div class="tracker-exercise">
                     <div class="tracker-exercise-header">
-                        <div class="tracker-exercise-name">${exName}</div>
+                        <div class="tracker-exercise-name">${translateByName(exName)}</div>
                         <div class="tracker-exercise-stat">${sets.length} подх. · макс ${maxWeight} кг</div>
                     </div>
                     <div class="tracker-sets">${setsHtml}</div>
@@ -5126,7 +5137,7 @@ const hiddenDays = allDates.length - dates.length;
         const totalSets = exercises.reduce((sum, [, sets]) => sum + sets.length, 0);
         const exHtml = exercises.map(([name, sets]) => {
             const maxW = Math.max(...sets.map(s => s.weight || 0));
-            return `<div class="log-exercise"><div class="log-ex-name">${name}</div><div class="log-ex-info">${sets.length} подх. · макс <strong>${maxW} кг</strong></div></div>`;
+            return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} подх. · макс <strong>${maxW} кг</strong></div></div>`;
         }).join('');
         return `
             <div class="log-day">
@@ -6431,7 +6442,7 @@ doc.setFont(fontName, 'normal');
                 const maxW = Math.max(...sets.map(s => s.weight || 0));
                 doc.setTextColor(180, 180, 200);
                 doc.setFontSize(9);
-                doc.text(`• ${name}`, margin + 3, y);
+                doc.text(`• ${translateByName(name)}`, margin + 3, y);
                 doc.text(`${sets.length} подх. · макс ${maxW} кг`, pageW - margin, y, { align: 'right' });
                 y += 4;
             });

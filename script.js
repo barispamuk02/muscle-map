@@ -6225,7 +6225,7 @@ if (document.readyState === 'loading') {
     });
 } else {
     updatePremiumUI();
-    setTimeout(addTestPremiumButtons, 500);
+    // setTimeout(addTestPremiumButtons, 500);   ← отключено
 }
 
 // Экспорт в глобальную область (для теста через консоль)
@@ -6248,7 +6248,7 @@ const programsObserver = new MutationObserver(() => {
         trackerEl.id = 'workoutTracker';
         container.appendChild(trackerEl);
         renderWorkoutTracker();
-        console.log('✅ workoutTracker создан (авто)');
+        // console.log('✅ workoutTracker создан (авто)');
     }
 });
 
@@ -6256,7 +6256,7 @@ const programsObserver = new MutationObserver(() => {
 const programsViewEl = document.getElementById('viewPrograms');
 if (programsViewEl) {
     programsObserver.observe(programsViewEl, { childList: true, subtree: true });
-    console.log('👀 Наблюдение за программами запущено');
+    // console.log('👀 Наблюдение за программами запущено');
 }
 
 // ============================================
@@ -6288,7 +6288,7 @@ try {
         doc.addFileToVFS('Roboto-Regular.ttf', ROBOTO_FONT_BASE64);
         doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
         fontName = 'Roboto';
-        console.log('✅ Roboto шрифт подключён');
+        // console.log('✅ Roboto шрифт подключён');
     } else {
         console.warn('⚠️ ROBOTO_FONT_BASE64 пуст');
     }

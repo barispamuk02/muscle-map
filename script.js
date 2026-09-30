@@ -6279,7 +6279,23 @@ function exportToPDF() {
     }
     
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
+const doc = new jsPDF('p', 'mm', 'a4');
+
+// 🔧 Подключаем русский шрифт
+try {
+    if (typeof ROBOTO_FONT_BASE64 !== 'undefined') {
+        doc.addFileToVFS('Roboto-Regular.ttf', ROBOTO_FONT_BASE64);
+        doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+        doc.setFont('Roboto', 'normal');
+        console.log('✅ Roboto шрифт подключён');
+    } else {
+        console.warn('⚠️ ROBOTO_FONT_BASE64 не найден');
+        doc.setFont('Roboto', 'normal');
+    }
+} catch (e) {
+    console.warn('⚠️ Ошибка шрифта:', e);
+    doc.setFont('Roboto', 'normal');
+}
     
     const pageW = 210;
     const pageH = 297;

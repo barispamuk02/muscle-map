@@ -3758,9 +3758,10 @@ function capitalize(s) {
 // КАРТОЧКА УПРАЖНЕНИЯ
 // ============================================
 function renderExerciseCard(ex) {
-    if (ex.isCustom) {
+        if (ex.isCustom) {
         const equipment = equipmentNames[ex.equipment] || '🏠 Своё тело';
         const gifPath = ex.gif || '';
+        const displayName = ex.name;    // ← для custom — name уже русский
         const done = isCompleted(ex.id);
         
         return `

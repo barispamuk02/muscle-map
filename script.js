@@ -3686,6 +3686,34 @@ function translateExerciseName(ex) {
     // 2. Fallback — name (уже русский)
     return ex.name || ex.name_en || '';
 }
+/**
+ * Переводит название упражнения (строку) в красивый русский
+ * Ищет по name_en (английскому), возвращает красивый перевод
+ */
+function translateByName(name) {
+    if (!name) return '';
+    
+    // Если это уже красивое русское название — вернуть как есть
+    // (проверяем: есть ли кириллица + не в базе латиницы)
+    if (/[а-яё]/i.test(name) && !/[a-z]{3,}/i.test(name)) {
+        return name;
+    }
+    
+    // Ищем упражнение в базе по имени (русскому или английскому)
+    if (typeof exerciseDatabase !== 'undefined') {
+        const ex = exerciseDatabase.find(e => 
+            e.name === name || 
+            e.name_en === name ||
+            e.name_en?.toLowerCase() === name.toLowerCase()
+        );
+        if (ex) {
+            return translateExerciseName(ex);
+        }
+    }
+    
+    // Fallback — как есть
+    return name;
+}
 // ============================================
 // 📝 ПЕРЕВОД ПО ИМЕНИ (для трекера/дневника)
 // ============================================
@@ -4990,19 +5018,28 @@ function renderWorkoutTracker() {
 
 function getAllExerciseNames() {
     const names = new Set();
+    
+    // 1. Упражнения из программ — уже русские
     if (typeof programsDatabase !== 'undefined') {
         Object.values(programsDatabase).forEach(p => {
-            p.days.forEach(d => {
-                d.exercises.forEach(e => names.add(e.name));
+            p.days?.forEach(d => {
+                d.exercises?.forEach(e => {
+                    if (e.name) names.add(e.name);
+                });
             });
         });
     }
+    
+    // 2. ВСЕ упражнения из базы — переведённые через translateExerciseName
     if (typeof exerciseDatabase !== 'undefined') {
-        exerciseDatabase.slice(0, 100).forEach(e => names.add(e.name));
+        exerciseDatabase.forEach(e => {
+            const translated = translateExerciseName(e);
+            if (translated) names.add(translated);
+        });
     }
+    
     return Array.from(names).sort();
 }
-
 function bindTrackerEvents() {
     const addBtn = document.getElementById('trackerAddBtn');
     const saveBtn = document.getElementById('trackerSaveBtn');

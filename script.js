@@ -415,7 +415,7 @@ function getExercisesForMuscle(muscleId) {
         }
         
         if (all.length > 0 && typeof exerciseDatabase !== 'undefined') {
-            const fromDb = exerciseDatabase.filter(ex => ex.muscleId === muscleId).slice(0, 5);
+            const fromDb = exerciseDatabase.filter(ex => ex.muscleId === muscleId);
             return [...all, ...fromDb];
         }
         
@@ -432,7 +432,7 @@ function getExercisesForMuscle(muscleId) {
             && !n.includes('twist') && !n.includes('twisting');
     });
     const others = all.filter(ex => !priority.includes(ex));
-    return [...priority, ...others].slice(0, 15);
+    return [...priority, ...others].slice(0, 100);
 }
 
 function filterByEquipment(exercises, filter) {

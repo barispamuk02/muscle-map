@@ -5650,6 +5650,33 @@ function openPremium() {
 // ============================================
 // 💳 DODO PAYMENTS — CHECKOUT
 // ============================================
+let dodoInitialized = false;
+
+function initDodo() {
+    if (dodoInitialized) return;
+    if (typeof DodoPaymentsCheckout === 'undefined') {
+        console.warn('Dodo SDK ещё не загружен');
+        return false;
+    }
+    
+    DodoPaymentsCheckout.DodoPayments.Initialize({
+        mode: "test",              // ← "test" для теста, "live" для реальных платежей
+        displayType: "overlay",
+        onEvent: (event) => {
+            console.log('Dodo event:', event);
+            if (event.type === 'checkout.success') {
+                if (typeof showToast === 'function') {
+                    showToast('✅ Оплата прошла! Проверьте email.');
+                }
+            }
+        }
+    });
+    
+    dodoInitialized = true;
+    console.log('✅ Dodo Payments инициализирован');
+    return true;
+}
+
 function openDodoCheckout() {
     if (typeof DodoPaymentsCheckout === 'undefined') {
         console.error('Dodo SDK не загружен');
@@ -5658,6 +5685,9 @@ function openDodoCheckout() {
         }
         return;
     }
+    
+    // Инициализируем, если ещё не инициализировано
+    initDodo();
     
     DodoPaymentsCheckout.DodoPayments.Checkout.open({
         checkoutUrl: "https://test.checkout.dodopayments.com/buy/pdt_0NomjiaSek3R15G5JSghs?quantity=1"

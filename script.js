@@ -77,14 +77,14 @@ const muscleFallback = {};
 // ДОСТИЖЕНИЯ
 // ============================================
 const achievementsDefinitions = [
-    { id: 'muscles5',  icon: '🎯', text: 'Изучил 5 мышц',     check: () => getViewedMusclesCount() >= 5 },
-    { id: 'muscles15', icon: '🏆', text: 'Изучил 15 мышц',    check: () => getViewedMusclesCount() >= 15 },
+    { id: 'muscles5', icon: '🎯', text: 'Изучил 5 мышц', check: () => getViewedMusclesCount() >= 5 },
+    { id: 'muscles15', icon: '🏆', text: 'Изучил 15 мышц', check: () => getViewedMusclesCount() >= 15 },
     { id: 'muscles30', icon: '👑', text: 'Изучил все мышцы!', check: () => getViewedMusclesCount() >= 30 },
-    { id: 'exercises10', icon: '💪', text: '10 упражнений',    check: () => Object.keys(getCompleted()).length >= 10 },
-    { id: 'exercises50', icon: '🔥', text: '50 упражнений',    check: () => Object.keys(getCompleted()).length >= 50 },
-    { id: 'streak3',   icon: '⚡', text: 'Серия 3 дня',       check: () => getStreakData().days >= 3 },
-    { id: 'streak7',   icon: '🌟', text: 'Серия 7 дней',      check: () => getStreakData().days >= 7 },
-    { id: 'favorites5', icon: '⭐', text: '5 избранных',       check: () => getFavorites().length >= 5 },
+    { id: 'exercises10', icon: '💪', text: '10 упражнений', check: () => Object.keys(getCompleted()).length >= 10 },
+    { id: 'exercises50', icon: '🔥', text: '50 упражнений', check: () => Object.keys(getCompleted()).length >= 50 },
+    { id: 'streak3', icon: '⚡', text: 'Серия 3 дня', check: () => getStreakData().days >= 3 },
+    { id: 'streak7', icon: '🌟', text: 'Серия 7 дней', check: () => getStreakData().days >= 7 },
+    { id: 'favorites5', icon: '⭐', text: '5 избранных', check: () => getFavorites().length >= 5 },
 ];
 
 // ============================================
@@ -95,10 +95,12 @@ const challenges = [
     { id: 'exercises50', emoji: '💪', name: '50 упражнений', description: 'Выполни 50 упражнений', target: 50, getProgress: () => Object.keys(getCompleted()).length },
     { id: 'plank30', emoji: '🏆', name: '30 дней планки', description: 'Отмечай упражнения каждый день', target: 30, getProgress: () => getStudyDays().length },
     { id: 'muscles20', emoji: '🎯', name: 'Изучить 20 мышц', description: 'Открой 20 из 30 мышц', target: 20, getProgress: () => getViewedMusclesCount() },
-    { id: 'weekend', emoji: '💯', name: 'Тренировка недели', description: 'Сделай 10 упражнений за 7 дней', target: 10, getProgress: () => {
-        const week = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        return Object.values(getCompleted()).filter(t => t >= week).length;
-    }},
+    {
+        id: 'weekend', emoji: '💯', name: 'Тренировка недели', description: 'Сделай 10 упражнений за 7 дней', target: 10, getProgress: () => {
+            const week = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            return Object.values(getCompleted()).filter(t => t >= week).length;
+        }
+    },
 ];
 
 // ============================================
@@ -289,7 +291,7 @@ function renderOverlays() {
         const m = muscleDatabase[key];
         if (!m.overlay) continue;
         const showOnFront = currentView === 'front' && (m.side === 'front' || m.side === 'both');
-        const showOnBack  = currentView === 'back'  && (m.side === 'back'  || m.side === 'both');
+        const showOnBack = currentView === 'back' && (m.side === 'back' || m.side === 'both');
         if (showOnFront || showOnBack) {
             const activeClass = (m.id === currentMuscleId) ? 'active' : '';
             overlays.push(`<img class="body-overlay ${activeClass}" data-muscle-id="${m.id}" src="${m.overlay}" alt="${m.name}" onerror="this.style.display='none';">`);
@@ -389,7 +391,7 @@ function getExercisesForMuscle(muscleId) {
     if (typeof customExercises !== 'undefined' && customExercises[muscleId]) {
         const custom = customExercises[muscleId];
         const all = [];
-        
+
         if (custom.primary) {
             custom.primary.forEach(ex => {
                 all.push({
@@ -420,15 +422,15 @@ function getExercisesForMuscle(muscleId) {
                 });
             });
         }
-        
+
         if (all.length > 0 && typeof exerciseDatabase !== 'undefined') {
             const fromDb = exerciseDatabase.filter(ex => ex.muscleId === muscleId);
             return [...all, ...fromDb];
         }
-        
+
         if (all.length > 0) return all;
     }
-    
+
     if (typeof exerciseDatabase === 'undefined') return [];
     const all = exerciseDatabase.filter(ex => ex.muscleId === muscleId);
     const priority = all.filter(ex => {
@@ -465,7 +467,7 @@ function getCustomEquipment(name) {
 // ============================================
 
 
-   const exerciseWordDict = {
+const exerciseWordDict = {
     // === ОБОРУДОВАНИЕ ===
     'barbell': 'со штангой',
     'dumbbell': 'с гантелями',
@@ -1594,7 +1596,7 @@ function getCustomEquipment(name) {
     // ==========================================
     // ДОПОЛНЕНИЕ — модификаторы, версии, редкости
     // ==========================================
-    
+
     // --- Версии и ракурсы ---
     'v. 2': '',
     'v. 3': '',
@@ -2284,7 +2286,7 @@ function getCustomEquipment(name) {
     // ==========================================
     // ДОПОЛНЕНИЕ 3 — финальная чистка
     // ==========================================
-    
+
     // --- Модификаторы в скобках ---
     '(male)': '',
     '(female)': '',
@@ -2294,7 +2296,7 @@ function getCustomEquipment(name) {
     'v. 2': '',
     'v. 3': '',
     'v. 4': '',
-    
+
     // --- Положение ---
     'above head': 'над головой',
     'across face': 'поперёк лица',
@@ -2315,7 +2317,7 @@ function getCustomEquipment(name) {
     'up': 'вверх',
     'position': 'положение',
     'stance': 'стойка',
-    
+
     // --- Специфичные термины ---
     'hyght': 'Хайта',
     'otis': 'Отис',
@@ -2377,7 +2379,7 @@ function getCustomEquipment(name) {
     'flutter kicks': 'порхающие удары',
     'scissor kicks': 'удары ножницами',
     'scissor': 'ножницы',
-    
+
     // --- Инвентарь ---
     'v-bar': '',
     'sz-bar': '',
@@ -2428,7 +2430,7 @@ function getCustomEquipment(name) {
     'sled': 'сани',
     'trap bar': 'трап-гриф',
     'cambered bar': 'изогнутый гриф',
-    
+
     // --- Мышцы ---
     'femoral': 'бедренная',
     'femur': 'бедро',
@@ -2464,7 +2466,7 @@ function getCustomEquipment(name) {
     'abs': 'пресс',
     'oblique': 'косые',
     'obliques': 'косые',
-    
+
     // --- Прочее ---
     'back extension': 'разгибание спины',
     'hyperextension': 'гиперэкстензия',
@@ -2717,7 +2719,7 @@ function getCustomEquipment(name) {
     'revers': 'обратный',
     'reverse': 'обратный',
     'grip': 'хват',
-    
+
     // --- Анатомические направления ---
     'anterior': 'передний',
     'posterior': 'задний',
@@ -2979,7 +2981,7 @@ function getCustomEquipment(name) {
     'pyramid': 'пирамида',
     'triangle': 'треугольник',
     'warrior pose': 'поза воина',
-    
+
     // --- Доп. слова ---
     'basic': 'базовое',
     'advanced': 'продвинутое',
@@ -3500,12 +3502,12 @@ function getCustomEquipment(name) {
 };
 const exerciseNameDict = [
     // --- Полные фразы (сначала длинные, чтобы не перекрывались) ---
-['ankle circles', 'круговые движения лодыжкой'],
-['archer pull up', 'подтягивания лучника'],
-['archer pull-up', 'подтягивания лучника'],
-['archer push up', 'отжимания лучника'],
-['archer push-up', 'отжимания лучника'],
-['ankle circle', 'круговые движения лодыжкой'],
+    ['ankle circles', 'круговые движения лодыжкой'],
+    ['archer pull up', 'подтягивания лучника'],
+    ['archer pull-up', 'подтягивания лучника'],
+    ['archer push up', 'отжимания лучника'],
+    ['archer push-up', 'отжимания лучника'],
+    ['ankle circle', 'круговые движения лодыжкой'],
     ['all fours squad stretch', 'Растяжка на четвереньках'],
     ['alternate heel touchers', 'Попеременные касания пяток'],
     ['alternate lateral pulldown', 'Попеременная тяга верхнего блока'],
@@ -3663,10 +3665,10 @@ const exerciseNameDict = [
     ['front', 'передний'],
     ['rear', 'задний'],
     ['side', 'боковой'],
-['circles', 'круговые движения'],
-['circle', 'круговые движения'],
-['ankle', 'лодыжка'],
-['ankles', 'лодыжки'],
+    ['circles', 'круговые движения'],
+    ['circle', 'круговые движения'],
+    ['ankle', 'лодыжка'],
+    ['ankles', 'лодыжки'],
 
     // --- Растяжка ---
     ['stretch', 'растяжка'],
@@ -3689,7 +3691,7 @@ function translateExerciseName(ex) {
             return exerciseNameRU[key];
         }
     }
-    
+
     // 2. Fallback — name (уже русский)
     return ex.name || ex.name_en || '';
 }
@@ -3699,17 +3701,17 @@ function translateExerciseName(ex) {
  */
 function translateByName(name) {
     if (!name) return '';
-    
+
     // Если это уже красивое русское название — вернуть как есть
     // (проверяем: есть ли кириллица + не в базе латиницы)
     if (/[а-яё]/i.test(name) && !/[a-z]{3,}/i.test(name)) {
         return name;
     }
-    
+
     // Ищем упражнение в базе по имени (русскому или английскому)
     if (typeof exerciseDatabase !== 'undefined') {
-        const ex = exerciseDatabase.find(e => 
-            e.name === name || 
+        const ex = exerciseDatabase.find(e =>
+            e.name === name ||
             e.name_en === name ||
             e.name_en?.toLowerCase() === name.toLowerCase()
         );
@@ -3717,7 +3719,7 @@ function translateByName(name) {
             return translateExerciseName(ex);
         }
     }
-    
+
     // Fallback — как есть
     return name;
 }
@@ -3746,19 +3748,19 @@ function capitalize(s) {
 // КАРТОЧКА УПРАЖНЕНИЯ
 // ============================================
 function renderExerciseCard(ex) {
-        if (ex.isCustom) {
+    if (ex.isCustom) {
         const equipment = equipmentNames[ex.equipment] || '🏠 Своё тело';
         const gifPath = ex.gif || '';
         const displayName = ex.name;    // ← для custom — name уже русский
         const done = isCompleted(ex.id);
-        
+
         return `
             <div class="exercise-card ${done ? 'completed' : ''}" data-ex-id="${ex.id}">
                 <div class="exercise-header">
                     <div class="exercise-image">
-                        ${gifPath 
-                            ? `<img src="${gifPath}" alt="${displayName}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">` 
-                            : '💪'}
+                        ${gifPath
+                ? `<img src="${gifPath}" alt="${displayName}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">`
+                : '💪'}
                     </div>
                     <div class="exercise-info">
                         <div class="exercise-name">${ex.name}</div>
@@ -3819,8 +3821,8 @@ function renderExerciseCard(ex) {
                 <div class="exercise-instructions">
                     <div class="instructions-title">📋 Инструкция:</div>
                     ${ex.instruction_steps_ru && ex.instruction_steps_ru.length > 0
-                        ? `<ol>${ex.instruction_steps_ru.map(step => `<li>${step}</li>`).join('')}</ol>`
-                        : `<p>${ex.instructions_ru || 'Инструкция недоступна'}</p>`}
+            ? `<ol>${ex.instruction_steps_ru.map(step => `<li>${step}</li>`).join('')}</ol>`
+            : `<p>${ex.instructions_ru || 'Инструкция недоступна'}</p>`}
                 </div>
                 <div class="exercise-attribution">${ex.attribution || ''}</div>
                 <div class="exercise-actions">
@@ -3843,16 +3845,16 @@ function renderExercisesSection(muscle) {
 
     const filtered = filterByEquipment(allExercises, currentEquipmentFilter);
     const isPrem = isPremium();
-    
+
     // 📄 Пагинация и Премиум-лимиты
     const FREE_LIMIT = 4;
     const PAGE_SIZE = 20;
-    
+
     let visible;
     let showPremiumBanner = false;
     let showMoreButton = false;
     let counterText = '';
-    
+
     if (isPrem) {
         // 🎯 Премиум: пагинация по 20
         const page = parseInt(document.querySelector('.exercises-list')?.dataset.page || '1');
@@ -4042,7 +4044,7 @@ function openGifModal(gifUrl, name) {
 // ============================================
 function renderChallenges() {
     if (!challengesList) return;
-    
+
     challengesList.innerHTML = challenges.map(ch => {
         const progress = Math.min(ch.getProgress(), ch.target);
         const percent = Math.round((progress / ch.target) * 100);
@@ -4153,7 +4155,7 @@ function randomMuscle() {
 function shareProject() {
     const url = window.location.href;
     if (navigator.share) {
-        navigator.share({ title: 'Muscle Map', text: '💪 Узнай, какие упражнения тренируют нужную мышцу!', url: url }).catch(() => {});
+        navigator.share({ title: 'Muscle Map', text: '💪 Узнай, какие упражнения тренируют нужную мышцу!', url: url }).catch(() => { });
     } else {
         navigator.clipboard.writeText(url).then(() => showToast('🔗 Ссылка скопирована!')).catch(() => prompt('Скопируйте ссылку:', url));
     }
@@ -4174,7 +4176,7 @@ function shareQuote() {
     if (typeof getQuoteOfDay !== 'function') return;
     const quote = getQuoteOfDay();
     const text = `«${quote.text}» — ${quote.author}\n\n💪 Muscle Map`;
-    if (navigator.share) navigator.share({ title: 'Цитата дня', text: text }).catch(() => {});
+    if (navigator.share) navigator.share({ title: 'Цитата дня', text: text }).catch(() => { });
     else navigator.clipboard.writeText(text).then(() => showToast('✅ Цитата скопирована!'));
 }
 
@@ -4246,7 +4248,7 @@ init();
 
 (function bindViewButton() {
     const btn = document.getElementById('viewToggle');
-    if (btn) btn.onclick = function() { toggleView(); };
+    if (btn) btn.onclick = function () { toggleView(); };
 })();
 
 console.log('🚀 Muscle Map запущен');
@@ -4292,7 +4294,7 @@ function switchToRecovery() {
 
 function renderRecoveryList() {
     if (!recoveryList || typeof recoveryDatabase === 'undefined') return;
-    
+
     let html = '<div class="recovery-list-title">🩹 Категории</div>';
     Object.values(recoveryDatabase).forEach(r => {
         const active = r.id === currentRecoveryId ? 'active' : '';
@@ -4307,7 +4309,7 @@ function renderRecoveryList() {
         `;
     });
     recoveryList.innerHTML = html;
-    
+
     recoveryList.querySelectorAll('.recovery-item').forEach(el => {
         el.addEventListener('click', () => selectRecovery(el.dataset.id));
     });
@@ -4323,7 +4325,7 @@ function selectRecovery(id) {
 
 function renderRecoveryInfo(recovery) {
     if (!recoveryContent) return;
-    
+
     let phasesHtml = '';
     recovery.phases.forEach((phase, idx) => {
         const exercisesHtml = phase.exercises.map(ex => `
@@ -4335,7 +4337,7 @@ function renderRecoveryInfo(recovery) {
                 <div class="recovery-exercise-description">${ex.description}</div>
             </div>
         `).join('');
-        
+
         phasesHtml += `
             <div class="recovery-phase" data-phase="${idx}">
                 <div class="recovery-phase-header">
@@ -4347,7 +4349,7 @@ function renderRecoveryInfo(recovery) {
             </div>
         `;
     });
-    
+
     recoveryContent.innerHTML = `
         <div class="recovery-card">
             <div class="recovery-card-header">
@@ -4361,7 +4363,7 @@ function renderRecoveryInfo(recovery) {
             <div class="recovery-phases">${phasesHtml}</div>
         </div>
     `;
-    
+
     recoveryContent.querySelectorAll('.recovery-phase-header').forEach(header => {
         header.addEventListener('click', () => {
             const phase = header.closest('.recovery-phase');
@@ -4375,7 +4377,7 @@ function renderRecoveryInfo(recovery) {
             }
         });
     });
-    
+
     const firstPhase = recoveryContent.querySelector('.recovery-phase');
     if (firstPhase) {
         firstPhase.classList.add('open');
@@ -4396,7 +4398,7 @@ function renderActivityCalendar() {
 
     const studyDays = getStudyDays();
     const daysSet = new Set(studyDays);
-    
+
     const days = [];
     for (let i = 29; i >= 0; i--) {
         const d = new Date();
@@ -4410,9 +4412,9 @@ function renderActivityCalendar() {
             isToday: i === 0
         });
     }
-    
+
     const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-    
+
     calendarEl.innerHTML = days.map(d => {
         const title = `${d.dayNum} ${months[d.month]}${d.active ? ' — ✅' : ''}${d.isToday ? ' — сегодня' : ''}`;
         const classes = ['calendar-day'];
@@ -4420,10 +4422,10 @@ function renderActivityCalendar() {
         if (d.isToday) classes.push('today');
         return `<div class="${classes.join(' ')}" title="${title}"></div>`;
     }).join('');
-    
+
     const activeCount = days.filter(d => d.active).length;
     const totalDays = getStudyDays().length;
-    
+
     calendarEl.insertAdjacentHTML('afterend', `
         <div class="calendar-legend">
             <div class="calendar-legend-item">
@@ -4457,12 +4459,12 @@ function exportProgress() {
             views: {}
         }
     };
-    
+
     Object.keys(muscleDatabase).forEach(id => {
         const v = getViews(id);
         if (v > 0) data.muscleMap.views[id] = v;
     });
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -4473,20 +4475,20 @@ function exportProgress() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     showToast('📤 Прогресс скачан!');
 }
 
 function importProgress(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
             const data = JSON.parse(e.target.result);
             if (!data.muscleMap) throw new Error('Неверный формат');
-            
+
             if (data.muscleMap.favorites) localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(data.muscleMap.favorites));
             if (data.muscleMap.completed) localStorage.setItem(STORAGE_KEYS.completed, JSON.stringify(data.muscleMap.completed));
             if (data.muscleMap.streak) localStorage.setItem(STORAGE_KEYS.streak, JSON.stringify(data.muscleMap.streak));
@@ -4497,7 +4499,7 @@ function importProgress(event) {
                     localStorage.setItem(STORAGE_KEYS.views + id, v);
                 });
             }
-            
+
             showToast('📥 Прогресс загружен!');
             closeDashboard();
             setTimeout(() => {
@@ -4518,7 +4520,7 @@ setTimeout(() => {
     const exportBtn = document.getElementById('exportBtn');
     const importFile = document.getElementById('importFile');
     const exportPdfBtn = document.getElementById('exportPdfBtn');
-    
+
     if (exportBtn) exportBtn.addEventListener('click', exportProgress);
     if (importFile) importFile.addEventListener('change', importProgress);
     if (exportPdfBtn) {
@@ -4537,7 +4539,7 @@ setTimeout(() => {
 }, 500);
 
 const _origOpenDashboard = openDashboard;
-window.openDashboard = function() {
+window.openDashboard = function () {
     _origOpenDashboard();
     setTimeout(renderActivityCalendar, 50);
 };
@@ -4580,7 +4582,7 @@ function switchToNutrition() {
 function renderNutrition() {
     if (!nutritionContainer) return;
     const calc = calculateNutrition();
-    
+
     nutritionContainer.innerHTML = `
         <div class="nutrition-header">
             <div class="nutrition-title">🍎 Калькулятор питания</div>
@@ -4682,7 +4684,7 @@ function renderNutrition() {
         </div>
         <div class="nutrition-warning">⚠️ Расчёт — ориентировочный. Для точного плана обратитесь к диетологу.</div>
     `;
-    
+
     bindNutritionEvents();
     renderFoodList('protein');
 }
@@ -4706,7 +4708,7 @@ function calculateNutrition() {
     const fatKcal = fat * 9;
     const carbsKcal = carbs * 4;
     const totalKcal = proteinKcal + fatKcal + carbsKcal;
-    
+
     return {
         bmr: Math.round(bmr), tdee, kcal, goalFactor: goal.factor,
         protein, fat, carbs,
@@ -4807,7 +4809,7 @@ function renderPrograms() {
             </div>
         </div>
     `).join('');
-    
+
     let detailsHtml = '';
     if (currentProgramId && programsDatabase[currentProgramId]) {
         const program = programsDatabase[currentProgramId];
@@ -4829,7 +4831,7 @@ function renderPrograms() {
             </div>
         `).join('');
         const tipsHtml = program.tips.map(tip => `<div class="program-tip">${tip}</div>`).join('');
-        
+
         detailsHtml = `
             <div class="program-details">
                 <div class="program-details-header" style="border-left-color: ${program.color};">
@@ -4860,7 +4862,7 @@ function renderPrograms() {
             </div>
         `;
     }
-    
+
     programsContainer.innerHTML = `
         <div class="programs-header">
             <div class="programs-title">🏋️ Программы тренировок</div>
@@ -4927,7 +4929,7 @@ function addSetToExercise(exerciseName, weight, reps) {
     const workout = getCurrentWorkout();
     const isPrem = isPremium();
     const limit = isPrem ? Infinity : 3;   // ← 5 упражнений бесплатно
-    
+
     // 🔒 Проверка лимита упражнений
     if (!workout.exercises[exerciseName]) {
         const currentCount = Object.keys(workout.exercises).length;
@@ -4939,7 +4941,7 @@ function addSetToExercise(exerciseName, weight, reps) {
             return workout;
         }
     }
-    
+
     if (!workout.exercises[exerciseName]) workout.exercises[exerciseName] = [];
     workout.exercises[exerciseName].push({
         weight: parseFloat(weight) || 0,
@@ -4998,12 +5000,12 @@ function getWorkoutVolume(exercises) {
 function renderWorkoutTracker() {
     const container = document.getElementById('workoutTracker');
     if (!container) return;
-    
+
     const workout = getCurrentWorkout();
     const exerciseEntries = Object.entries(workout.exercises);
     const totalSets = exerciseEntries.reduce((sum, [, sets]) => sum + sets.length, 0);
     const totalVolume = getWorkoutVolume(workout.exercises);
-    
+
     let exercisesHtml = '';
     if (exerciseEntries.length === 0) {
         exercisesHtml = `<div class="tracker-empty">😕 Пока нет записанных подходов<br><span style="font-size: 11px; color: #4a4a6a;">Добавь первый подход ниже</span></div>`;
@@ -5030,7 +5032,7 @@ function renderWorkoutTracker() {
             `;
         }).join('');
     }
-    
+
     container.innerHTML = `
         <div class="tracker-card">
             <div class="tracker-header">
@@ -5068,14 +5070,14 @@ function renderWorkoutTracker() {
         </div>
         <div class="workout-log" id="workoutLog"></div>
     `;
-    
+
     bindTrackerEvents();
     renderWorkoutLog();
 }
 
 function getAllExerciseNames() {
     const names = new Set();
-    
+
     // 1. Упражнения из программ — уже русские
     if (typeof programsDatabase !== 'undefined') {
         Object.values(programsDatabase).forEach(p => {
@@ -5086,7 +5088,7 @@ function getAllExerciseNames() {
             });
         });
     }
-    
+
     // 2. ВСЕ упражнения из базы — переведённые через translateExerciseName
     if (typeof exerciseDatabase !== 'undefined') {
         exerciseDatabase.forEach(e => {
@@ -5094,14 +5096,14 @@ function getAllExerciseNames() {
             if (translated) names.add(translated);
         });
     }
-    
+
     return Array.from(names).sort();
 }
 function bindTrackerEvents() {
     const addBtn = document.getElementById('trackerAddBtn');
     const saveBtn = document.getElementById('trackerSaveBtn');
     const clearBtn = document.getElementById('trackerClearBtn');
-    
+
     if (addBtn) {
         addBtn.addEventListener('click', () => {
             const name = document.getElementById('trackerExName').value.trim();
@@ -5143,21 +5145,21 @@ function bindTrackerEvents() {
 function renderChartSelect(exerciseList) {
     const isPrem = isPremium();
     const limit = isPrem ? exerciseList.length : 3;
-    
+
     let html = '<select class="progress-chart-select" id="progressChartSelect">';
-    
+
     // Доступные упражнения
     exerciseList.slice(0, limit).forEach((ex) => {
         html += `<option value="${ex}">${ex}</option>`;
     });
-    
+
     // Заблокированные (только для бесплатных)
     if (!isPrem && exerciseList.length > 3) {
         exerciseList.slice(3).forEach(ex => {
             html += `<option value="${ex}" disabled>💎 ${ex}</option>`;
         });
     }
-    
+
     html += '</select>';
     return html;
 }
@@ -5167,17 +5169,17 @@ function renderWorkoutLog() {
     if (!container) return;
     const log = getWorkoutLog();
     // 🔒 Бесплатно — 3 последних дня, Премиум — все
-const isPrem = isPremium();
-const daysLimit = isPrem ? Infinity : 3;   // ← 3 дня бесплатно
-const allDates = Object.keys(log).sort((a, b) => b.localeCompare(a));
-const dates = allDates.slice(0, daysLimit === Infinity ? allDates.length : daysLimit);
-const hiddenDays = allDates.length - dates.length;
-    
+    const isPrem = isPremium();
+    const daysLimit = isPrem ? Infinity : 3;   // ← 3 дня бесплатно
+    const allDates = Object.keys(log).sort((a, b) => b.localeCompare(a));
+    const dates = allDates.slice(0, daysLimit === Infinity ? allDates.length : daysLimit);
+    const hiddenDays = allDates.length - dates.length;
+
     if (dates.length === 0) {
         container.innerHTML = `<div class="log-title">📓 Дневник тренировок</div><div class="log-empty">Пока нет сохранённых тренировок</div>`;
         return;
     }
-    
+
     const entriesHtml = dates.map(date => {
         const dayData = log[date];
         const exercises = Object.entries(dayData);
@@ -5197,13 +5199,13 @@ const hiddenDays = allDates.length - dates.length;
             </div>
         `;
     }).join('');
-    
+
     const allExercises = new Set();
     Object.values(log).forEach(dayData => {
         Object.keys(dayData).forEach(exName => allExercises.add(exName));
     });
     const exerciseList = Array.from(allExercises).sort();
-    
+
     container.innerHTML = `
     <div class="log-title">📓 Дневник тренировок <span class="log-count">${dates.length} ${dates.length === 1 ? 'день' : dates.length < 5 ? 'дня' : 'дней'}${hiddenDays > 0 ? ` из ${allDates.length}` : ''}</span></div>
     
@@ -5239,7 +5241,7 @@ const hiddenDays = allDates.length - dates.length;
         <div class="log-entries">${entriesHtml}</div>
         <button class="btn-clear-log" id="clearLogBtn">🗑️ Очистить дневник</button>
     `;
-    
+
     const clearLogBtn = document.getElementById('clearLogBtn');
     if (clearLogBtn) {
         clearLogBtn.addEventListener('click', () => {
@@ -5249,16 +5251,16 @@ const hiddenDays = allDates.length - dates.length;
             renderWorkoutTracker();
         });
     }
-    
+
     const select = document.getElementById('progressChartSelect');
     if (select && exerciseList.length > 0) {
         renderProgressChart(exerciseList[0]);
-        
+
         select.addEventListener('change', (e) => {
             const selected = e.target.value;
             const selectedIndex = exerciseList.indexOf(selected);
             const isPrem = isPremium();
-            
+
             // Проверка Премиума
             if (!isPrem && selectedIndex >= 3) {
                 e.target.value = exerciseList[0];
@@ -5268,7 +5270,7 @@ const hiddenDays = allDates.length - dates.length;
                 );
                 return;
             }
-            
+
             renderProgressChart(selected);
         });
     }
@@ -5400,7 +5402,7 @@ function renderRestTimer() {
     const isActive = restTimer.timeLeft > 0;
     const circumference = 2 * Math.PI * 45;
     const strokeDashoffset = circumference - (percent / 100) * circumference;
-    
+
     container.innerHTML = `
         <div class="rest-timer ${isActive ? 'active' : ''}">
             <div class="rest-timer-header">
@@ -5463,7 +5465,7 @@ function bindRestTimerEvents() {
 }
 
 const _origRenderWorkoutTracker = renderWorkoutTracker;
-window.renderWorkoutTracker = function() {
+window.renderWorkoutTracker = function () {
     _origRenderWorkoutTracker();
     setTimeout(() => {
         const tracker = document.getElementById('workoutTracker');
@@ -5479,7 +5481,7 @@ window.renderWorkoutTracker = function() {
 };
 
 const _origAddSet = addSetToExercise;
-window.addSetToExercise = function(exerciseName, weight, reps) {
+window.addSetToExercise = function (exerciseName, weight, reps) {
     const result = _origAddSet(exerciseName, weight, reps);
     if (restTimer.autoStart) {
         const lastRest = parseInt(localStorage.getItem('muscleMap_lastRest') || '90');
@@ -5516,9 +5518,9 @@ console.log('✅ Muscle Map полностью загружен');
 function renderProgressChart(exerciseName) {
     const container = document.getElementById('progressChart');
     if (!container) return;
-    
+
     const log = getWorkoutLog();
-    
+
     const dataPoints = [];
     Object.entries(log).forEach(([date, dayData]) => {
         if (dayData[exerciseName]) {
@@ -5528,14 +5530,14 @@ function renderProgressChart(exerciseName) {
             }
         }
     });
-    
+
     dataPoints.sort((a, b) => a.date.localeCompare(b.date));
-    
+
     if (dataPoints.length === 0) {
         container.innerHTML = `<div class="progress-chart-empty">😕 Нет данных для этого упражнения</div>`;
         return;
     }
-    
+
     if (dataPoints.length === 1) {
         container.innerHTML = `
             <div class="progress-chart-empty">
@@ -5545,27 +5547,27 @@ function renderProgressChart(exerciseName) {
         `;
         return;
     }
-    
+
     const width = container.clientWidth || 600;
     const height = 200;
     const padding = { top: 20, right: 20, bottom: 30, left: 40 };
     const chartW = width - padding.left - padding.right;
     const chartH = height - padding.top - padding.bottom;
-    
+
     const weights = dataPoints.map(d => d.weight);
     const minW = Math.min(...weights);
     const maxW = Math.max(...weights);
     const rangeW = maxW - minW || 1;
-    
+
     const points = dataPoints.map((d, i) => {
         const x = padding.left + (i / (dataPoints.length - 1)) * chartW;
         const y = padding.top + chartH - ((d.weight - minW) / rangeW) * chartH;
         return { x, y, ...d };
     });
-    
+
     const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-    const areaPath = `${linePath} L ${points[points.length-1].x} ${padding.top + chartH} L ${points[0].x} ${padding.top + chartH} Z`;
-    
+    const areaPath = `${linePath} L ${points[points.length - 1].x} ${padding.top + chartH} L ${points[0].x} ${padding.top + chartH} Z`;
+
     const gridLines = [];
     for (let i = 0; i <= 4; i++) {
         const y = padding.top + (i / 4) * chartH;
@@ -5577,7 +5579,7 @@ function renderProgressChart(exerciseName) {
                   fill="#5a5a7a" font-size="10" text-anchor="end">${value}</text>
         `);
     }
-    
+
     const dots = points.map(p => `
         <circle cx="${p.x}" cy="${p.y}" r="4" 
                 fill="#00b894" stroke="#0a0a12" stroke-width="2">
@@ -5586,10 +5588,10 @@ function renderProgressChart(exerciseName) {
         <text x="${p.x}" y="${p.y - 10}" 
               fill="#00b894" font-size="10" font-weight="600" text-anchor="middle">${p.weight}</text>
     `).join('');
-    
+
     const firstDate = new Date(points[0].date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-    const lastDate = new Date(points[points.length-1].date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-    
+    const lastDate = new Date(points[points.length - 1].date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+
     container.innerHTML = `
         <svg class="progress-chart-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
             <defs>
@@ -5641,10 +5643,10 @@ function openPremium() {
     if (!premiumModal) return;
     renderPremium();
     premiumModal.classList.add('show');
-    
+
     // 🔧 Фикс прыжков: блокируем скролл body
     document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = 
+    document.body.style.paddingRight =
         (window.innerWidth - document.documentElement.clientWidth) + 'px';
 }
 // ============================================
@@ -5658,7 +5660,7 @@ function initDodo() {
         console.warn('Dodo SDK ещё не загружен');
         return false;
     }
-    
+
     DodoPaymentsCheckout.DodoPayments.Initialize({
         mode: "test",              // ← "test" для теста, "live" для реальных платежей
         displayType: "overlay",
@@ -5671,7 +5673,7 @@ function initDodo() {
             }
         }
     });
-    
+
     dodoInitialized = true;
     console.log('✅ Dodo Payments инициализирован');
     return true;
@@ -5683,8 +5685,7 @@ function openDodoCheckout() {
         "_blank"
     );
 }
-    
-    // ============================================
+// ============================================
 // 📄 ПАГИНАЦИЯ УПРАЖНЕНИЙ + ПРЕМИУМ-ПЛАШКА
 // ============================================
 document.addEventListener('click', (e) => {
@@ -5692,12 +5693,12 @@ document.addEventListener('click', (e) => {
     if (e.target.closest('#btnShowMore')) {
         const list = document.querySelector('.exercises-list');
         if (!list) return;
-        
+
         const currentPage = parseInt(list.dataset.page || '1');
         list.dataset.page = currentPage + 1;
-        
+
         const scrollY = window.scrollY;
-        
+
         if (currentMuscleId && muscleDatabase[currentMuscleId]) {
             renderInfo(muscleDatabase[currentMuscleId]);
             requestAnimationFrame(() => {
@@ -5705,16 +5706,16 @@ document.addEventListener('click', (e) => {
             });
         }
     }
-    
+
     // Кнопка «Оформить Премиум» в плашке упражнений
     if (e.target.closest('#premiumExBtn')) {
-    e.preventDefault();
-    openDodoCheckout();   // ← новый вызов
-}
+        e.preventDefault();
+        openDodoCheckout();   // ← новый вызов
+    }
 });
 function closePremium() {
     if (premiumModal) premiumModal.classList.remove('show');
-    
+
     // 🔧 Возвращаем скролл body
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
@@ -5801,16 +5802,16 @@ if ('serviceWorker' in navigator) {
             .register('./service-worker.js')
             .then((registration) => {
                 console.log('✅ Service Worker зарегистрирован:', registration.scope);
-                
+
                 // Проверка обновлений
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     console.log('🔄 Найдено обновление Service Worker');
-                    
+
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             console.log('✨ Доступно обновление приложения');
-                            
+
                             // Показать пользователю уведомление
                             if (confirm('✨ Доступно обновление Muscle Map!\n\nОбновить сейчас?')) {
                                 newWorker.postMessage({ type: 'SKIP_WAITING' });
@@ -5824,7 +5825,7 @@ if ('serviceWorker' in navigator) {
                 console.warn('⚠️ Service Worker не зарегистрирован:', error);
             });
     });
-    
+
     // Перезагрузка при обновлении
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -5843,7 +5844,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     console.log('📱 Приложение можно установить');
-    
+
     // Показать кнопку «Установить» (если хочешь)
     // showInstallButton();
 });
@@ -5868,7 +5869,7 @@ const SVG_MUSCLES_FRONT = [
     // 🔧 СЛОЙ 1: Глубокие мышцы (нижний слой)
     '10_Transversus_abdominis_muscle',
     '9_Internal_oblique_muscle_of_the_abdomen',
-    
+
     // 🔧 СЛОЙ 2: Поверхностные мышцы (перекрывают глубокие)
     '7_Rectus_abdominis_muscle',
     '8_External_oblique_muscle_of_the_abdomen',
@@ -5944,7 +5945,7 @@ async function loadSvgLayer(layerId, muscles) {
         console.warn(`⚠️ ${layerId} не найден`);
         return 0;
     }
-    
+
     const contents = await Promise.all(
         muscles.map(async (name) => {
             if (svgCache[name]) return svgCache[name];
@@ -5959,15 +5960,15 @@ async function loadSvgLayer(layerId, muscles) {
             }
         })
     );
-    
+
     layer.innerHTML = contents.filter(s => s).join('');
-    
+
     const svgs = layer.querySelectorAll('svg');
     let realIndex = 0;
     svgs.forEach((svg) => {
         while (realIndex < muscles.length && !contents[realIndex]) realIndex++;
         if (realIndex >= muscles.length) return;
-        
+
         const muscleId = SVG_MUSCLE_ID_MAP[muscles[realIndex]];
         const path = svg.querySelector('path');
         if (path && muscleId) {
@@ -5978,7 +5979,7 @@ async function loadSvgLayer(layerId, muscles) {
         }
         realIndex++;
     });
-    
+
     return contents.filter(s => s).length;
 }
 
@@ -5987,7 +5988,7 @@ function showSvgLayer(view) {
     const front = document.getElementById('bodySvgFront');
     const back = document.getElementById('bodySvgBack');
     if (!front || !back) return;
-    
+
     if (view === 'front') {
         // 🔥 Скрываем back ПРИНУДИТЕЛЬНО
         back.classList.remove('visible');
@@ -5996,7 +5997,7 @@ function showSvgLayer(view) {
         back.querySelectorAll('svg, svg path').forEach(el => {
             el.style.pointerEvents = 'none';
         });
-        
+
         // Показываем front
         setTimeout(() => {
             front.classList.add('visible');
@@ -6014,7 +6015,7 @@ function showSvgLayer(view) {
         front.querySelectorAll('svg, svg path').forEach(el => {
             el.style.pointerEvents = 'none';
         });
-        
+
         // Показываем back
         setTimeout(() => {
             back.classList.add('visible');
@@ -6039,8 +6040,8 @@ async function initSvgLayers() {
 function hookToggleView() {
     const origToggle = window.toggleView;
     if (!origToggle || origToggle._hooked) return;
-    
-    window.toggleView = function() {
+
+    window.toggleView = function () {
         origToggle.call(this);
         showSvgLayer(currentView);
     };
@@ -6062,7 +6063,7 @@ if (document.readyState === 'loading') {
 // ============================================
 function animateCounters() {
     const counters = document.querySelectorAll('.stat-box-value[data-count]');
-    
+
     counters.forEach(counter => {
         const target = parseInt(counter.dataset.count);
         const duration = 1500;
@@ -6070,19 +6071,19 @@ function animateCounters() {
         const increment = target / steps;
         let current = 0;
         let step = 0;
-        
+
         const updateCounter = () => {
             step++;
             current = Math.min(Math.round(increment * step), target);
             counter.textContent = current.toLocaleString('ru-RU');
-            
+
             if (step < steps) {
                 requestAnimationFrame(updateCounter);
             } else {
                 counter.textContent = target.toLocaleString('ru-RU') + (target === 1300 ? '+' : '');
             }
         };
-        
+
         // Запуск при появлении в viewport
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -6092,7 +6093,7 @@ function animateCounters() {
                 }
             });
         }, { threshold: 0.5 });
-        
+
         observer.observe(counter);
     });
 }
@@ -6110,17 +6111,17 @@ function initFeedbackForm() {
     const form = document.getElementById('feedbackForm');
     const success = document.getElementById('feedbackSuccess');
     const submitBtn = document.getElementById('feedbackSubmit');
-    
+
     if (!form) return;
-    
+
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        
+
         const type = document.getElementById('feedbackType').value;
         const name = document.getElementById('feedbackName').value.trim();
         const message = document.getElementById('feedbackMessage').value.trim();
         const email = document.getElementById('feedbackEmail').value.trim();
-        
+
         // Валидация
         if (!type) {
             showToast('⚠️ Выберите тип предложения');
@@ -6130,11 +6131,11 @@ function initFeedbackForm() {
             showToast('⚠️ Напишите подробнее (мин. 5 символов)');
             return;
         }
-        
+
         // Блокируем кнопку
         submitBtn.disabled = true;
         submitBtn.textContent = '⏳ Отправка...';
-        
+
         // Формируем заявку
         const feedback = {
             type,
@@ -6145,26 +6146,26 @@ function initFeedbackForm() {
             page: window.location.href,
             userAgent: navigator.userAgent
         };
-        
+
         // Сохраняем в localStorage
         const allFeedback = JSON.parse(localStorage.getItem('muscleMap_feedback') || '[]');
         allFeedback.push(feedback);
         localStorage.setItem('muscleMap_feedback', JSON.stringify(allFeedback));
-        
+
         // Имитация отправки
         setTimeout(() => {
             // Скрываем форму
             form.style.display = 'none';
-            
+
             // Показываем success
             success.style.display = 'block';
-            
+
             // Логируем
             console.log('📩 Заявка сохранена:', feedback);
             console.log(`📊 Всего заявок: ${allFeedback.length}`);
-            
+
             showToast('✅ Спасибо! Предложение отправлено');
-            
+
             // Через 5 секунд — можно вернуться (для теста)
             setTimeout(() => {
                 form.style.display = '';
@@ -6201,13 +6202,13 @@ function isPremium() {
     try {
         const data = JSON.parse(localStorage.getItem(PREMIUM_KEY));
         if (!data) return false;
-        
+
         // Проверка срока
         if (data.expires && new Date(data.expires) < new Date()) {
             localStorage.removeItem(PREMIUM_KEY);
             return false;
         }
-        
+
         return data.active === true;
     } catch {
         return false;
@@ -6219,20 +6220,20 @@ function setPremium(active, days = 30) {
     if (active) {
         const expires = new Date();
         expires.setDate(expires.getDate() + days);
-        
+
         localStorage.setItem(PREMIUM_KEY, JSON.stringify({
             active: true,
             since: new Date().toISOString(),
             expires: expires.toISOString(),
             plan: days === 30 ? 'monthly' : 'yearly'
         }));
-        
+
         showToast('💎 Премиум активирован!');
     } else {
         localStorage.removeItem(PREMIUM_KEY);
         showToast('❌ Премиум отключён');
     }
-    
+
     updatePremiumUI();
     updatePremiumButtons();
 }
@@ -6240,7 +6241,7 @@ function setPremium(active, days = 30) {
 // Обновление UI после смены статуса
 function updatePremiumUI() {
     const isPrem = isPremium();
-    
+
     // Индикатор в шапке
     const premiumBtn = document.getElementById('premiumBtn');
     if (premiumBtn) {
@@ -6252,7 +6253,7 @@ function updatePremiumUI() {
             premiumBtn.classList.remove('premium-active');
         }
     }
-    
+
     // Скрыть/показать премиум-элементы
     document.querySelectorAll('[data-premium-only]').forEach(el => {
         el.style.display = isPrem ? '' : 'none';
@@ -6264,7 +6265,7 @@ function showPremiumLock(featureName, description = '') {
     // Удалить старую плашку
     const old = document.querySelector('.premium-lock');
     if (old) old.remove();
-    
+
     const lock = document.createElement('div');
     lock.className = 'premium-lock';
     lock.innerHTML = `
@@ -6285,18 +6286,18 @@ function showPremiumLock(featureName, description = '') {
         </div>
     `;
     document.body.appendChild(lock);
-    
+
     requestAnimationFrame(() => lock.classList.add('show'));
 }
 
 // Обновление кнопок Премиума
 function updatePremiumButtons() {
     const isPrem = isPremium();
-    
+
     // Кнопки активации/деактивации
     const activateBtn = document.getElementById('testActivatePremium');
     const deactivateBtn = document.getElementById('testDeactivatePremium');
-    
+
     if (activateBtn) activateBtn.style.display = isPrem ? 'none' : '';
     if (deactivateBtn) deactivateBtn.style.display = isPrem ? '' : 'none';
 }
@@ -6306,10 +6307,10 @@ function addTestPremiumButtons() {
     // Куда добавить? В модалку Премиума
     const premiumModal = document.querySelector('.premium-cta');
     if (!premiumModal) return;
-    
+
     // Не добавлять дважды
     if (document.getElementById('testPremiumBlock')) return;
-    
+
     const testBlock = document.createElement('div');
     testBlock.id = 'testPremiumBlock';
     testBlock.style.cssText = `
@@ -6330,13 +6331,13 @@ function addTestPremiumButtons() {
             Деактивировать
         </button>
     `;
-    
+
     premiumModal.appendChild(testBlock);
-    
+
     // Привязки
     document.getElementById('testActivatePremium').addEventListener('click', () => setPremium(true, 30));
     document.getElementById('testDeactivatePremium').addEventListener('click', () => setPremium(false));
-    
+
     updatePremiumButtons();
 }
 
@@ -6364,7 +6365,7 @@ window.showPremiumLock = showPremiumLock;
 const programsObserver = new MutationObserver(() => {
     const container = document.getElementById('programsContainer');
     if (!container || document.getElementById('workoutTracker')) return;
-    
+
     // Контейнер заполнен (не пустой) — создаём трекер
     if (container.innerHTML.length > 100) {
         const trackerEl = document.createElement('div');
@@ -6394,53 +6395,53 @@ function exportToPDF() {
         );
         return;
     }
-    
+
     // Проверка библиотеки
     if (typeof window.jspdf === 'undefined') {
         showToast('⚠️ Библиотека PDF не загружена');
         return;
     }
-    
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF('p', 'mm', 'a4');
 
-// 🔧 Подключаем русский шрифт
-let fontName = 'helvetica';
-try {
-    if (typeof ROBOTO_FONT_BASE64 !== 'undefined' && ROBOTO_FONT_BASE64.length > 1000) {
-        doc.addFileToVFS('Roboto-Regular.ttf', ROBOTO_FONT_BASE64);
-        doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
-        fontName = 'Roboto';
-        // console.log('✅ Roboto шрифт подключён');
-    } else {
-        console.warn('⚠️ ROBOTO_FONT_BASE64 пуст');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // 🔧 Подключаем русский шрифт
+    let fontName = 'helvetica';
+    try {
+        if (typeof ROBOTO_FONT_BASE64 !== 'undefined' && ROBOTO_FONT_BASE64.length > 1000) {
+            doc.addFileToVFS('Roboto-Regular.ttf', ROBOTO_FONT_BASE64);
+            doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+            fontName = 'Roboto';
+            // console.log('✅ Roboto шрифт подключён');
+        } else {
+            console.warn('⚠️ ROBOTO_FONT_BASE64 пуст');
+        }
+    } catch (e) {
+        console.warn('⚠️ Ошибка шрифта:', e);
     }
-} catch (e) {
-    console.warn('⚠️ Ошибка шрифта:', e);
-}
-doc.setFont(fontName, 'normal');
-    
+    doc.setFont(fontName, 'normal');
+
     const pageW = 210;
     const pageH = 297;
     const margin = 15;
     let y = margin;
-    
+
     // ========== ЗАГОЛОВОК ==========
     // Фон шапки
     doc.setFillColor(10, 10, 18);
     doc.rect(0, 0, pageW, 40, 'F');
-    
+
     // Логотип
     doc.setTextColor(255, 217, 61);
     doc.setFontSize(24);
     doc.setFont(fontName, 'normal');
     doc.text('💪 Muscle Map', margin, 18);
-    
+
     doc.setTextColor(138, 138, 170);
     doc.setFontSize(11);
     doc.setFont(fontName, 'normal');
     doc.text('Отчёт о прогрессе', margin, 26);
-    
+
     // Дата
     const now = new Date();
     doc.setTextColor(138, 138, 170);
@@ -6450,16 +6451,16 @@ doc.setFont(fontName, 'normal');
         pageW - margin, 26,
         { align: 'right' }
     );
-    
+
     y = 55;
-    
+
     // ========== СТАТИСТИКА ==========
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont(fontName, 'normal');
     doc.text('📊 Статистика', margin, y);
     y += 10;
-    
+
     // Соберём данные
     const viewedMuscles = getViewedMusclesCount();
     const totalMuscles = Object.keys(muscleDatabase).length;
@@ -6468,7 +6469,7 @@ doc.setFont(fontName, 'normal');
     const favorites = getFavorites().length;
     const workoutLog = getWorkoutLog();
     const totalWorkouts = Object.keys(workoutLog).length;
-    
+
     // Карточки статистики
     const stats = [
         { label: 'Мышц изучено', value: `${viewedMuscles}/${totalMuscles}`, color: [111, 179, 255] },
@@ -6478,30 +6479,30 @@ doc.setFont(fontName, 'normal');
         { label: 'В избранном', value: favorites, color: [253, 121, 168] },
         { label: 'Всего упражнений', value: '1365', color: [162, 155, 254] }
     ];
-    
+
     const cardW = (pageW - margin * 2 - 10) / 3;
     const cardH = 22;
-    
+
     stats.forEach((stat, i) => {
         const col = i % 3;
         const row = Math.floor(i / 3);
         const x = margin + col * (cardW + 5);
         const cy = y + row * (cardH + 5);
-        
+
         // Фон
         doc.setFillColor(20, 20, 40);
         doc.roundedRect(x, cy, cardW, cardH, 3, 3, 'F');
-        
+
         // Цветная полоска
         doc.setFillColor(...stat.color);
         doc.rect(x, cy, 2, cardH, 'F');
-        
+
         // Значение
         doc.setTextColor(...stat.color);
         doc.setFontSize(16);
         doc.setFont(fontName, 'normal');
         doc.text(String(stat.value), x + 5, cy + 10);
-        
+
         // Лейбл
         doc.setTextColor(138, 138, 170);
         doc.setFontSize(8);
@@ -6509,25 +6510,25 @@ doc.setFont(fontName, 'normal');
 
         doc.text(stat.label, x + 5, cy + 17);
     });
-    
+
     y += cardH * 2 + 15;
-    
+
     // ========== ПОСЛЕДНИЕ ТРЕНИРОВКИ ==========
     const dates = Object.keys(workoutLog).sort((a, b) => b.localeCompare(a)).slice(0, 5);
-    
+
     if (dates.length > 0) {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(16);
         doc.setFont(fontName, 'normal');
         doc.text('🏋️ Последние тренировки', margin, y);
         y += 10;
-        
+
         dates.forEach(date => {
             const dayData = workoutLog[date];
             const exercises = Object.entries(dayData);
             const totalVolume = getWorkoutVolume(dayData);
             const totalSets = exercises.reduce((sum, [, sets]) => sum + sets.length, 0);
-            
+
             // Дата
             doc.setTextColor(111, 179, 255);
             doc.setFontSize(11);
@@ -6536,7 +6537,7 @@ doc.setFont(fontName, 'normal');
                 `📅 ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`,
                 margin, y
             );
-            
+
             // Объём
             doc.setTextColor(138, 138, 170);
             doc.setFontSize(9);
@@ -6548,7 +6549,7 @@ doc.setFont(fontName, 'normal');
                 { align: 'right' }
             );
             y += 5;
-            
+
             // Упражнения (макс 3)
             exercises.slice(0, 3).forEach(([name, sets]) => {
                 const maxW = Math.max(...sets.map(s => s.weight || 0));
@@ -6558,7 +6559,7 @@ doc.setFont(fontName, 'normal');
                 doc.text(`${sets.length} подх. · макс ${maxW} кг`, pageW - margin, y, { align: 'right' });
                 y += 4;
             });
-            
+
             if (exercises.length > 3) {
                 doc.setTextColor(138, 138, 170);
                 doc.setFontSize(8);
@@ -6566,41 +6567,41 @@ doc.setFont(fontName, 'normal');
                 doc.text(`...и ещё ${exercises.length - 3} упражнений`, margin + 3, y);
                 y += 4;
             }
-            
+
             y += 3;
         });
-        
+
         y += 5;
     }
-    
+
     // ========== ДОСТИЖЕНИЯ ==========
     const achievements = achievementsDefinitions.filter(a => a.check());
-    
+
     if (achievements.length > 0) {
         // Новая страница, если мало места
         if (y > pageH - 60) {
             doc.addPage();
             y = margin;
         }
-        
+
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(16);
         doc.setFont(fontName, 'normal');
         doc.text('🏆 Достижения', margin, y);
         y += 10;
-        
+
         achievements.forEach((ach, i) => {
             const col = i % 2;
             const row = Math.floor(i / 2);
             const w = (pageW - margin * 2 - 5) / 2;
             const x = margin + col * (w + 5);
             const cy = y + row * 10;
-            
+
             // Фон
             doc.setFillColor(255, 217, 61, 0.1);
             doc.setFillColor(30, 25, 15);
             doc.roundedRect(x, cy - 5, w, 8, 2, 2, 'F');
-            
+
             // Текст
             doc.setTextColor(255, 217, 61);
             doc.setFontSize(9);
@@ -6608,16 +6609,16 @@ doc.setFont(fontName, 'normal');
 
             doc.text(`${ach.icon} ${ach.text}`, x + 3, cy);
         });
-        
+
         const achRows = Math.ceil(achievements.length / 2);
         y += achRows * 10 + 10;
     }
-    
+
     // ========== ФУТЕР ==========
     // Фон футера
     doc.setFillColor(10, 10, 18);
     doc.rect(0, pageH - 20, pageW, 20, 'F');
-    
+
     doc.setTextColor(138, 138, 170);
     doc.setFontSize(8);
     doc.setFont(fontName, 'normal');
@@ -6626,11 +6627,11 @@ doc.setFont(fontName, 'normal');
         pageW / 2, pageH - 10,
         { align: 'center' }
     );
-    
+
     // ========== СОХРАНЕНИЕ ==========
     const dateStr = now.toISOString().split('T')[0];
     doc.save(`muscle-map-progress-${dateStr}.pdf`);
-    
+
     showToast('📄 PDF скачан!');
 }
 

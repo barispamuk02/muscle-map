@@ -5684,14 +5684,7 @@ function openDodoCheckout() {
     );
 }
     
-    // Инициализируем, если ещё не инициализировано
-    initDodo();
-    
-    DodoPaymentsCheckout.DodoPayments.Checkout.open({
-        checkoutUrl: "https://test.checkout.dodopayments.com/buy/pdt_0NomjiaSek3R15G5JSghs?quantity=1"
-    });
-}
-// ============================================
+    // ============================================
 // 📄 ПАГИНАЦИЯ УПРАЖНЕНИЙ + ПРЕМИУМ-ПЛАШКА
 // ============================================
 document.addEventListener('click', (e) => {

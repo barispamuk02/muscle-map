@@ -5648,6 +5648,22 @@ function openPremium() {
         (window.innerWidth - document.documentElement.clientWidth) + 'px';
 }
 // ============================================
+// 💳 DODO PAYMENTS — CHECKOUT
+// ============================================
+function openDodoCheckout() {
+    if (typeof DodoPaymentsCheckout === 'undefined') {
+        console.error('Dodo SDK не загружен');
+        if (typeof showToast === 'function') {
+            showToast('⚠️ Ошибка оплаты. Попробуйте позже.');
+        }
+        return;
+    }
+    
+    DodoPaymentsCheckout.DodoPayments.Checkout.open({
+        checkoutUrl: "https://test.checkout.dodopayments.com/buy/pdt_0NomjiaSek3R15G5JSghs?quantity=1"
+    });
+}
+// ============================================
 // 📄 ПАГИНАЦИЯ УПРАЖНЕНИЙ + ПРЕМИУМ-ПЛАШКА
 // ============================================
 document.addEventListener('click', (e) => {
@@ -5671,9 +5687,9 @@ document.addEventListener('click', (e) => {
     
     // Кнопка «Оформить Премиум» в плашке упражнений
     if (e.target.closest('#premiumExBtn')) {
-        e.preventDefault();
-        openPremium();
-    }
+    e.preventDefault();
+    openDodoCheckout();   // ← новый вызов
+}
 });
 function closePremium() {
     if (premiumModal) premiumModal.classList.remove('show');

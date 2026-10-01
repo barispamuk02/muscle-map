@@ -432,7 +432,7 @@ function getExercisesForMuscle(muscleId) {
             && !n.includes('twist') && !n.includes('twisting');
     });
     const others = all.filter(ex => !priority.includes(ex));
-    return [...priority, ...others].slice(0, 100);
+    return [...priority, ...others];
 }
 
 function filterByEquipment(exercises, filter) {
@@ -3750,7 +3750,7 @@ function renderExerciseCard(ex) {
                 <div class="exercise-header">
                     <div class="exercise-image">
                         ${gifPath 
-                            ? `<img src="${gifPath}" alt="${displayName}" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">` 
+                            ? `<img src="${gifPath}" alt="${displayName}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">` 
                             : '💪'}
                     </div>
                     <div class="exercise-info">
@@ -3795,7 +3795,7 @@ function renderExerciseCard(ex) {
         <div class="exercise-card ${done ? 'completed' : ''}" data-ex-id="${ex.id}">
             <div class="exercise-header">
                 <div class="exercise-image">
-                    ${imagePath ? `<img src="${imagePath}" alt="${displayName}" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">` : '💪'}
+                    ${imagePath ? `<img src="${imagePath}" alt="${displayName}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">` : '💪'}
                 </div>
                 <div class="exercise-info">
                     <div class="exercise-name">${displayName}</div>

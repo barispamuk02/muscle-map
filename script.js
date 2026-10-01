@@ -31,6 +31,13 @@ let currentView = 'front';
 let isTransitioning = false;
 let currentEquipmentFilter = 'all';
 let currentListFilter = 'all';
+// ============================================
+// 📚 ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ============================================
+function declOfNum(n, titles) {
+    const cases = [2, 0, 1, 1, 1, 2];
+    return titles[(n % 100 > 4 && n % 100 < 20) ? 2 : cases[(n % 10 < 5) ? n % 10 : 5]];
+}
 
 const STORAGE_KEYS = {
     lastSelected: 'muscleMap_lastSelected',
@@ -3835,6 +3842,29 @@ function renderExercisesSection(muscle) {
     });
 
     const filtered = filterByEquipment(allExercises, currentEquipmentFilter);
+    const isPrem = isPremium();
+    
+    // 📄 Пагинация и Премиум-лимиты
+    const FREE_LIMIT = 4;
+    const PAGE_SIZE = 20;
+    
+    let visible;
+    let showPremiumBanner = false;
+    let showMoreButton = false;
+    let counterText = '';
+    
+    if (isPrem) {
+        // 🎯 Премиум: пагинация по 20
+        const page = parseInt(document.querySelector('.exercises-list')?.dataset.page || '1');
+        const end = page * PAGE_SIZE;
+        visible = filtered.slice(0, end);
+        showMoreButton = filtered.length > end;
+        counterText = `Показано ${Math.min(end, filtered.length)} из ${filtered.length}`;
+    } else {
+        // 🎯 Бесплатно: только 4
+        visible = filtered.slice(0, FREE_LIMIT);
+        showPremiumBanner = filtered.length > FREE_LIMIT;
+    }
 
     const buttons = `
         <div class="equipment-filter">
@@ -3844,15 +3874,42 @@ function renderExercisesSection(muscle) {
         </div>
     `;
 
-    const cards = filtered.length > 0
-        ? filtered.map(renderExerciseCard).join('')
+    const cards = visible.length > 0
+        ? visible.map(renderExerciseCard).join('')
         : '<div class="no-exercises">😕 Нет упражнений для этого фильтра</div>';
+
+    // 🎯 Плашка Премиума (только для бесплатных)
+    const premiumBanner = showPremiumBanner
+        ? `<div class="premium-exercises-banner">
+               <div class="premium-exercises-icon">💎</div>
+               <div class="premium-exercises-text">
+                   <strong>Ещё ${filtered.length - FREE_LIMIT} ${declOfNum(filtered.length - FREE_LIMIT, ['упражнение', 'упражнения', 'упражнений'])}</strong>
+                   <span>Оформи Премиум — открой всю базу упражнений</span>
+               </div>
+               <button class="premium-exercises-btn" id="premiumExBtn">Оформить Премиум</button>
+           </div>`
+        : '';
+
+    // 🎯 Кнопка «Показать ещё» (только для Премиума)
+    const moreBtn = showMoreButton
+        ? `<button class="btn-show-more" id="btnShowMore">➕ Показать ещё ${Math.min(PAGE_SIZE, filtered.length - visible.length)}</button>`
+        : '';
+
+    // 🎯 Счётчик (только для Премиума)
+    const counter = counterText
+        ? `<div class="exercises-counter">${counterText}</div>`
+        : '';
 
     return `
         <div class="exercises-block">
             <h3>🏋️ Упражнения</h3>
             ${buttons}
-            <div class="exercises-list">${cards}</div>
+            <div class="exercises-list" data-page="1" data-total="${filtered.length}">
+                ${cards}
+            </div>
+            ${moreBtn}
+            ${counter}
+            ${premiumBanner}
         </div>
     `;
 }
@@ -5590,7 +5647,34 @@ function openPremium() {
     document.body.style.paddingRight = 
         (window.innerWidth - document.documentElement.clientWidth) + 'px';
 }
-
+// ============================================
+// 📄 ПАГИНАЦИЯ УПРАЖНЕНИЙ + ПРЕМИУМ-ПЛАШКА
+// ============================================
+document.addEventListener('click', (e) => {
+    // Кнопка «Показать ещё» (Премиум)
+    if (e.target.closest('#btnShowMore')) {
+        const list = document.querySelector('.exercises-list');
+        if (!list) return;
+        
+        const currentPage = parseInt(list.dataset.page || '1');
+        list.dataset.page = currentPage + 1;
+        
+        const scrollY = window.scrollY;
+        
+        if (currentMuscleId && muscleDatabase[currentMuscleId]) {
+            renderInfo(muscleDatabase[currentMuscleId]);
+            requestAnimationFrame(() => {
+                window.scrollTo(0, scrollY);
+            });
+        }
+    }
+    
+    // Кнопка «Оформить Премиум» в плашке упражнений
+    if (e.target.closest('#premiumExBtn')) {
+        e.preventDefault();
+        openPremium();
+    }
+});
 function closePremium() {
     if (premiumModal) premiumModal.classList.remove('show');
     

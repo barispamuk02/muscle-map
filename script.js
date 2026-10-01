@@ -5678,13 +5678,11 @@ function initDodo() {
 }
 
 function openDodoCheckout() {
-    if (typeof DodoPaymentsCheckout === 'undefined') {
-        console.error('Dodo SDK не загружен');
-        if (typeof showToast === 'function') {
-            showToast('⚠️ Ошибка оплаты. Попробуйте позже.');
-        }
-        return;
-    }
+    window.open(
+        "https://test.checkout.dodopayments.com/buy/pdt_0NomjiaSek3R15G5JSghs?quantity=1",
+        "_blank"
+    );
+}
     
     // Инициализируем, если ещё не инициализировано
     initDodo();

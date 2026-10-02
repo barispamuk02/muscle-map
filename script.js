@@ -5330,7 +5330,9 @@ function setTheme(theme) {
     localStorage.setItem(THEME_KEY, theme);
     document.documentElement.setAttribute('data-theme', theme);
     if (themeToggle) {
-        themeToggle.textContent = theme === 'light' ? '☀️' : '🌙';
+        themeToggle.innerHTML = theme === 'light' 
+    ? '<span data-svg="sun" data-svg-size="18"></span>' 
+    : '<span data-svg="moon" data-svg-size="18"></span>';
         themeToggle.title = theme === 'light' ? 'Тёмная тема' : 'Светлая тема';
     }
     document.body.style.background = theme === 'light' ? '#f5f6fa' : '';

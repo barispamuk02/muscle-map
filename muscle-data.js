@@ -23,14 +23,14 @@ const groupIcons = {
 };
 // --- SVG-ИКОНКИ ГРУПП (Lucide) ---
 const groupSvgs = {
-    'Голова и шея': 'crown',
+    'Голова и шея': 'user',
     'Грудь': 'biceps-flexed',
     'Живот': 'flame',
-    'Спина': 'dumbbell',
+    'Спина': 'arrow-up-down',
     'Плечи': 'biceps-flexed',
     'Руки': 'zap',
-    'Ноги': 'zap',
-    'Связки': 'heart-plus'
+    'Ноги': 'footprints',
+    'Связки': 'git-branch'
 };
 // --- БАЗА ДАННЫХ МЫШЦ ---
 const muscleDatabase = {

@@ -269,7 +269,7 @@ body::before {
     overflow-y: hidden;
     padding-bottom: 6px;
     height: 100%;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;      /* ← центрируем */
     
     scrollbar-width: none;
@@ -295,6 +295,10 @@ body::before {
         border-color 0.3s ease;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 170px;
 }
 
 .challenge-card:hover {

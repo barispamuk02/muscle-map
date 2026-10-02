@@ -4387,7 +4387,7 @@ function renderRecoveryInfo(recovery) {
             <div class="recovery-phase" data-phase="${idx}">
                 <div class="recovery-phase-header">
                     <div class="recovery-phase-title">${phase.name}</div>
-                    <div class="recovery-phase-toggle">▼</div>
+                   <div class="recovery-phase-toggle"><span data-svg="chevrons-down" data-svg-size="16"></span></div>
                 </div>
                 <div class="recovery-phase-description">${phase.description}</div>
                 <div class="recovery-phase-exercises">${exercisesHtml}</div>
@@ -4862,7 +4862,7 @@ function renderPrograms() {
             <div class="program-day" data-day="${idx}">
                 <div class="program-day-header">
                     <div class="program-day-title">${day.name}</div>
-                    <div class="program-day-toggle">▼</div>
+                   <div class="program-day-toggle"><span data-svg="chevrons-down" data-svg-size="16"></span></div>
                 </div>
                 <div class="program-day-exercises">
                     ${day.exercises.map(ex => `
@@ -4894,7 +4894,7 @@ function renderPrograms() {
                 <div class="program-description">${program.description}</div>
                 <h3 class="program-section-title"><span data-svg="calendar-days" data-svg-size="16"></span> Дни тренировок</h3>
                 <div class="program-days">${daysHtml}</div>
-                <h3 class="program-section-title">💡 Советы</h3>
+                <h3 class="program-section-title"><span data-svg="lightbulb" data-svg-size="16"></span> Советы</h3>
                 <div class="program-tips">${tipsHtml}</div>
             </div>
         `;
@@ -4910,7 +4910,7 @@ function renderPrograms() {
 
     programsContainer.innerHTML = `
         <div class="programs-header">
-            <div class="programs-title">🏋️ Программы тренировок</div>
+            <div class="programs-title"><span data-svg="dumbbell" data-svg-size="18"></span> Программы тренировок</div>
             <div class="programs-subtitle">Готовые планы под разные цели</div>
         </div>
         <div class="programs-grid">
@@ -5082,8 +5082,8 @@ function renderWorkoutTracker() {
         <div class="tracker-card">
             <div class="tracker-header">
                 <div>
-                    <div class="tracker-title">🏋️ Тренировка сегодня</div>
-                    <div class="tracker-date">📅 ${new Date(workout.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                    <div class="tracker-title"><span data-svg="dumbbell" data-svg-size="18"></span> Тренировка сегодня</div>
+                    <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(workout.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                 </div>
                 <div class="tracker-stats">
                     <div class="tracker-stat">
@@ -5105,12 +5105,12 @@ function renderWorkoutTracker() {
                 <div class="tracker-add-row">
                     <input type="number" id="trackerWeight" placeholder="Вес (кг)" min="0" step="0.5">
                     <input type="number" id="trackerReps" placeholder="Повторы" min="1" max="100">
-                    <button class="btn-tracker-add" id="trackerAddBtn">➕ Добавить</button>
+                    <button class="btn-tracker-add" id="trackerAddBtn"><span data-svg="plus" data-svg-size="14"></span> Добавить</button>
                 </div>
             </div>
             <div class="tracker-actions">
-                <button class="btn-tracker-save" id="trackerSaveBtn">💾 Сохранить в дневник</button>
-                <button class="btn-tracker-clear" id="trackerClearBtn">🗑️ Очистить</button>
+                <button class="btn-tracker-save" id="trackerSaveBtn"><span data-svg="save" data-svg-size="14"></span> Сохранить в дневник</button>
+                <button class="btn-tracker-clear" id="trackerClearBtn"><span data-svg="trash" data-svg-size="14"></span> Очистить</button>
             </div>
         </div>
         <div class="workout-log" id="workoutLog"></div>
@@ -5201,7 +5201,7 @@ function renderChartSelect(exerciseList) {
     // Заблокированные (только для бесплатных)
     if (!isPrem && exerciseList.length > 3) {
         exerciseList.slice(3).forEach(ex => {
-            html += `<option value="${ex}" disabled>💎 ${ex}</option>`;
+            html += `<option value="${ex}" disabled>${ex}</option>`;
         });
     }
 
@@ -5237,7 +5237,7 @@ function renderWorkoutLog() {
         return `
             <div class="log-day">
                 <div class="log-day-header">
-                    <div class="log-date">📅 ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
+                    <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
                     <div class="log-day-stats">${totalSets} подх. · ${totalVolume} кг</div>
                 </div>
                 <div class="log-day-exercises">${exHtml}</div>
@@ -5252,29 +5252,26 @@ function renderWorkoutLog() {
     const exerciseList = Array.from(allExercises).sort();
 
     container.innerHTML = `
-    <div class="log-title">📓 Дневник тренировок <span class="log-count">${dates.length} ${dates.length === 1 ? 'день' : dates.length < 5 ? 'дня' : 'дней'}${hiddenDays > 0 ? ` из ${allDates.length}` : ''}</span></div>
+    <div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> Дневник тренировок <span class="log-count">...
     
     ${hiddenDays > 0 ? `
         <div class="log-premium-hint">
             <div class="log-premium-hint-text">
-                💎 Ещё ${hiddenDays} ${hiddenDays === 1 ? 'день' : hiddenDays < 5 ? 'дня' : 'дней'} истории доступно в Премиуме
-            </div>
-            <button class="log-premium-hint-btn" onclick="openPremium()">
+                <span data-svg="gem" data-svg-size="14"></span> Ещё ${hiddenDays} ${hiddenDays === 1 ? 'день' : hiddenDays < 5 ? 'дня' : 'дней'} истории доступно в Премиуме
                 Открыть Премиум
             </button>
         </div>
     ` : ''}
-    
-    <div class="progress-chart-block">
+        <div class="progress-chart-block">
             <div class="progress-chart-header">
-                <div class="progress-chart-title">📈 Прогресс по упражнению</div>
+                <div class="progress-chart-title"><span data-svg="trending-up" data-svg-size="16"></span> Прогресс по упражнению</div>
                 ${renderChartSelect(exerciseList)}
             </div>
             <div class="progress-chart-container" id="progressChart"></div>
             ${!isPremium() && exerciseList.length > 3 ? `
                 <div class="chart-premium-hint">
                     <div class="chart-premium-hint-text">
-                        💎 Ещё ${exerciseList.length - 3} ${exerciseList.length - 3 === 1 ? 'упражнение' : 'упражнений'} доступно в Премиуме
+                        <span data-svg="gem" data-svg-size="14"></span> Ещё ${exerciseList.length - 3} ${exerciseList.length - 3 === 1 ? 'упражнение' : 'упражнений'} доступно в Премиуме
                     </div>
                     <button class="chart-premium-hint-btn" onclick="openPremium()">
                         Открыть Премиум
@@ -5284,7 +5281,7 @@ function renderWorkoutLog() {
         </div>
         
         <div class="log-entries">${entriesHtml}</div>
-        <button class="btn-clear-log" id="clearLogBtn">🗑️ Очистить дневник</button>
+        <button class="btn-clear-log" id="clearLogBtn"><span data-svg="trash" data-svg-size="14"></span> Очистить дневник</button>
     `;
 
     const clearLogBtn = document.getElementById('clearLogBtn');
@@ -5472,7 +5469,7 @@ function renderRestTimer() {
                     <button class="rest-btn ${isActive ? 'pause' : 'play'}" id="restPauseBtn" ${!isActive ? 'disabled' : ''}>
                         ${restTimer.isRunning ? '⏸️ Пауза' : (isActive ? '▶️ Продолжить' : '—')}
                     </button>
-                    <button class="rest-btn reset" id="restResetBtn" ${!isActive ? 'disabled' : ''}>🔄 Сброс</button>
+                   <button class="rest-btn reset" id="restResetBtn" ${!isActive ? 'disabled' : ''}><span data-svg="refresh-cw" data-svg-size="14"></span> Сброс</button>
                 </div>
             </div>
             <div class="rest-timer-presets">
@@ -5584,14 +5581,14 @@ function renderProgressChart(exerciseName) {
     }
 
     if (dataPoints.length === 1) {
-        container.innerHTML = `
-            <div class="progress-chart-empty">
-                📊 Пока одна тренировка<br>
-                <span style="font-size: 11px; color: #4a4a6a;">Добавь ещё — и увидишь прогресс!</span>
-            </div>
-        `;
-        return;
-    }
+    container.innerHTML = `
+        <div class="progress-chart-empty">
+            <span data-svg="chart-column-increasing" data-svg-size="20"></span> Пока одна тренировка<br>
+            <span style="font-size: 11px; color: #4a4a6a;">Добавь ещё — и увидишь прогресс!</span>
+        </div>
+    `;
+    return;
+}
 
     const width = container.clientWidth || 600;
     const height = 200;
@@ -6291,10 +6288,10 @@ function updatePremiumUI() {
     const premiumBtn = document.getElementById('premiumBtn');
     if (premiumBtn) {
         if (isPrem) {
-            premiumBtn.innerHTML = '💎 Премиум ✅';
+            premiumBtn.innerHTML = '<span data-svg="gem" data-svg-size="14"></span> Премиум <span data-svg="check" data-svg-size="14"></span>';
             premiumBtn.classList.add('premium-active');
         } else {
-            premiumBtn.innerHTML = '💰 Премиум';
+            premiumBtn.innerHTML = '<span data-svg="gem" data-svg-size="14"></span> Премиум';
             premiumBtn.classList.remove('premium-active');
         }
     }
@@ -6316,14 +6313,14 @@ function showPremiumLock(featureName, description = '') {
     lock.innerHTML = `
         <div class="premium-lock-backdrop"></div>
         <div class="premium-lock-content">
-            <div class="premium-lock-icon">💎</div>
+            <div class="premium-lock-icon"><span data-svg="gem" data-svg-size="48"></span></div>
             <div class="premium-lock-title">Функция Премиум</div>
             <div class="premium-lock-feature">${featureName}</div>
             ${description ? `<div class="premium-lock-desc">${description}</div>` : ''}
             <div class="premium-lock-actions">
-                <button class="premium-lock-open" onclick="document.querySelector('.premium-lock').remove(); openPremium();">
-                    💰 Открыть Премиум
-                </button>
+               <button class="premium-lock-open" onclick="document.querySelector('.premium-lock').remove(); openPremium();">
+    <span data-svg="gem" data-svg-size="14"></span> Открыть Премиум
+</button>
                 <button class="premium-lock-close" onclick="document.querySelector('.premium-lock').remove();">
                     Позже
                 </button>

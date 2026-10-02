@@ -720,17 +720,6 @@ function getGroupColor(group) {
 function getGroupIcon(group) {
     return groupIcons[group] || '📌';
 }
-// --- SVG-ИКОНКИ ГРУПП ---
-const groupSvgs = {
-    'Голова и шея': 'crown',
-    'Грудь': 'biceps-flexed',
-    'Живот': 'flame',
-    'Спина': 'dumbbell',
-    'Плечи': 'biceps-flexed',
-    'Руки': 'zap',
-    'Ноги': 'zap',
-    'Связки': 'heart-plus'
-};
 
 function getGroupSvg(group) {
     return groupSvgs[group] || 'dumbbell';

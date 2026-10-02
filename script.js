@@ -22,6 +22,36 @@ const quoteText = document.getElementById('quoteText');
 const quoteAuthor = document.getElementById('quoteAuthor');
 const quoteShareBtn = document.getElementById('quoteShareBtn');
 const quoteCopyBtn = document.getElementById('quoteCopyBtn');
+// ============================================
+// 🎨 SVG-ИКОНКИ (Lucide)
+// ============================================
+const svgIconCache = {};
+
+/**
+ * Возвращает HTML с SVG-иконкой
+ * @param {string} name — имя иконки (без .svg)
+ * @param {number} size — размер в px
+ * @param {string} className — доп. CSS-класс
+ */
+function icon(name, size = 24, className = '') {
+    const key = `${name}_${size}_${className}`;
+    if (svgIconCache[key]) return svgIconCache[key];
+    
+    const id = 'svg-' + name + '-' + Math.random().toString(36).slice(2, 9);
+    
+    fetch(`svg/${name}.svg`)
+        .then(r => r.text())
+        .then(svg => {
+            svg = svg.replace(/class="[^"]*"/, '');
+            svg = svg.replace('<svg', `<svg width="${size}" height="${size}" class="svg-icon ${className}"`);
+            svgIconCache[key] = svg;
+            const el = document.getElementById(id);
+            if (el) el.outerHTML = svg;
+        })
+        .catch(err => console.warn(`SVG ${name} не загружен:`, err));
+    
+    return `<span id="${id}" class="svg-icon-placeholder" style="display:inline-flex;width:${size}px;height:${size}px;align-items:center;justify-content:center;"></span>`;
+}
 
 // ============================================
 // СОСТОЯНИЕ
@@ -77,30 +107,28 @@ const muscleFallback = {};
 // ДОСТИЖЕНИЯ
 // ============================================
 const achievementsDefinitions = [
-    { id: 'muscles5', icon: '🎯', text: 'Изучил 5 мышц', check: () => getViewedMusclesCount() >= 5 },
-    { id: 'muscles15', icon: '🏆', text: 'Изучил 15 мышц', check: () => getViewedMusclesCount() >= 15 },
-    { id: 'muscles30', icon: '👑', text: 'Изучил все мышцы!', check: () => getViewedMusclesCount() >= 30 },
-    { id: 'exercises10', icon: '💪', text: '10 упражнений', check: () => Object.keys(getCompleted()).length >= 10 },
-    { id: 'exercises50', icon: '🔥', text: '50 упражнений', check: () => Object.keys(getCompleted()).length >= 50 },
-    { id: 'streak3', icon: '⚡', text: 'Серия 3 дня', check: () => getStreakData().days >= 3 },
-    { id: 'streak7', icon: '🌟', text: 'Серия 7 дней', check: () => getStreakData().days >= 7 },
-    { id: 'favorites5', icon: '⭐', text: '5 избранных', check: () => getFavorites().length >= 5 },
+    { id: 'muscles5', svg: 'crosshair', text: 'Изучил 5 мышц', check: () => getViewedMusclesCount() >= 5 },
+    { id: 'muscles15', svg: 'trophy', text: 'Изучил 15 мышц', check: () => getViewedMusclesCount() >= 15 },
+    { id: 'muscles30', svg: 'gem', text: 'Изучил все мышцы!', check: () => getViewedMusclesCount() >= 30 },
+    { id: 'exercises10', svg: 'dumbbell', text: '10 упражнений', check: () => Object.keys(getCompleted()).length >= 10 },
+    { id: 'exercises50', svg: 'flame', text: '50 упражнений', check: () => Object.keys(getCompleted()).length >= 50 },
+    { id: 'streak3', svg: 'flame', text: 'Серия 3 дня', check: () => getStreakData().days >= 3 },
+    { id: 'streak7', svg: 'star', text: 'Серия 7 дней', check: () => getStreakData().days >= 7 },
+    { id: 'favorites5', svg: 'star', text: '5 избранных', check: () => getFavorites().length >= 5 },
 ];
 
 // ============================================
 // ЧЕЛЛЕНДЖИ
 // ============================================
 const challenges = [
-    { id: 'streak7', emoji: '🔥', name: '7 дней подряд', description: 'Заходи 7 дней подряд', target: 7, getProgress: () => getStreakData().days },
-    { id: 'exercises50', emoji: '💪', name: '50 упражнений', description: 'Выполни 50 упражнений', target: 50, getProgress: () => Object.keys(getCompleted()).length },
-    { id: 'plank30', emoji: '🏆', name: '30 дней планки', description: 'Отмечай упражнения каждый день', target: 30, getProgress: () => getStudyDays().length },
-    { id: 'muscles20', emoji: '🎯', name: 'Изучить 20 мышц', description: 'Открой 20 из 30 мышц', target: 20, getProgress: () => getViewedMusclesCount() },
-    {
-        id: 'weekend', emoji: '💯', name: 'Тренировка недели', description: 'Сделай 10 упражнений за 7 дней', target: 10, getProgress: () => {
-            const week = Date.now() - 7 * 24 * 60 * 60 * 1000;
-            return Object.values(getCompleted()).filter(t => t >= week).length;
-        }
-    },
+    { id: 'streak7', svg: 'flame', name: '7 дней подряд', description: 'Заходи 7 дней подряд', target: 7, getProgress: () => getStreakData().days },
+    { id: 'exercises50', svg: 'dumbbell', name: '50 упражнений', description: 'Выполни 50 упражнений', target: 50, getProgress: () => Object.keys(getCompleted()).length },
+    { id: 'plank30', svg: 'trophy', name: '30 дней планки', description: 'Отмечай упражнения каждый день', target: 30, getProgress: () => getStudyDays().length },
+    { id: 'muscles20', svg: 'crosshair', name: 'Изучить 20 мышц', description: 'Открой 20 из 30 мышц', target: 20, getProgress: () => getViewedMusclesCount() },
+    { id: 'weekend', svg: 'circle-check-big', name: 'Тренировка недели', description: 'Сделай 10 упражнений за 7 дней', target: 10, getProgress: () => {
+        const week = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        return Object.values(getCompleted()).filter(t => t >= week).length;
+    }},
 ];
 
 // ============================================
@@ -231,7 +259,7 @@ function showAchievementToast(achievement) {
     const toast = document.createElement('div');
     toast.className = 'achievement-toast';
     toast.innerHTML = `
-        <div class="achievement-toast-icon">${achievement.icon}</div>
+        <div class="achievement-toast-icon">${icon(achievement.svg, 40)}</div>
         <div class="achievement-toast-text">
             <div class="achievement-toast-label">🎉 Новое достижение!</div>
             <div class="achievement-toast-title">${achievement.text}</div>
@@ -4051,7 +4079,7 @@ function renderChallenges() {
         const completed = progress >= ch.target;
         return `
             <div class="challenge-card ${completed ? 'completed' : ''}">
-                <div class="challenge-emoji">${ch.emoji}</div>
+                <div class="challenge-emoji">${icon(ch.svg, 32)}</div>
                 <div class="challenge-name">${ch.name}</div>
                 <div class="challenge-progress">
                     <div class="challenge-progress-bar" style="width: ${percent}%"></div>

@@ -5551,3 +5551,21 @@ body:has(.premium-modal.show) {
 .premium-exercises-btn:active {
     transform: translateY(0);
 }
+/* ============================================ */
+/* 🎨 SVG-ИКОНКИ */
+/* ============================================ */
+.svg-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    flex-shrink: 0;
+    color: inherit;
+    stroke: currentColor;
+}
+
+.svg-icon-placeholder {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+}

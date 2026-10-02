@@ -88,14 +88,25 @@ const equipmentGroups = {
 };
 
 const equipmentNames = {
-    'body weight': '🏠 Своё тело', 'dumbbell': '🏠 Гантели', 'barbell': '🏋️ Штанга',
-    'cable': '🏋️ Блок', 'machine': '🏋️ Тренажёр', 'smith machine': '🏋️ Смит',
-    'ez barbell': '🏋️ EZ-штанга', 'olympic barbell': '🏋️ Олимпийская штанга',
-    'kettlebell': '🏠 Гиря', 'band': '🏠 Эспандер', 'stability ball': '🏠 Фитбол',
-    'medicine ball': '🏋️ Медбол', 'leverage machine': '🏋️ Рычажный',
-    'assisted': '🏋️ С поддержкой', 'weighted': '🏋️ С отягощением',
-    'bosu ball': '🏠 Босу', 'rope': '🏋️ Канат', 'trap bar': '🏋️ Трап-штанга',
-    'wheel roller': '🏠 Ролик'
+    'body weight': 'Своё тело',
+    'dumbbell': 'Гантели',
+    'barbell': 'Штанга',
+    'cable': 'Блок',
+    'machine': 'Тренажёр',
+    'smith machine': 'Смит',
+    'ez barbell': 'EZ-штанга',
+    'olympic barbell': 'Олимпийская штанга',
+    'kettlebell': 'Гиря',
+    'band': 'Эспандер',
+    'stability ball': 'Фитбол',
+    'medicine ball': 'Медбол',
+    'leverage machine': 'Рычажный',
+    'assisted': 'С поддержкой',
+    'weighted': 'С отягощением',
+    'bosu ball': 'Босу',
+    'rope': 'Канат',
+    'trap bar': 'Трап-штанга',
+    'wheel roller': 'Ролик'
 };
 
 // ============================================
@@ -368,14 +379,14 @@ function renderList(muscles) {
         const active = muscle.id === currentMuscleId ? 'active' : '';
         const views = getViews(muscle.id);
         const color = getGroupColor(muscle.group);
-        const icon = getGroupIcon(muscle.group);
+        const svg = getGroupSvg(muscle.group);
         html += `
             <div class="list-item ${active}" data-id="${muscle.id}">
                 <div class="list-item-content">
                     <span class="color-dot" style="background:${color};"></span>
                     <span>${muscle.name}</span>
                 </div>
-                <span class="group-tag">${icon} ${muscle.group} 👁️ ${views}</span>
+               <span class="group-tag"><span data-svg="${svg}" data-svg-size="12"></span> ${muscle.group} <span data-svg="eye" data-svg-size="12"></span> ${views}</span>
             </div>
         `;
     });
@@ -3814,8 +3825,10 @@ function renderExerciseCard(ex) {
                     </div>
                     <div class="exercise-actions">
                         <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
-                            ${done ? '✅ Выполнено' : '✔️ Отметить выполненным'}
-                        </button>
+    ${done 
+        ? '<span data-svg="circle-check-big" data-svg-size="16"></span> Выполнено' 
+        : '<span data-svg="check" data-svg-size="16"></span> Отметить выполненным'}
+</button>
                     </div>
                 </div>
             </div>
@@ -3838,7 +3851,7 @@ function renderExerciseCard(ex) {
                     <div class="exercise-name">${displayName}</div>
                     <div class="exercise-equipment">${equipment}</div>
                 </div>
-                <div class="exercise-toggle">▼</div>
+                <div class="exercise-toggle"><span data-svg="chevrons-down" data-svg-size="16"></span></div>
             </div>
             <div class="exercise-details">
                 ${gifPath ? `
@@ -3855,8 +3868,10 @@ function renderExerciseCard(ex) {
                 <div class="exercise-attribution">${ex.attribution || ''}</div>
                 <div class="exercise-actions">
                     <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
-                        ${done ? '✅ Выполнено' : '✔️ Отметить выполненным'}
-                    </button>
+    ${done 
+        ? '<span data-svg="circle-check-big" data-svg-size="16"></span> Выполнено' 
+        : '<span data-svg="check" data-svg-size="16"></span> Отметить выполненным'}
+</button>
                 </div>
             </div>
         </div>
@@ -3950,7 +3965,7 @@ function renderExercisesSection(muscle) {
 function renderInfo(muscle) {
     if (!muscle) { infoContentEl.innerHTML = ''; return; }
     const views = getViews(muscle.id);
-    const icon = getGroupIcon(muscle.group);
+    const svg = getGroupSvg(muscle.group);
     const color = getGroupColor(muscle.group);
     const fav = isFavorite(muscle.id);
 
@@ -3970,11 +3985,11 @@ function renderInfo(muscle) {
                 <div class="card-views">👁️ Просмотров: <span>${views}</span></div>
             </div>
             <div class="card-header-right">
-                <span class="card-group" style="background:${color}20; color:${color}; border:1px solid ${color}30;">${icon} ${muscle.group}</span>
-                <button class="card-favorite ${fav ? 'active' : ''}" data-fav-id="${muscle.id}" title="В избранное">${fav ? '⭐' : '☆'}</button>
+                <span class="card-group" style="..."><span data-svg="${svg}" data-svg-size="14"></span> ${muscle.group}</span>
+                <button class="card-favorite ${fav ? 'active' : ''}"><span data-svg="star" data-svg-size="20"></span></button>
             </div>
         </div>
-        ${muscle.function ? `<div class="card-function">💡 ${muscle.function}</div>` : ''}
+        ${muscle.function ? `<div class="card-function"><span data-svg="lightbulb" data-svg-size="16"></span> ${muscle.function}</div>` : ''}
         ${muscle.description ? `<div class="card-description">${muscle.description}</div>` : ''}
         ${renderExercisesSection(muscle)}
         ${imageBlock}

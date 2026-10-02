@@ -21,7 +21,17 @@ const groupIcons = {
     'Ноги': '🦵',
     'Связки': '🔗'
 };
-
+// --- SVG-ИКОНКИ ГРУПП (Lucide) ---
+const groupSvgs = {
+    'Голова и шея': 'crown',
+    'Грудь': 'biceps-flexed',
+    'Живот': 'flame',
+    'Спина': 'dumbbell',
+    'Плечи': 'biceps-flexed',
+    'Руки': 'zap',
+    'Ноги': 'zap',
+    'Связки': 'heart-plus'
+};
 // --- БАЗА ДАННЫХ МЫШЦ ---
 const muscleDatabase = {
 
@@ -710,6 +720,20 @@ function getGroupColor(group) {
 function getGroupIcon(group) {
     return groupIcons[group] || '📌';
 }
+// --- SVG-ИКОНКИ ГРУПП ---
+const groupSvgs = {
+    'Голова и шея': 'crown',
+    'Грудь': 'biceps-flexed',
+    'Живот': 'flame',
+    'Спина': 'dumbbell',
+    'Плечи': 'biceps-flexed',
+    'Руки': 'zap',
+    'Ноги': 'zap',
+    'Связки': 'heart-plus'
+};
 
+function getGroupSvg(group) {
+    return groupSvgs[group] || 'dumbbell';
+}
 console.log('✅ База данных загружена!');
 console.log(`📊 Всего мышц: ${Object.keys(muscleDatabase).length}`);

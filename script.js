@@ -4256,9 +4256,9 @@ function init() {
 
     setTimeout(checkNewAchievements, 1500);
 
-    searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
-    randomBtn.addEventListener('click', randomMuscle);
-    shareBtn.addEventListener('click', shareProject);
+    if (searchInput) searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+if (randomBtn) randomBtn.addEventListener('click', randomMuscle);
+if (shareBtn) shareBtn.addEventListener('click', shareProject);
 
     if (quoteShareBtn) quoteShareBtn.addEventListener('click', shareQuote);
     if (quoteCopyBtn) quoteCopyBtn.addEventListener('click', copyQuote);
@@ -6664,7 +6664,9 @@ function exportToPDF() {
 }
 
 // Экспорт в глобальную область
-window.exportToPDF = exportToP// ============================================
+window.exportToPDF = exportToPDF;
+
+// ============================================
 // 🎨 АВТОЗАМЕНА data-svg НА SVG-ИКОНКИ
 // ============================================
 function renderSvgIcons(container = document) {

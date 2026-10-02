@@ -3970,7 +3970,7 @@ function renderInfo(muscle) {
     const fav = isFavorite(muscle.id);
 
     const imageBlock = muscle.image
-        ? `<div class="muscle-image-block"><div class="muscle-image-title"><span data-svg="image" data-svg-size="14"></span> Анатомия</div><img src="${muscle.image}" alt="${muscle.name}" onerror="this.parentElement.style.display='none';"></div>
+        ? `<div class="muscle-image-block"><div class="muscle-image-title"><span data-svg="image" data-svg-size="14"></span> Анатомия</div><img src="${muscle.image}" alt="${muscle.name}" onerror="this.parentElement.style.display='none';"></div>`
         : '';
 
     const newCard = document.createElement('div');

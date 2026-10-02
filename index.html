@@ -27,7 +27,7 @@
 
     <header class="header">
         <div class="header-content">
-            <h1>💪 Калькулятор мышц</h1>
+            <h1><span data-svg="biceps-flexed" data-svg-size="28"></span> Калькулятор мышц</h1>
             <p class="subtitle">Выбери мышцу → узнай упражнения</p>
         </div>
         <div class="header-actions">
@@ -45,13 +45,13 @@
 
     <section class="quote-section" id="quoteSection">
         <div class="quote-inner">
-            <div class="quote-label">💬 ЦИТАТА ДНЯ</div>
+            <div class="quote-label"><span data-svg="message-circle-more" data-svg-size="14"></span> ЦИТАТА ДНЯ</div>
             <div class="quote-text" id="quoteText">Загрузка...</div>
             <div class="quote-author" id="quoteAuthor"></div>
         </div>
         <div class="quote-actions">
-            <button class="quote-btn" id="quoteShareBtn" title="Поделиться">📤</button>
-            <button class="quote-btn" id="quoteCopyBtn" title="Скопировать">📋</button>
+           <button class="quote-btn" id="quoteShareBtn" title="Поделиться"><span data-svg="send-horizontal" data-svg-size="16"></span></button>
+<button class="quote-btn" id="quoteCopyBtn" title="Скопировать"><span data-svg="clipboard-list" data-svg-size="16"></span></button>
         </div>
     </section>
 
@@ -93,7 +93,7 @@
 
     <section class="challenges-section" id="challengesSection">
         <div class="challenges-header">
-            <span class="challenges-title">🔥 Челленджи</span>
+            <span class="challenges-title"><span data-svg="flame" data-svg-size="18"></span> Челленджи</span>
             <span class="challenges-hint">Выполняй упражнения → прогресс растёт</span>
         </div>
         <div class="challenges-scroll" id="challengesList"></div>
@@ -104,9 +104,9 @@
     </section>
 
     <section class="recovery-header" id="recoveryHeader">
-        <div class="recovery-title">🩹 Восстановление после травм</div>
+        <div class="recovery-title"><span data-svg="heart-plus" data-svg-size="18"></span> Восстановление после травм</div>
         <div class="recovery-warning">
-            ⚠️ <strong>Важно:</strong> эти упражнения — для профилактики и лёгких состояний. 
+            <span data-svg="triangle-alert" data-svg-size="16"></span> <strong>Важно:</strong> эти упражнения... эти упражнения — для профилактики и лёгких состояний. 
             При острой боли, после операции или травмы — консультация врача обязательна!
         </div>
     </section>
@@ -124,7 +124,7 @@
 <div class="body-svg-layer body-svg-back" id="bodySvgBack"></div>  
 <!-- ← НОВОЕ -->
 </div>
-                    <button class="view-toggle-btn" id="viewToggle">🔄 Вид сзади</button>
+                    <button class="view-toggle-btn" id="viewToggle"><span data-svg="refresh-cw" data-svg-size="16"></span> Вид сзади</button>
                 </div>
             </section>
             <section class="info-panel" id="infoContent"></section>
@@ -134,7 +134,7 @@
             <aside class="recovery-list" id="recoveryList"></aside>
             <section class="recovery-content" id="recoveryContent">
                 <div class="recovery-placeholder">
-                    <div style="font-size: 60px; margin-bottom: 16px; opacity: 0.4;">🩹</div>
+                    <div style="margin-bottom: 16px; opacity: 0.4;"><span data-svg="heart-plus" data-svg-size="60"></span></div>
                     <div style="font-size: 20px; color: #5a5a7a;">Выбери категорию слева</div>
                     <div style="font-size: 14px; color: #3a3a5a; margin-top: 8px;">Программы реабилитации и ЛФК</div>
                 </div>
@@ -154,7 +154,7 @@
 <section class="feedback-section" id="feedbackSection">
     <div class="feedback-inner">
         <div class="feedback-header">
-            <div class="feedback-title">💬 Есть идея или предложение?</div>
+            <div class="feedback-title"><span data-svg="message-circle-more" data-svg-size="18"></span> Есть идея или предложение?</div>
             <div class="feedback-subtitle">
                 Предложи новое упражнение или улучшение сайта — мы рассмотрим!
             </div>
@@ -164,11 +164,11 @@
             <div class="feedback-row">
                 <select class="feedback-select" id="feedbackType" required>
                     <option value="">Что предложить?</option>
-                    <option value="exercise">🏋️ Новое упражнение</option>
-                    <option value="muscle">💪 Новая мышца</option>
-                    <option value="feature">✨ Улучшение сайта</option>
-                    <option value="bug">🐛 Нашёл ошибку</option>
-                    <option value="other">💬 Другое</option>
+                    <option value="exercise">Новое упражнение</option>
+<option value="muscle">Новая мышца</option>
+<option value="feature">Улучшение сайта</option>
+<option value="bug">Нашёл ошибку</option>
+<option value="other">Другое</option>
                 </select>
                 
                 <input 
@@ -199,13 +199,13 @@
                 >
                 
                 <button type="submit" class="feedback-btn" id="feedbackSubmit">
-                    📤 Отправить
-                </button>
+    <span data-svg="send-horizontal" data-svg-size="16"></span> Отправить
+</button>
             </div>
         </form>
         
         <div class="feedback-success" id="feedbackSuccess" style="display: none;">
-            <div class="feedback-success-icon">✅</div>
+            <div class="feedback-success-icon"><span data-svg="circle-check-big" data-svg-size="48"></span></div>
             <div class="feedback-success-title">Спасибо за предложение!</div>
             <div class="feedback-success-text">
                 Мы рассмотрим его и свяжемся, если нужно.
@@ -216,73 +216,59 @@
 
     <footer class="footer">
         <div class="footer-stats">
-    <span>💪 30 мышц</span>
+    <span><span data-svg="biceps-flexed" data-svg-size="14"></span> 30 мышц</span>
     <span>·</span>
-    <span>🏋️ 1365 упражнений</span>
+    <span><span data-svg="dumbbell" data-svg-size="14"></span> 1365 упражнений</span>
     <span>·</span>
-    <span>💬 365 цитат</span>
+    <span><span data-svg="message-circle-more" data-svg-size="14"></span> 365 цитат</span>
     <span>·</span>
-    <span>🏋️ 6 программ</span>
+    <span><span data-svg="dumbbell" data-svg-size="14"></span> 6 программ</span>
 </div>
         <div class="footer-disclaimer">
-            ⚠️ <strong>Muscle Map</strong> — образовательный проект. 
+            <span data-svg="triangle-alert" data-svg-size="14"></span> <strong>Muscle Map</strong> — образовательный проект.
             Перед началом тренировок или программы восстановления 
             <strong>проконсультируйтесь с врачом</strong>. 
             Мы не несём ответственности за травмы, полученные при самостоятельных занятиях.
         </div>
-        <div class="footer-copy">💪 Muscle Map © 2026 — сделано с любовью к фитнесу</div>
+       <div class="footer-copy"><span data-svg="biceps-flexed" data-svg-size="14"></span> Muscle Map © 2026 — сделано с любовью к фитнесу</div>
     </footer>
 
     <div class="dashboard-modal" id="dashboardModal">
         <div class="dashboard-backdrop" id="dashboardBackdrop"></div>
         <div class="dashboard-content">
-            <button class="dashboard-close" id="dashboardClose">✕</button>
-            <h2 class="dashboard-title">📊 Твой прогресс</h2>
+           <button class="dashboard-close" id="dashboardClose"><span data-svg="x" data-svg-size="18"></span></button>
+            <h2 class="dashboard-title"><span data-svg="chart-column-increasing" data-svg-size="20"></span> Твой прогресс</h2>
             <div class="dashboard-stats" id="dashboardStats"></div>
             <div class="dashboard-section">
-                <h3 class="dashboard-section-title">📅 Календарь активности (30 дней)</h3>
+                <h3 class="dashboard-section-title"><span data-svg="calendar-days" data-svg-size="16"></span> Календарь активности (30 дней)</h3>
                 <div class="activity-calendar" id="activityCalendar"></div>
             </div>
             <div class="dashboard-section">
-                <h3 class="dashboard-section-title">🏆 Достижения</h3>
+                <h3 class="dashboard-section-title"><span data-svg="trophy" data-svg-size="16"></span> Достижения</h3>
                 <div class="dashboard-achievements" id="dashboardAchievements"></div>
             </div>
             <div class="dashboard-section">
-                <h3 class="dashboard-section-title">🕐 Последние выполненные</h3>
+                <h3 class="dashboard-section-title"><span data-svg="clock" data-svg-size="16"></span> Последние выполненные</h3>
                 <div class="dashboard-history" id="dashboardHistory"></div>
             </div>
-            <div class="dashboard-section">
-                <h3 class="dashboard-section-title">💾 Данные</h3>
-                <div class="data-actions">
-                    <div class="dashboard-section">
-    <h3 class="dashboard-section-title">💾 Данные</h3>
+                            <div class="dashboard-section">
+    <h3 class="dashboard-section-title"><span data-svg="save" data-svg-size="16"></span> Данные</h3>
     <div class="data-actions">
-        <button class="btn-data btn-export" id="exportBtn">📤 Скачать прогресс</button>
+        <button class="btn-data btn-export" id="exportBtn"><span data-svg="send-horizontal" data-svg-size="14"></span> Скачать прогресс</button>
         <label class="btn-data btn-import">
-            📥 Загрузить прогресс
+            <span data-svg="download" data-svg-size="14"></span> Загрузить прогресс
             <input type="file" id="importFile" accept=".json" style="display:none;">
         </label>
-        <button class="btn-data btn-export-pdf" id="exportPdfBtn">📄 Скачать PDF 💎</button>
+        <button class="btn-data btn-export-pdf" id="exportPdfBtn"><span data-svg="file-text" data-svg-size="14"></span> Скачать PDF <span data-svg="gem" data-svg-size="14"></span></button>
     </div>
 </div>
-                    <button class="btn-data btn-export" id="exportBtn">📤 Скачать прогресс</button>
-                    <label class="btn-data btn-import">
-                        📥 Загрузить прогресс
-                        <input type="file" id="importFile" accept=".json" style="display:none;">
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 💰 МОДАЛКА ПРЕМИУМ -->
+        <!-- 💰 МОДАЛКА ПРЕМИУМ -->
     <div class="premium-modal" id="premiumModal">
         <div class="premium-backdrop" id="premiumBackdrop"></div>
         <div class="premium-content">
-            <button class="premium-close" id="premiumClose">✕</button>
-            
-            <div class="premium-hero">
-                <div class="premium-hero-icon">💎</div>
+            <button class="premium-close" id="premiumClose"><span data-svg="x" data-svg-size="18"></span></button>
+                        <div class="premium-hero">
+                <div class="premium-hero-icon"><span data-svg="gem" data-svg-size="48"></span></div>
                 <h2 class="premium-hero-title">Muscle Map Премиум</h2>
                 <p class="premium-hero-subtitle">
                     Открой все возможности для максимального прогресса
@@ -295,7 +281,7 @@
 
             <div class="premium-cta">
                 <button class="btn-premium-cta" id="premiumCta">
-                    🚀 Оформить Премиум
+                    <span data-svg="rocket" data-svg-size="16"></span> Оформить Премиум
                 </button>
                 <p class="premium-cta-hint">
                     Первый месяц — 50% скидка. Отмена в любой момент.
@@ -304,11 +290,11 @@
 
             <div class="premium-faq">
                 <div class="premium-faq-item">
-                    <div class="premium-faq-q">💳 Как оплатить?</div>
+                    <div class="premium-faq-q"><span data-svg="credit-card" data-svg-size="14"></span> Как оплатить?</div>
                     <div class="premium-faq-a">Оплата через ЮKassa / СБП. Скоро будет доступно.</div>
                 </div>
                 <div class="premium-faq-item">
-                    <div class="premium-faq-q">❌ Как отменить?</div>
+                    <div class="premium-faq-q"><span data-svg="circle-x" data-svg-size="14"></span> Как отменить?</div>
                     <div class="premium-faq-a">В личном кабинете в 1 клик. Без вопросов.</div>
                 </div>
                 <div class="premium-faq-item">

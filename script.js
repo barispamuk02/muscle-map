@@ -6664,4 +6664,32 @@ function exportToPDF() {
 }
 
 // Экспорт в глобальную область
-window.exportToPDF = exportToPDF;
+window.exportToPDF = exportToP// ============================================
+// 🎨 АВТОЗАМЕНА data-svg НА SVG-ИКОНКИ
+// ============================================
+function renderSvgIcons(container = document) {
+    container.querySelectorAll('[data-svg]:not([data-svg-done])').forEach(el => {
+        const svgName = el.dataset.svg;
+        const size = parseInt(el.dataset.svgSize) || 24;
+        if (svgName && typeof icon === 'function') {
+            el.innerHTML = icon(svgName, size);
+            el.dataset.svgDone = '1';
+        }
+    });
+}
+
+// Автозапуск при загрузке
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => renderSvgIcons());
+} else {
+    renderSvgIcons();
+}
+
+// MutationObserver — следит за DOM и автоматически заменяет новые data-svg
+const svgIconObserver = new MutationObserver(() => {
+    renderSvgIcons();
+});
+svgIconObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+});

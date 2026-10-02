@@ -26,6 +26,8 @@ const PRECACHE_URLS = [
 './svg/download.svg',
 './svg/credit-card.svg',
 './svg/smartphone.svg',
+'./svg/smartphone.svg',
+'./svg/search.svg',
     // Иконки PWA
     './icons/icon-192.png',
     './icons/icon-512.png',

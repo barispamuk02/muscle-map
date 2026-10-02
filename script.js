@@ -4719,7 +4719,7 @@ function renderNutrition() {
             </div>
         </div>
         <div class="nutrition-card">
-            <h3 class="nutrition-card-title">🥗 Примеры продуктов</h3>
+            <h3 class="nutrition-card-title"><span data-svg="salad" data-svg-size="16"></span> Примеры продуктов</h3>
             <div class="food-tabs">
                 <button class="food-tab active" data-food="protein"><span data-svg="beef" data-svg-size="14"></span> Белки</button>
                 <button class="food-tab" data-food="fat"><span data-svg="apple" data-svg-size="14"></span> Жиры</button>

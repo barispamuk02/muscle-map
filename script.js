@@ -4630,12 +4630,12 @@ function renderNutrition() {
 
     nutritionContainer.innerHTML = `
         <div class="nutrition-header">
-            <div class="nutrition-title">🍎 Калькулятор питания</div>
+            <div class="nutrition-title"><span data-svg="apple" data-svg-size="18"></span> Калькулятор питания</div>
             <div class="nutrition-subtitle">Рассчитай свою норму калорий и БЖУ под цель</div>
         </div>
         <div class="nutrition-grid">
             <div class="nutrition-card">
-                <h3 class="nutrition-card-title">📋 Твои данные</h3>
+                <h3 class="nutrition-card-title"><span data-svg="clipboard-list" data-svg-size="16"></span> Твои данные</h3>
                 <div class="nutrition-field">
                     <label>Пол:</label>
                     <div class="nutrition-toggle">
@@ -4674,7 +4674,7 @@ function renderNutrition() {
                 </div>
             </div>
             <div class="nutrition-card">
-                <h3 class="nutrition-card-title">📊 Твоя норма</h3>
+                <h3 class="nutrition-card-title"><span data-svg="chart-column-increasing" data-svg-size="16"></span> Твоя норма</h3>
                 <div class="nutrition-main-stat">
                     <div class="nutrition-kcal">${calc.kcal}</div>
                     <div class="nutrition-kcal-label">ккал / день</div>
@@ -4727,7 +4727,7 @@ function renderNutrition() {
             </div>
             <div class="food-list" id="foodList"></div>
         </div>
-        <div class="nutrition-warning">⚠️ Расчёт — ориентировочный. Для точного плана обратитесь к диетологу.</div>
+        <div class="nutrition-warning"><span data-svg="triangle-alert" data-svg-size="14"></span> Расчёт — ориентировочный. Для точного плана обратитесь к диетологу.</div>
     `;
 
     bindNutritionEvents();
@@ -4885,14 +4885,14 @@ function renderPrograms() {
                         <div class="program-details-title">${program.name}</div>
                         <div class="program-details-subtitle">${program.subtitle}</div>
                         <div class="program-details-meta">
-                            <span>🎯 ${program.goal}</span>
-                            <span>📊 ${program.level}</span>
+                            <span><span data-svg="crosshair" data-svg-size="14"></span> ${program.goal}</span>
+                            <span><span data-svg="chart-column-increasing" data-svg-size="14"></span> ${program.level}</span>
                             <span>⏱ ${program.duration}</span>
                         </div>
                     </div>
                 </div>
                 <div class="program-description">${program.description}</div>
-                <h3 class="program-section-title">📅 Дни тренировок</h3>
+                <h3 class="program-section-title"><span data-svg="calendar-days" data-svg-size="16"></span> Дни тренировок</h3>
                 <div class="program-days">${daysHtml}</div>
                 <h3 class="program-section-title">💡 Советы</h3>
                 <div class="program-tips">${tipsHtml}</div>

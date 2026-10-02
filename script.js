@@ -4639,8 +4639,8 @@ function renderNutrition() {
                 <div class="nutrition-field">
                     <label>Пол:</label>
                     <div class="nutrition-toggle">
-                        <button class="toggle-btn ${nutritionState.gender === 'male' ? 'active' : ''}" data-gender="male"><span data-svg="user-round" data-svg-size="16"></span> Мужчина</button>
-                        <button class="toggle-btn ${nutritionState.gender === 'female' ? 'active' : ''}" data-gender="female"><span data-svg="user-round" data-svg-size="16"></span> Женщина</button>
+                        <button class="toggle-btn ${nutritionState.gender === 'male' ? 'active' : ''}" data-gender="male"><span data-svg="users-round" data-svg-size="16"></span> Мужчина</button>
+                        <button class="toggle-btn ${nutritionState.gender === 'female' ? 'active' : ''}" data-gender="female"><span data-svg="users-round" data-svg-size="16"></span> Женщина</button>
                     </div>
                 </div>
                 <div class="nutrition-field">

@@ -6,7 +6,9 @@ const RUNTIME_CACHE = 'muscle-map-runtime-v40';
 
 // Файлы, которые кешируем сразу при установке
 const PRECACHE_URLS = [
-    // Основные файлы
+    // ============================================
+    // 📄 ОСНОВНЫЕ ФАЙЛЫ
+    // ============================================
     './',
     './index.html',
     './styles.css',
@@ -22,66 +24,79 @@ const PRECACHE_URLS = [
     './premium-data.js',
     './fonts.js',
     './manifest.json',
-    './svg/clock.svg',
-'./svg/download.svg',
-'./svg/credit-card.svg',
-'./svg/smartphone.svg',
-'./svg/smartphone.svg',
-'./svg/search.svg',
-    // Иконки PWA
+
+    // ============================================
+    // 🖼️ PWA-ИКОНКИ
+    // ============================================
     './icons/icon-192.png',
     './icons/icon-512.png',
     './icons/icon-180.png',
 
-    // Картинки
+    // ============================================
+    // 🖼️ КАРТИНКИ МАНЕКЕНА
+    // ============================================
     './images/body-front_1.png',
     './images/body-back_2.png',
 
-    // 🎨 SVG-ИКОНКИ (Lucide)
+    // ============================================
+    // 🎨 SVG-ИКОНКИ (Lucide v3) — 48 штук
+    // ============================================
     './svg/apple.svg',
-'./svg/arrow-up-down.svg',
-'./svg/biceps-flexed.svg',
-'./svg/calendar-days.svg',
-'./svg/chart-column-increasing.svg',
-'./svg/check.svg',
-'./svg/chevrons-down.svg',
-'./svg/circle-check-big.svg',
-'./svg/circle-x.svg',
-'./svg/clapperboard.svg',
-'./svg/clipboard-list.svg',
-'./svg/crosshair.svg',
-'./svg/crown.svg',
-'./svg/dumbbell.svg',
-'./svg/eye.svg',
-'./svg/file-text.svg',
-'./svg/flame.svg',
-'./svg/footprints.svg',
-'./svg/gem.svg',
-'./svg/git-branch.svg',
-'./svg/heart-plus.svg',
-'./svg/house.svg',
-'./svg/image.svg',
-'./svg/lightbulb.svg',
-'./svg/message-circle-more.svg',
-'./svg/moon.svg',
-'./svg/plus.svg',
-'./svg/refresh-cw.svg',
-'./svg/rocket.svg',
-'./svg/save.svg',
-'./svg/send-horizontal.svg',
-'./svg/shuffle.svg',
-'./svg/star.svg',
-'./svg/sun.svg',
-'./svg/trash.svg',
-'./svg/trending-up.svg',
-'./svg/triangle-alert.svg',
-'./svg/trophy.svg',
-'./svg/user.svg',
-'./svg/waypoints.svg',
-'./svg/x.svg',
-'./svg/zap.svg',
+    './svg/arrow-up-down.svg',
+    './svg/beef.svg',
+    './svg/biceps-flexed.svg',
+    './svg/calendar-days.svg',
+    './svg/chart-column-increasing.svg',
+    './svg/check.svg',
+    './svg/chevrons-down.svg',
+    './svg/circle-check-big.svg',
+    './svg/circle-x.svg',
+    './svg/clapperboard.svg',
+    './svg/clipboard-list.svg',
+    './svg/clock.svg',
+    './svg/credit-card.svg',
+    './svg/crosshair.svg',
+    './svg/crown.svg',
+    './svg/download.svg',
+    './svg/dumbbell.svg',
+    './svg/eye.svg',
+    './svg/file-text.svg',
+    './svg/flame.svg',
+    './svg/footprints.svg',
+    './svg/gem.svg',
+    './svg/git-branch.svg',
+    './svg/heart-plus.svg',
+    './svg/house.svg',
+    './svg/image.svg',
+    './svg/lightbulb.svg',
+    './svg/message-circle-more.svg',
+    './svg/moon.svg',
+    './svg/plus.svg',
+    './svg/refresh-cw.svg',
+    './svg/rocket.svg',
+    './svg/salad.svg',
+    './svg/save.svg',
+    './svg/search.svg',
+    './svg/send-horizontal.svg',
+    './svg/shuffle.svg',
+    './svg/smartphone.svg',
+    './svg/star.svg',
+    './svg/sun.svg',
+    './svg/trash.svg',
+    './svg/trending-up.svg',
+    './svg/triangle-alert.svg',
+    './svg/trophy.svg',
+    './svg/user.svg',
+    './svg/user-round.svg',
+    './svg/utensils.svg',
+    './svg/waypoints.svg',
+    './svg/wheat.svg',
+    './svg/x.svg',
+    './svg/zap.svg',
 
+    // ============================================
     // 🎨 SVG-МЫШЦЫ (манекен) — 25 мышц
+    // ============================================
     './svg/1_Sternocleidomastoid_muscle.svg',
     './svg/2_Upper_fibers_of_the_trapezius_muscle.svg',
     './svg/4_Pectoralis_major_muscle.svg',

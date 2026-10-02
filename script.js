@@ -4639,8 +4639,8 @@ function renderNutrition() {
                 <div class="nutrition-field">
                     <label>Пол:</label>
                     <div class="nutrition-toggle">
-                        <button class="toggle-btn ${nutritionState.gender === 'male' ? 'active' : ''}" data-gender="male">👨 Мужской</button>
-                        <button class="toggle-btn ${nutritionState.gender === 'female' ? 'active' : ''}" data-gender="female">👩 Женский</button>
+                        <button class="toggle-btn ${nutritionState.gender === 'male' ? 'active' : ''}" data-gender="male"><span data-svg="user-round" data-svg-size="16"></span> Мужчина</button>
+                        <button class="toggle-btn ${nutritionState.gender === 'female' ? 'active' : ''}" data-gender="female"><span data-svg="user-round" data-svg-size="16"></span> Женщина</button>
                     </div>
                 </div>
                 <div class="nutrition-field">
@@ -4681,19 +4681,19 @@ function renderNutrition() {
                 </div>
                 <div class="macros-grid">
                     <div class="macro-card protein">
-                        <div class="macro-icon">🥩</div>
+                        <div class="macro-icon"><span data-svg="beef" data-svg-size="32"></span></div>
                         <div class="macro-value">${calc.protein} г</div>
                         <div class="macro-label">Белки</div>
                         <div class="macro-percent">${calc.proteinPercent}%</div>
                     </div>
                     <div class="macro-card fat">
-                        <div class="macro-icon">🥑</div>
+                        <div class="macro-icon"><span data-svg="apple" data-svg-size="32"></span></div>
                         <div class="macro-value">${calc.fat} г</div>
                         <div class="macro-label">Жиры</div>
                         <div class="macro-percent">${calc.fatPercent}%</div>
                     </div>
                     <div class="macro-card carbs">
-                        <div class="macro-icon">🍚</div>
+                        <div class="macro-icon"><span data-svg="wheat" data-svg-size="32"></span></div>
                         <div class="macro-value">${calc.carbs} г</div>
                         <div class="macro-label">Углеводы</div>
                         <div class="macro-percent">${calc.carbsPercent}%</div>
@@ -4707,7 +4707,7 @@ function renderNutrition() {
             </div>
         </div>
         <div class="nutrition-card nutrition-meal">
-            <h3 class="nutrition-card-title">🍽️ ${mealPlanExample.title}</h3>
+            <h3 class="nutrition-card-title"><span data-svg="utensils" data-svg-size="16"></span> ${mealPlanExample.title}</h3>
             <div class="meal-list">
                 ${mealPlanExample.meals.map(m => `
                     <div class="meal-item">
@@ -4721,9 +4721,9 @@ function renderNutrition() {
         <div class="nutrition-card">
             <h3 class="nutrition-card-title">🥗 Примеры продуктов</h3>
             <div class="food-tabs">
-                <button class="food-tab active" data-food="protein">🥩 Белки</button>
-                <button class="food-tab" data-food="fat">🥑 Жиры</button>
-                <button class="food-tab" data-food="carbs">🍚 Углеводы</button>
+                <button class="food-tab active" data-food="protein"><span data-svg="beef" data-svg-size="14"></span> Белки</button>
+                <button class="food-tab" data-food="fat"><span data-svg="apple" data-svg-size="14"></span> Жиры</button>
+                <button class="food-tab" data-food="carbs"><span data-svg="wheat" data-svg-size="14"></span> Углеводы</button>
             </div>
             <div class="food-list" id="foodList"></div>
         </div>
@@ -4901,7 +4901,7 @@ function renderPrograms() {
     } else {
         detailsHtml = `
             <div class="program-placeholder">
-                <div style="font-size: 60px; margin-bottom: 16px; opacity: 0.4;">🏋️</div>
+                <div style="margin-bottom: 16px; opacity: 0.4;"><span data-svg="dumbbell" data-svg-size="60"></span></div>
                 <div style="font-size: 20px; color: #5a5a7a;">Выбери программу слева</div>
                 <div style="font-size: 14px; color: #3a3a5a; margin-top: 8px;">${Object.keys(programsDatabase).length} готовых планов</div>
             </div>
@@ -5221,7 +5221,7 @@ function renderWorkoutLog() {
     const hiddenDays = allDates.length - dates.length;
 
     if (dates.length === 0) {
-        container.innerHTML = `<div class="log-title">📓 Дневник тренировок</div><div class="log-empty">Пока нет сохранённых тренировок</div>`;
+        container.innerHTML = `<div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> Дневник тренировок</div><div class="log-empty">Пока нет сохранённых тренировок</div>`;
         return;
     }
 
@@ -6332,66 +6332,12 @@ function showPremiumLock(featureName, description = '') {
     requestAnimationFrame(() => lock.classList.add('show'));
 }
 
-// Обновление кнопок Премиума
-function updatePremiumButtons() {
-    const isPrem = isPremium();
-
-    // Кнопки активации/деактивации
-    const activateBtn = document.getElementById('testActivatePremium');
-    const deactivateBtn = document.getElementById('testDeactivatePremium');
-
-    if (activateBtn) activateBtn.style.display = isPrem ? 'none' : '';
-    if (deactivateBtn) deactivateBtn.style.display = isPrem ? '' : 'none';
-}
-
-// Тестовая кнопка (временно)
-function addTestPremiumButtons() {
-    // Куда добавить? В модалку Премиума
-    const premiumModal = document.querySelector('.premium-cta');
-    if (!premiumModal) return;
-
-    // Не добавлять дважды
-    if (document.getElementById('testPremiumBlock')) return;
-
-    const testBlock = document.createElement('div');
-    testBlock.id = 'testPremiumBlock';
-    testBlock.style.cssText = `
-        margin-top: 20px;
-        padding: 12px;
-        border: 1px dashed rgba(255, 217, 61, 0.4);
-        border-radius: 8px;
-        text-align: center;
-        font-size: 12px;
-        color: #8a8aaa;
-    `;
-    testBlock.innerHTML = `
-        <div style="margin-bottom: 8px;">🧪 ТЕСТ (удалить потом)</div>
-        <button id="testActivatePremium" style="background: #00b894; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-right: 8px;">
-            Активировать Премиум
-        </button>
-        <button id="testDeactivatePremium" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; display: none;">
-            Деактивировать
-        </button>
-    `;
-
-    premiumModal.appendChild(testBlock);
-
-    // Привязки
-    document.getElementById('testActivatePremium').addEventListener('click', () => setPremium(true, 30));
-    document.getElementById('testDeactivatePremium').addEventListener('click', () => setPremium(false));
-
-    updatePremiumButtons();
-}
-
-// Запуск
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         updatePremiumUI();
-        // setTimeout(addTestPremiumButtons, 500);   ← закомментировано (перед публикацией удалить)
     });
 } else {
     updatePremiumUI();
-    // setTimeout(addTestPremiumButtons, 500);   ← отключено
 }
 
 // Экспорт в глобальную область (для теста через консоль)

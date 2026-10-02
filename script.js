@@ -344,7 +344,9 @@ function toggleView() {
     isTransitioning = true;
     currentView = currentView === 'front' ? 'back' : 'front';
     const btn = document.getElementById('viewToggle');
-    if (btn) btn.textContent = currentView === 'front' ? '🔄 Вид сзади' : '🔄 Вид спереди';
+    if (btn) btn.innerHTML = currentView === 'front' 
+    ? '<span data-svg="refresh-cw" data-svg-size="16"></span> Вид сзади' 
+    : '<span data-svg="refresh-cw" data-svg-size="16"></span> Вид спереди';
     updateBodyImage();
     setTimeout(() => { isTransitioning = false; }, 600);
 }
@@ -362,14 +364,13 @@ function renderList(muscles) {
     }
 
     const filterBar = `
-        <div class="list-filter-bar">
-            <button class="list-filter-btn ${currentListFilter === 'all' ? 'active' : ''}" data-filter="all">📚 Все (${muscles.length})</button>
-            <button class="list-filter-btn ${currentListFilter === 'favorites' ? 'active' : ''}" data-filter="favorites">⭐ Избранное (${getFavorites().length})</button>
-        </div>
-    `;
-
+    <div class="list-filter-bar">
+        <button class="list-filter-btn ${currentListFilter === 'all' ? 'active' : ''}" data-filter="all"><span data-svg="clipboard-list" data-svg-size="14"></span> Все (${muscles.length})</button>
+        <button class="list-filter-btn ${currentListFilter === 'favorites' ? 'active' : ''}" data-filter="favorites"><span data-svg="star" data-svg-size="14"></span> Избранное (${getFavorites().length})</button>
+    </div>
+`;
     if (filtered.length === 0) {
-        muscleListEl.innerHTML = filterBar + `<div class="empty-state">⭐ Нет избранных мышц</div>`;
+        muscleListEl.innerHTML = filterBar + `<div class="empty-state"><span data-svg="star" data-svg-size="20"></span> Нет избранных мышц</div>`;
         bindListFilter();
         return;
     }
@@ -415,7 +416,9 @@ function selectMuscle(id) {
     if (muscle.side && muscle.side !== 'both' && muscle.side !== currentView) {
         currentView = muscle.side;
         const btn = document.getElementById('viewToggle');
-        if (btn) btn.textContent = currentView === 'front' ? '🔄 Вид сзади' : '🔄 Вид спереди';
+        if (btn) btn.innerHTML = currentView === 'front' 
+    ? '<span data-svg="refresh-cw" data-svg-size="16"></span> Вид сзади' 
+    : '<span data-svg="refresh-cw" data-svg-size="16"></span> Вид спереди';
     }
     renderList(Object.values(muscleDatabase));
     renderInfo(muscle);
@@ -3788,7 +3791,7 @@ function capitalize(s) {
 // ============================================
 function renderExerciseCard(ex) {
     if (ex.isCustom) {
-        const equipment = equipmentNames[ex.equipment] || '🏠 Своё тело';
+        const equipment = equipmentNames[ex.equipment] || 'Своё тело';
         const gifPath = ex.gif || '';
         const displayName = ex.name;    // ← для custom — name уже русский
         const done = isCompleted(ex.id);
@@ -3805,7 +3808,7 @@ function renderExerciseCard(ex) {
                         <div class="exercise-name">${ex.name}</div>
                         <div class="exercise-equipment">${equipment}</div>
                     </div>
-                    <div class="exercise-toggle">▼</div>
+                    <div class="exercise-toggle"><span data-svg="chevrons-down" data-svg-size="16"></span></div>
                 </div>
                 <div class="exercise-details">
                     ${gifPath ? `
@@ -3819,7 +3822,7 @@ function renderExerciseCard(ex) {
                         </div>
                     ` : ''}
                     <div class="exercise-instructions">
-                        <div class="instructions-title">📋 Описание:</div>
+                        <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> Описание:</div>
                         <p>${ex.description || 'Описание недоступно'}</p>
                         ${ex.sets ? `<p><strong>Подходы:</strong> ${ex.sets}</p>` : ''}
                     </div>
@@ -3860,7 +3863,7 @@ function renderExerciseCard(ex) {
                     </div>
                 ` : ''}
                 <div class="exercise-instructions">
-                    <div class="instructions-title">📋 Инструкция:</div>
+                    <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> Инструкция:</div>
                     ${ex.instruction_steps_ru && ex.instruction_steps_ru.length > 0
             ? `<ol>${ex.instruction_steps_ru.map(step => `<li>${step}</li>`).join('')}</ol>`
             : `<p>${ex.instructions_ru || 'Инструкция недоступна'}</p>`}
@@ -3912,21 +3915,22 @@ function renderExercisesSection(muscle) {
     }
 
     const buttons = `
-        <div class="equipment-filter">
-            <button class="filter-btn ${currentEquipmentFilter === 'all' ? 'active' : ''}" data-filter="all">📚 Всё (${allExercises.length})</button>
-            <button class="filter-btn ${currentEquipmentFilter === 'home' ? 'active' : ''}" data-filter="home">🏠 Дом (${filterByEquipment(allExercises, 'home').length})</button>
-            <button class="filter-btn ${currentEquipmentFilter === 'gym' ? 'active' : ''}" data-filter="gym">🏋️ Зал (${filterByEquipment(allExercises, 'gym').length})</button>
-        </div>
+    <div class="equipment-filter">
+        <button class="filter-btn ${currentEquipmentFilter === 'all' ? 'active' : ''}" data-filter="all"><span data-svg="clipboard-list" data-svg-size="14"></span> Всё (${allExercises.length})</button>
+        <button class="filter-btn ${currentEquipmentFilter === 'home' ? 'active' : ''}" data-filter="home"><span data-svg="house" data-svg-size="14"></span> Дом (${filterByEquipment(allExercises, 'home').length})</button>
+        <button class="filter-btn ${currentEquipmentFilter === 'gym' ? 'active' : ''}" data-filter="gym"><span data-svg="dumbbell" data-svg-size="14"></span> Зал (${filterByEquipment(allExercises, 'gym').length})</button>
+    </div>
+`;
     `;
 
     const cards = visible.length > 0
         ? visible.map(renderExerciseCard).join('')
         : '<div class="no-exercises">😕 Нет упражнений для этого фильтра</div>';
 
-    // 🎯 Плашка Премиума (только для бесплатных)
+        // 🎯 Плашка Премиума (только для бесплатных)
     const premiumBanner = showPremiumBanner
         ? `<div class="premium-exercises-banner">
-               <div class="premium-exercises-icon">💎</div>
+              <div class="premium-exercises-icon"><span data-svg="gem" data-svg-size="32"></span></div>
                <div class="premium-exercises-text">
                    <strong>Ещё ${filtered.length - FREE_LIMIT} ${declOfNum(filtered.length - FREE_LIMIT, ['упражнение', 'упражнения', 'упражнений'])}</strong>
                    <span>Оформи Премиум — открой всю базу упражнений</span>
@@ -3937,7 +3941,7 @@ function renderExercisesSection(muscle) {
 
     // 🎯 Кнопка «Показать ещё» (только для Премиума)
     const moreBtn = showMoreButton
-        ? `<button class="btn-show-more" id="btnShowMore">➕ Показать ещё ${Math.min(PAGE_SIZE, filtered.length - visible.length)}</button>`
+        ? `<button class="btn-show-more" id="btnShowMore"><span data-svg="plus" data-svg-size="16"></span> Показать ещё ${Math.min(PAGE_SIZE, filtered.length - visible.length)}</button>`
         : '';
 
     // 🎯 Счётчик (только для Премиума)
@@ -3947,7 +3951,7 @@ function renderExercisesSection(muscle) {
 
     return `
         <div class="exercises-block">
-            <h3>🏋️ Упражнения</h3>
+            <h3><span data-svg="dumbbell" data-svg-size="18"></span> Упражнения</h3>
             ${buttons}
             <div class="exercises-list" data-page="1" data-total="${filtered.length}">
                 ${cards}
@@ -4067,7 +4071,7 @@ function openGifModal(gifUrl, name) {
     modal.innerHTML = `
         <div class="gif-modal-backdrop"></div>
         <div class="gif-modal-content">
-            <button class="gif-modal-close">✕</button>
+           <button class="gif-modal-close"><span data-svg="x" data-svg-size="18"></span></button>
             <div class="gif-modal-title">${name}</div>
             <div class="gif-modal-image"><img src="${gifUrl}" alt="${name}"></div>
             <div class="gif-modal-hint">Esc или клик вне — закрыть</div>
@@ -4153,7 +4157,7 @@ function openDashboard() {
     if (!resetBlock) {
         resetBlock = document.createElement('div');
         resetBlock.className = 'dashboard-reset';
-        resetBlock.innerHTML = `<button class="btn-reset-progress" id="resetProgressBtn">🔄 Сбросить весь прогресс</button>`;
+        resetBlock.innerHTML = `<button class="btn-reset-progress" id="resetProgressBtn"><span data-svg="refresh-cw" data-svg-size="14"></span> Сбросить весь прогресс</button>`;
         dashboardModal.querySelector('.dashboard-content').appendChild(resetBlock);
         resetBlock.querySelector('#resetProgressBtn').addEventListener('click', resetProgress);
     }
@@ -4338,7 +4342,7 @@ function switchToRecovery() {
 function renderRecoveryList() {
     if (!recoveryList || typeof recoveryDatabase === 'undefined') return;
 
-    let html = '<div class="recovery-list-title">🩹 Категории</div>';
+    let html = '<div class="recovery-list-title"><span data-svg="heart-plus" data-svg-size="14"></span> Категории</div>';
     Object.values(recoveryDatabase).forEach(r => {
         const active = r.id === currentRecoveryId ? 'active' : '';
         html += `
@@ -6177,7 +6181,7 @@ function initFeedbackForm() {
 
         // Блокируем кнопку
         submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Отправка...';
+        submitBtn.innerHTML = '<span data-svg="refresh-cw" data-svg-size="16"></span> Отправка...';
 
         // Формируем заявку
         const feedback = {
@@ -6215,7 +6219,7 @@ function initFeedbackForm() {
                 form.reset();
                 success.style.display = 'none';
                 submitBtn.disabled = false;
-                submitBtn.textContent = '📤 Отправить';
+                submitBtn.innerHTML = '<span data-svg="refresh-cw" data-svg-size="16"></span> Отправка...';
             }, 5000);
         }, 800);
     });

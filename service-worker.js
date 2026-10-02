@@ -1,8 +1,8 @@
 // ============================================
 // 🔧 SERVICE WORKER — КЕШ ДЛЯ ОФЛАЙН-РЕЖИМА
 // ============================================
-const CACHE_NAME = 'muscle-map-v26';
-const RUNTIME_CACHE = 'muscle-map-runtime-v26';
+const CACHE_NAME = 'muscle-map-v27';
+const RUNTIME_CACHE = 'muscle-map-runtime-v27';
 
 // Файлы, которые кешируем сразу при установке
 const PRECACHE_URLS = [
@@ -59,6 +59,10 @@ const PRECACHE_URLS = [
     './svg/trophy.svg',
     './svg/waypoints.svg',
     './svg/x.svg',
+    './svg/crown.svg',
+    './svg/zap.svg',
+    './svg/biceps-flexed.svg',
+    './svg/rocket.svg',
 
     // 🎨 SVG-МЫШЦЫ (манекен) — 25 мышц
     './svg/1_Sternocleidomastoid_muscle.svg',

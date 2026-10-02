@@ -109,10 +109,10 @@ const muscleFallback = {};
 const achievementsDefinitions = [
     { id: 'muscles5', svg: 'crosshair', text: 'Изучил 5 мышц', check: () => getViewedMusclesCount() >= 5 },
     { id: 'muscles15', svg: 'trophy', text: 'Изучил 15 мышц', check: () => getViewedMusclesCount() >= 15 },
-    { id: 'muscles30', svg: 'gem', text: 'Изучил все мышцы!', check: () => getViewedMusclesCount() >= 30 },
+    { id: 'muscles30', svg: 'crown', text: 'Изучил все мышцы!', check: () => getViewedMusclesCount() >= 30 },
     { id: 'exercises10', svg: 'dumbbell', text: '10 упражнений', check: () => Object.keys(getCompleted()).length >= 10 },
     { id: 'exercises50', svg: 'flame', text: '50 упражнений', check: () => Object.keys(getCompleted()).length >= 50 },
-    { id: 'streak3', svg: 'flame', text: 'Серия 3 дня', check: () => getStreakData().days >= 3 },
+    { id: 'streak3', svg: 'zap', text: 'Серия 3 дня', check: () => getStreakData().days >= 3 },
     { id: 'streak7', svg: 'star', text: 'Серия 7 дней', check: () => getStreakData().days >= 7 },
     { id: 'favorites5', svg: 'star', text: '5 избранных', check: () => getFavorites().length >= 5 },
 ];
@@ -4114,9 +4114,9 @@ function openDashboard() {
 
     const achievements = achievementsDefinitions.filter(a => a.check());
     if (achievements.length === 0) {
-        dashboardAchievements.innerHTML = '<div class="achievement-badge locked">🚀 Начни тренироваться!</div>';
+        dashboardAchievements.innerHTML = '<div class="achievement-badge locked"><span data-svg="rocket" data-svg-size="16"></span> Начни тренироваться!</div>';
     } else {
-        dashboardAchievements.innerHTML = achievements.map(a => `<div class="achievement-badge">${a.icon} ${a.text}</div>`).join('');
+       dashboardAchievements.innerHTML = achievements.map(a => `<div class="achievement-badge"><span data-svg="${a.svg}" data-svg-size="16"></span> ${a.text}</div>`).join('');
     }
 
     const completed = getCompleted();

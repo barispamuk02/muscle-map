@@ -3970,7 +3970,7 @@ function renderInfo(muscle) {
     const fav = isFavorite(muscle.id);
 
     const imageBlock = muscle.image
-        ? `<div class="muscle-image-block"><div class="muscle-image-title">🖼️ Анатомия</div><img src="${muscle.image}" alt="${muscle.name}" onerror="this.parentElement.style.display='none';"></div>`
+        ? `<div class="muscle-image-block"><div class="muscle-image-title"><span data-svg="image" data-svg-size="14"></span> Анатомия</div><img src="${muscle.image}" alt="${muscle.name}" onerror="this.parentElement.style.display='none';"></div>
         : '';
 
     const newCard = document.createElement('div');
@@ -3982,7 +3982,7 @@ function renderInfo(muscle) {
             <div>
                 <div class="card-name">${muscle.name}</div>
                 <div class="card-latin">${muscle.latin || ''}</div>
-                <div class="card-views">👁️ Просмотров: <span>${views}</span></div>
+                <div class="card-views"><span data-svg="eye" data-svg-size="14"></span> Просмотров: <span>${views}</span></div>
             </div>
             <div class="card-header-right">
                 <span class="card-group" style="..."><span data-svg="${svg}" data-svg-size="14"></span> ${muscle.group}</span>

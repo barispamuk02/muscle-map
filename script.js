@@ -3921,11 +3921,9 @@ function renderExercisesSection(muscle) {
         <button class="filter-btn ${currentEquipmentFilter === 'gym' ? 'active' : ''}" data-filter="gym"><span data-svg="dumbbell" data-svg-size="14"></span> Зал (${filterByEquipment(allExercises, 'gym').length})</button>
     </div>
 `;
-    `;
-
     const cards = visible.length > 0
         ? visible.map(renderExerciseCard).join('')
-        : '<div class="no-exercises">😕 Нет упражнений для этого фильтра</div>';
+        : '<div class="no-exercises"><span data-svg="frown" data-svg-size="32"></span> Нет упражнений для этого фильтра</div>';
 
         // 🎯 Плашка Премиума (только для бесплатных)
     const premiumBanner = showPremiumBanner

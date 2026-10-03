@@ -5573,3 +5573,83 @@ body:has(.premium-modal.show) {
     width: 24px;
     height: 24px;
 }
+/* ============================================ */
+/* 📊 АНАЛИТИКА В DASHBOARD */
+/* ============================================ */
+.analytics-block {
+    margin-bottom: 24px;
+}
+
+.analytics-block:last-child {
+    margin-bottom: 0;
+}
+
+.analytics-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6fb3ff;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.analytics-chart {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 180px;
+}
+
+.analytics-empty {
+    text-align: center;
+    color: #4a4a6a;
+    font-size: 12px;
+    padding: 40px 20px;
+}
+
+/* SVG-графики */
+.analytics-chart svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.analytics-chart .chart-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.analytics-chart .chart-point {
+    transition: r 0.2s ease;
+    cursor: pointer;
+}
+
+.analytics-chart .chart-point:hover {
+    r: 6;
+}
+
+.analytics-chart .chart-label {
+    font-size: 10px;
+    fill: #6a6a8a;
+    font-family: inherit;
+}
+
+.analytics-chart .chart-value {
+    font-size: 11px;
+    fill: #ffffff;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+.analytics-chart .streak-cell {
+    transition: opacity 0.2s ease;
+    cursor: pointer;
+}
+
+.analytics-chart .streak-cell:hover {
+    opacity: 0.7;
+}

@@ -4160,7 +4160,13 @@ function openDashboard() {
         resetBlock.querySelector('#resetProgressBtn').addEventListener('click', resetProgress);
     }
 
+        // 📊 Аналитика
+    renderVolumeChart();
+    renderTopExercises();
+    renderStreakHeatmap();
+
     dashboardModal.classList.add('show');
+}
 }
 
 function closeDashboard() {
@@ -6657,3 +6663,219 @@ svgIconObserver.observe(document.body, {
     childList: true,
     subtree: true
 });
+// ============================================
+// 📊 АНАЛИТИКА — ГРАФИКИ ПРОГРЕССА
+// ============================================
+
+/**
+ * Объём по дням — SVG-график (линия)
+ */
+function renderVolumeChart(days = 30) {
+    const container = document.getElementById('volumeChart');
+    if (!container) return;
+
+    const log = getWorkoutLog();
+    const dates = Object.keys(log).sort().slice(-days);
+
+    if (dates.length === 0) {
+        container.innerHTML = '<div class="analytics-empty">Пока нет данных для графика</div>';
+        return;
+    }
+
+    const data = dates.map(date => {
+        const dayData = log[date];
+        let volume = 0;
+        Object.values(dayData).forEach(sets => {
+            sets.forEach(s => {
+                volume += (s.weight || 0) * (s.reps || 0);
+            });
+        });
+        return { date, volume };
+    });
+
+    const maxVolume = Math.max(...data.map(d => d.volume)) || 1;
+    const width = 600;
+    const height = 160;
+    const padding = { top: 20, right: 20, bottom: 30, left: 50 };
+    const chartW = width - padding.left - padding.right;
+    const chartH = height - padding.top - padding.bottom;
+
+    const points = data.map((d, i) => ({
+        x: padding.left + (i / Math.max(data.length - 1, 1)) * chartW,
+        y: padding.top + chartH - (d.volume / maxVolume) * chartH,
+        value: d.volume,
+        date: d.date
+    }));
+
+    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+    const areaPath = `${linePath} L ${points[points.length - 1].x} ${padding.top + chartH} L ${points[0].x} ${padding.top + chartH} Z`;
+
+    const circles = points.map(p => `
+        <circle class="chart-point" cx="${p.x}" cy="${p.y}" r="3" fill="#6fb3ff">
+            <title>${p.date}: ${p.value} кг</title>
+        </circle>
+    `).join('');
+
+    const yLabels = [0, 0.5, 1].map(ratio => {
+        const y = padding.top + chartH - ratio * chartH;
+        const value = Math.round(maxVolume * ratio);
+        return `<text class="chart-label" x="${padding.left - 8}" y="${y + 4}" text-anchor="end">${value}</text>`;
+    }).join('');
+
+    const xLabels = [0, Math.floor(data.length / 2), data.length - 1].map(i => {
+        if (i < 0 || i >= points.length) return '';
+        const p = points[i];
+        const date = new Date(data[i].date);
+        const label = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        return `<text class="chart-label" x="${p.x}" y="${height - 8}" text-anchor="middle">${label}</text>`;
+    }).join('');
+
+    container.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <linearGradient id="volumeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#6fb3ff" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#6fb3ff" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+            <line x1="${padding.left}" y1="${padding.top + chartH}" x2="${padding.left + chartW}" y2="${padding.top + chartH}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <path d="${areaPath}" fill="url(#volumeGradient)"/>
+            <path class="chart-line" d="${linePath}" stroke="#6fb3ff"/>
+            ${circles}
+            ${yLabels}
+            ${xLabels}
+        </svg>
+    `;
+}
+
+/**
+ * Топ-5 упражнений — горизонтальные бары
+ */
+function renderTopExercises() {
+    const container = document.getElementById('topExercises');
+    if (!container) return;
+
+    const log = getWorkoutLog();
+    if (Object.keys(log).length === 0) {
+        container.innerHTML = '<div class="analytics-empty">Пока нет данных</div>';
+        return;
+    }
+
+    const exerciseVolume = {};
+    Object.values(log).forEach(dayData => {
+        Object.entries(dayData).forEach(([name, sets]) => {
+            const volume = sets.reduce((sum, s) => sum + (s.weight || 0) * (s.reps || 0), 0);
+            exerciseVolume[name] = (exerciseVolume[name] || 0) + volume;
+        });
+    });
+
+    const top5 = Object.entries(exerciseVolume)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+    if (top5.length === 0) {
+        container.innerHTML = '<div class="analytics-empty">Пока нет данных</div>';
+        return;
+    }
+
+    const maxVolume = top5[0][1] || 1;
+
+    const bars = top5.map(([name, volume], i) => {
+        const percentage = (volume / maxVolume) * 100;
+        const colors = ['#6fb3ff', '#00b894', '#ffd93d', '#fd79a8', '#a29bfe'];
+        const color = colors[i] || '#6fb3ff';
+        const displayName = (typeof translateByName === 'function') ? translateByName(name) : name;
+        
+        return `
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <div style="min-width: 100px; font-size: 11px; color: #a0a0c0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</div>
+                <div style="flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                    <div style="width: ${percentage}%; height: 100%; background: ${color}; border-radius: 4px;"></div>
+                </div>
+                <div style="min-width: 50px; font-size: 11px; color: ${color}; font-weight: 600; text-align: right;">${volume} кг</div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = bars;
+}
+
+/**
+ * Streak-календарь — heatmap как GitHub
+ */
+function renderStreakHeatmap(days = 30) {
+    const container = document.getElementById('streakHeatmap');
+    if (!container) return;
+
+    const log = getWorkoutLog();
+
+    const today = new Date();
+    const cells = [];
+    for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayData = log[dateStr];
+        
+        let level = 0;
+        if (dayData) {
+            let volume = 0;
+            Object.values(dayData).forEach(sets => {
+                sets.forEach(s => {
+                    volume += (s.weight || 0) * (s.reps || 0);
+                });
+            });
+            if (volume > 0) level = 1;
+            if (volume > 500) level = 2;
+            if (volume > 1500) level = 3;
+            if (volume > 3000) level = 4;
+        }
+        
+        cells.push({ date: dateStr, level });
+    }
+
+    const colors = [
+        'rgba(255,255,255,0.03)',
+        'rgba(0, 184, 148, 0.3)',
+        'rgba(0, 184, 148, 0.5)',
+        'rgba(0, 184, 148, 0.7)',
+        'rgba(0, 184, 148, 1)'
+    ];
+
+    const cols = 6;
+    const rows = 5;
+    const cellSize = 22;
+    const gap = 4;
+    const width = cols * (cellSize + gap) - gap;
+    const height = rows * (cellSize + gap) - gap;
+
+    const rects = cells.map((c, i) => {
+        const col = Math.floor(i / rows);
+        const row = i % rows;
+        const x = col * (cellSize + gap);
+        const y = row * (cellSize + gap);
+        const date = new Date(c.date);
+        const label = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        
+        return `<rect class="streak-cell" x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="4" fill="${colors[c.level]}">
+            <title>${label}</title>
+        </rect>`;
+    }).join('');
+
+    const legend = `
+        <div style="display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 10px; color: #6a6a8a; justify-content: center;">
+            <span>Меньше</span>
+            ${colors.map(c => `<div style="width: 12px; height: 12px; border-radius: 3px; background: ${c};"></div>`).join('')}
+            <span>Больше</span>
+        </div>
+    `;
+
+    container.innerHTML = `
+        <div style="display: flex; justify-content: center;">
+            <svg viewBox="0 0 ${width} ${height}" style="max-width: 200px;">
+                ${rects}
+            </svg>
+        </div>
+        ${legend}
+    `;
+}

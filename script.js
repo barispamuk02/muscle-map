@@ -4167,7 +4167,7 @@ function openDashboard() {
 
     dashboardModal.classList.add('show');
 }
-}
+
 
 function closeDashboard() {
     if (dashboardModal) dashboardModal.classList.remove('show');

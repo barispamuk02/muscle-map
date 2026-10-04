@@ -3823,6 +3823,7 @@ function renderExerciseCard(ex) {
                     ` : ''}
                     <div class="exercise-instructions">
                         <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> Описание:</div>
+                        ${renderSynergists(ex)}
                         <p>${ex.description || 'Описание недоступно'}</p>
                         ${ex.sets ? `<p><strong>Подходы:</strong> ${ex.sets}</p>` : ''}
                     </div>

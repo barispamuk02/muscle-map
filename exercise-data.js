@@ -26970,3 +26970,7 @@ const exerciseDatabase = [
 ];
 
 console.log('✅ База упражнений загружена: ' + exerciseDatabase.length + ' упражнений');
+// Для Node.js (скрипт генерации синергистов)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { exerciseDatabase };
+}

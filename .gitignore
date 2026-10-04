@@ -1,0 +1,15 @@
+# Node.js
+node_modules/
+package-lock.json
+package.json
+
+# Временные
+*.log
+*.tmp
+
+# Служебные
+.DS_Store
+Thumbs.db
+
+# Наши генераторы (не нужны в репо)
+generate-synergists.js

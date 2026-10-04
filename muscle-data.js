@@ -726,3 +726,7 @@ function getGroupSvg(group) {
 }
 console.log('✅ База данных загружена!');
 console.log(`📊 Всего мышц: ${Object.keys(muscleDatabase).length}`);
+// Для Node.js (скрипт генерации синергистов)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { muscleDatabase };
+}

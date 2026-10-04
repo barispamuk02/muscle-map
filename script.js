@@ -3999,9 +3999,7 @@ function renderInfo(muscle) {
 ${imageBlock}
 ${renderMuscleSynergists(muscle)}
     `;
-    `;
-
-    const oldCard = infoContentEl.querySelector('.muscle-card');
+      const oldCard = infoContentEl.querySelector('.muscle-card');
     if (oldCard) {
         oldCard.style.transition = 'all 0.25s ease-out';
         oldCard.style.opacity = '0';

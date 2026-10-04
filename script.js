@@ -6880,3 +6880,66 @@ function renderStreakHeatmap(days = 30) {
         ${legend}
     `;
 }
+// ============================================
+// 🎯 СИНЕРГИСТЫ — вспомогательные мышцы
+// ============================================
+
+function renderSynergists(ex) {
+    if (typeof synergistsData === 'undefined') return '';
+    
+    const key = (ex.name_en || '').toLowerCase().trim();
+    const data = synergistsData[key];
+    
+    if (!data) return '';
+    
+    const primary = data.primary;
+    const primaryMuscle = muscleDatabase[primary.muscleId];
+    const synergists = data.synergists || [];
+    
+    const primaryHtml = primaryMuscle ? `
+        <a class="synergist-item primary" data-muscle-id="${primary.muscleId}" href="#" onclick="event.preventDefault(); selectMuscle('${primary.muscleId}');">
+            <span class="synergist-name">
+                <span data-svg="biceps-flexed" data-svg-size="12"></span>
+                ${primaryMuscle.name}
+            </span>
+            <div class="synergist-bar">
+                <div class="synergist-bar-fill" style="width: ${primary.percent}%"></div>
+            </div>
+            <span class="synergist-percent">${primary.percent}%</span>
+        </a>
+    ` : '';
+    
+    const synergistsHtml = synergists.map(s => {
+        const muscle = muscleDatabase[s.muscleId];
+        if (!muscle) return '';
+        
+        return `
+            <a class="synergist-item" data-muscle-id="${s.muscleId}" href="#" onclick="event.preventDefault(); selectMuscle('${s.muscleId}');">
+                <span class="synergist-name">
+                    <span data-svg="dumbbell" data-svg-size="12"></span>
+                    ${muscle.name}
+                </span>
+                <div class="synergist-bar">
+                    <div class="synergist-bar-fill" style="width: ${s.percent}%"></div>
+                </div>
+                <span class="synergist-percent">${s.percent}%</span>
+            </a>
+        `;
+    }).join('');
+    
+    return `
+        <div class="exercise-synergists">
+            <div class="synergists-title">
+                <span data-svg="crosshair" data-svg-size="14"></span>
+                Мышцы в работе
+            </div>
+            <div class="synergists-list">
+                ${primaryHtml}
+                ${synergistsHtml}
+            </div>
+        </div>
+    `;
+}
+
+// Экспорт в window (для Console)
+window.renderSynergists = renderSynergists;

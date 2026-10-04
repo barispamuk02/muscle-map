@@ -6954,38 +6954,36 @@ function renderMuscleSynergists(muscle) {
     const exercises = getExercisesForMuscle(muscle.id);
     if (exercises.length === 0) return '';
     
-    const synergistCount = {};
+    // Собираем уникальных синергистов
+    const seen = new Set();
+    const synergists = [];
     
     exercises.forEach(ex => {
         const key = (ex.name_en || '').toLowerCase().trim();
         const data = synergistsData[key];
-        if (data && data.synergists) {
-            data.synergists.forEach(s => {
-                synergistCount[s.muscleId] = (synergistCount[s.muscleId] || 0) + 1;
-            });
-        }
+        if (!data || !data.synergists) return;
+        
+        data.synergists.forEach(s => {
+            if (!seen.has(s.muscleId)) {
+                seen.add(s.muscleId);
+                synergists.push(s.muscleId);
+            }
+        });
     });
     
-    const sorted = Object.entries(synergistCount)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 6);
+    if (synergists.length === 0) return '';
     
-    if (sorted.length === 0) return '';
-    
-    const html = sorted.map(([id, count]) => {
+    const html = synergists.slice(0, 8).map(id => {
         const m = muscleDatabase[id];
         if (!m) return '';
         
-        const percent = Math.round((count / exercises.length) * 100);
-        const barWidth = Math.min(percent * 2, 100);
-        
         return `
             <a class="muscle-synergist-item" onclick="event.preventDefault(); selectMuscle('${id}');" href="#">
-                <span class="muscle-synergist-name">${m.name}</span>
-                <div class="muscle-synergist-bar">
-                    <div class="muscle-synergist-bar-fill" style="width: ${barWidth}%"></div>
-                </div>
-                <span class="muscle-synergist-percent">${percent}%</span>
+                <span class="muscle-synergist-name">
+                    <span data-svg="dumbbell" data-svg-size="12"></span>
+                    ${m.name}
+                </span>
+                <span class="muscle-synergist-arrow">→</span>
             </a>
         `;
     }).join('');
@@ -6997,7 +6995,7 @@ function renderMuscleSynergists(muscle) {
                 Мышцы в работе
             </div>
             <div class="muscle-synergists-subtitle">
-                Часто работают вместе с этой мышцей:
+                С этой мышцей также работают:
             </div>
             <div class="muscle-synergists-list">
                 ${html}
@@ -7005,5 +7003,7 @@ function renderMuscleSynergists(muscle) {
         </div>
     `;
 }
+
+window.renderMuscleSynergists = renderMuscleSynergists;
 
 window.renderMuscleSynergists = renderMuscleSynergists;

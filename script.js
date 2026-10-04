@@ -3823,7 +3823,7 @@ function renderExerciseCard(ex) {
                     ` : ''}
                     <div class="exercise-instructions">
                         <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> Описание:</div>
-                        ${renderSynergists(ex)}
+                       
                         <p>${ex.description || 'Описание недоступно'}</p>
                         ${ex.sets ? `<p><strong>Подходы:</strong> ${ex.sets}</p>` : ''}
                     </div>
@@ -3869,6 +3869,7 @@ function renderExerciseCard(ex) {
             ? `<ol>${ex.instruction_steps_ru.map(step => `<li>${step}</li>`).join('')}</ol>`
             : `<p>${ex.instructions_ru || 'Инструкция недоступна'}</p>`}
                 </div>
+                ${renderSynergists(ex)}
                 <div class="exercise-attribution">${ex.attribution || ''}</div>
                 <div class="exercise-actions">
                     <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">

@@ -3996,7 +3996,9 @@ function renderInfo(muscle) {
         ${muscle.function ? `<div class="card-function"><span data-svg="lightbulb" data-svg-size="16"></span> ${muscle.function}</div>` : ''}
         ${muscle.description ? `<div class="card-description">${muscle.description}</div>` : ''}
         ${renderExercisesSection(muscle)}
-        ${imageBlock}
+${imageBlock}
+${renderMuscleSynergists(muscle)}
+    `;
     `;
 
     const oldCard = infoContentEl.querySelector('.muscle-card');
@@ -6944,3 +6946,66 @@ function renderSynergists(ex) {
 
 // Экспорт в window (для Console)
 window.renderSynergists = renderSynergists;
+// ============================================
+// 🎯 СИНЕРГИСТЫ МЫШЦЫ (общая сводка)
+// ============================================
+function renderMuscleSynergists(muscle) {
+    if (!muscle) return '';
+    if (typeof synergistsData === 'undefined') return '';
+    
+    const exercises = getExercisesForMuscle(muscle.id);
+    if (exercises.length === 0) return '';
+    
+    const synergistCount = {};
+    
+    exercises.forEach(ex => {
+        const key = (ex.name_en || '').toLowerCase().trim();
+        const data = synergistsData[key];
+        if (data && data.synergists) {
+            data.synergists.forEach(s => {
+                synergistCount[s.muscleId] = (synergistCount[s.muscleId] || 0) + 1;
+            });
+        }
+    });
+    
+    const sorted = Object.entries(synergistCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6);
+    
+    if (sorted.length === 0) return '';
+    
+    const html = sorted.map(([id, count]) => {
+        const m = muscleDatabase[id];
+        if (!m) return '';
+        
+        const percent = Math.round((count / exercises.length) * 100);
+        const barWidth = Math.min(percent * 2, 100);
+        
+        return `
+            <a class="muscle-synergist-item" onclick="event.preventDefault(); selectMuscle('${id}');" href="#">
+                <span class="muscle-synergist-name">${m.name}</span>
+                <div class="muscle-synergist-bar">
+                    <div class="muscle-synergist-bar-fill" style="width: ${barWidth}%"></div>
+                </div>
+                <span class="muscle-synergist-percent">${percent}%</span>
+            </a>
+        `;
+    }).join('');
+    
+    return `
+        <div class="muscle-synergists-block">
+            <div class="muscle-synergists-title">
+                <span data-svg="crosshair" data-svg-size="16"></span>
+                Мышцы в работе
+            </div>
+            <div class="muscle-synergists-subtitle">
+                Часто работают вместе с этой мышцей:
+            </div>
+            <div class="muscle-synergists-list">
+                ${html}
+            </div>
+        </div>
+    `;
+}
+
+window.renderMuscleSynergists = renderMuscleSynergists;

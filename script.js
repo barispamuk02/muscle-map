@@ -3869,6 +3869,7 @@ function renderExerciseCard(ex) {
             ? `<ol>${ex.instruction_steps_ru.map(step => `<li>${step}</li>`).join('')}</ol>`
             : `<p>${ex.instructions_ru || 'Инструкция недоступна'}</p>`}
                 </div>
+                ${renderMistakes(ex)} 
                 ${renderSynergists(ex)}
                 <div class="exercise-attribution">${ex.attribution || ''}</div>
                 <div class="exercise-actions">
@@ -7005,5 +7006,47 @@ function renderMuscleSynergists(muscle) {
 }
 
 window.renderMuscleSynergists = renderMuscleSynergists;
+// ============================================
+// ⚠️ ОШИБКИ ПО ТЕХНИКЕ
+// ============================================
 
-window.renderMuscleSynergists = renderMuscleSynergists;
+function renderMistakes(ex) {
+    if (!ex) return '';
+    if (typeof mistakesData === 'undefined') return '';
+    
+    const key = (ex.name_en || '').toLowerCase().trim();
+    const data = mistakesData[key];
+    
+    if (!data || !data.mistakes || data.mistakes.length === 0) return '';
+    
+    const html = data.mistakes.map(m => `
+        <div class="mistake-item">
+            <div class="mistake-error">
+                <span data-svg="circle-x" data-svg-size="14"></span>
+                ${m.error}
+            </div>
+            <div class="mistake-consequence">
+                <span data-svg="triangle-alert" data-svg-size="12"></span>
+                ${m.consequence}
+            </div>
+            <div class="mistake-fix">
+                <span data-svg="circle-check-big" data-svg-size="14"></span>
+                ${m.fix}
+            </div>
+        </div>
+    `).join('');
+    
+    return `
+        <div class="exercise-mistakes">
+            <div class="mistakes-title">
+                <span data-svg="triangle-alert" data-svg-size="16"></span>
+                Частые ошибки
+            </div>
+            <div class="mistakes-list">
+                ${html}
+            </div>
+        </div>
+    `;
+}
+
+window.renderMistakes = renderMistakes;

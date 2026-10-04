@@ -5834,3 +5834,63 @@ body:has(.premium-modal.show) {
         font-size: 11px;
     }
 }
+/* ============================================ */
+/* ⚠️ ОШИБКИ ПО ТЕХНИКЕ */
+/* ============================================ */
+.exercise-mistakes {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 71, 87, 0.05);
+    border-left: 3px solid #ff4757;
+    border-radius: 8px;
+}
+
+.mistakes-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ff4757;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mistake-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+}
+
+.mistake-item:last-child {
+    margin-bottom: 0;
+}
+
+.mistake-error {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ff6b6b;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mistake-consequence {
+    font-size: 11px;
+    color: #ffa502;
+    margin-bottom: 6px;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mistake-fix {
+    font-size: 11px;
+    color: #00b894;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 20px;
+}

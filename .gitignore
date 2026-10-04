@@ -13,3 +13,4 @@ Thumbs.db
 
 # Наши генераторы (не нужны в репо)
 generate-synergists.js
+generate-mistakes.js

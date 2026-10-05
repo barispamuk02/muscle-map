@@ -3930,15 +3930,14 @@ function renderExercisesSection(muscle) {
 
         // 🎯 Плашка Премиума (только для бесплатных)
     const premiumBanner = showPremiumBanner
-        ? `<div class="premium-exercises-banner">
-              <div class="premium-exercises-icon"><span data-svg="gem" data-svg-size="32"></span></div>
-               <div class="premium-exercises-text">
-                   <strong>Ещё ${filtered.length - FREE_LIMIT} ${declOfNum(filtered.length - FREE_LIMIT, ['упражнение', 'упражнения', 'упражнений'])}</strong>
-                   <span>Оформи Премиум — открой всю базу упражнений</span>
-               </div>
-               <button class="premium-exercises-btn" id="premiumExBtn">Оформить Премиум</button>
-           </div>`
-        : '';
+    ? `<div class="premium-exercises-banner">
+          <div class="premium-exercises-icon"><span data-svg="gem" data-svg-size="32"></span></div>
+           <div class="premium-exercises-text">
+               <strong>Ещё ${filtered.length - FREE_LIMIT} ${declOfNum(filtered.length - FREE_LIMIT, ['упражнение', 'упражнения', 'упражнений'])}</strong>
+               <span>💎 Премиум скоро — откроет всю базу упражнений</span>
+           </div>
+       </div>`
+    : '';
 
     // 🎯 Кнопка «Показать ещё» (только для Премиума)
     const moreBtn = showMoreButton
@@ -5760,11 +5759,12 @@ document.addEventListener('click', (e) => {
         }
     }
 
-    // Кнопка «Оформить Премиум» в плашке упражнений
-    if (e.target.closest('#premiumExBtn')) {
-        e.preventDefault();
-        openDodoCheckout();   // ← новый вызов
-    }
+    // ⛔ ВРЕМЕННО ОТКЛЮЧЕНО (05.10.2026) — до починки Premium
+// Кнопка «Оформить Премиум» в плашке упражнений
+// if (e.target.closest('#premiumExBtn')) {
+//     e.preventDefault();
+//     openDodoCheckout();
+// }
 });
 function closePremium() {
     if (premiumModal) premiumModal.classList.remove('show');
@@ -5813,25 +5813,8 @@ function renderPremium() {
 }
 
 function activatePremium() {
-    const userEmail = prompt(
-        '🚀 Оформление Премиума\n\n' +
-        'Введите ваш email — мы сообщим, когда откроем оплату:\n\n' +
-        '(Это заглушка. Реальная оплата будет позже.)'
-    );
-
-    if (userEmail && userEmail.includes('@')) {
-        const requests = JSON.parse(localStorage.getItem('muscleMap_premiumRequests') || '[]');
-        requests.push({
-            email: userEmail,
-            date: new Date().toISOString()
-        });
-        localStorage.setItem('muscleMap_premiumRequests', JSON.stringify(requests));
-
-        showToast('✅ Спасибо! Мы сообщим о запуске оплаты.');
-        closePremium();
-    } else if (userEmail) {
-        showToast('⚠️ Введите корректный email');
-    }
+    // ⛔ ВРЕМЕННО (05.10.2026) — до починки Premium
+    showToast('💎 Оплата скоро! Мы работаем над этим.');
 }
 
 if (premiumBtn) premiumBtn.addEventListener('click', openPremium);

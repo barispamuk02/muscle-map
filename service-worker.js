@@ -1,8 +1,8 @@
 // ============================================
 // 🔧 SERVICE WORKER — КЕШ ДЛЯ ОФЛАЙН-РЕЖИМА
 // ============================================
-const CACHE_NAME = 'muscle-map-v50';
-const RUNTIME_CACHE = 'muscle-map-runtime-v50';
+const CACHE_NAME = 'muscle-map-v51';
+const RUNTIME_CACHE = 'muscle-map-runtime-v51';
 
 // Файлы, которые кешируем сразу при установке
 const PRECACHE_URLS = [
@@ -89,7 +89,7 @@ const PRECACHE_URLS = [
     './svg/triangle-alert.svg',
     './svg/trophy.svg',
     './svg/user.svg',
-    './svg/user-round.svg',
+    './svg/users-round.svg',
     './svg/utensils.svg',
     './svg/waypoints.svg',
     './svg/wheat.svg',
@@ -133,16 +133,29 @@ self.addEventListener('install', (event) => {
     console.log('🔧 Service Worker: установка...');
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('📦 Кеширую основные файлы');
-                return cache.addAll(PRECACHE_URLS);
+            .then(async (cache) => {
+                console.log('📦 Кеширую основные файлы (' + PRECACHE_URLS.length + ')');
+                // Загружаем по одному — один битый URL не убьёт весь кэш
+                const results = await Promise.allSettled(
+                    PRECACHE_URLS.map(url =>
+                        cache.add(url).catch(err => {
+                            console.warn('⚠️ Не закэшировано:', url, err.message);
+                            throw err;
+                        })
+                    )
+                );
+                const failed = results.filter(r => r.status === 'rejected');
+                if (failed.length > 0) {
+                    console.warn(`⚠️ Не закэшировано: ${failed.length} из ${PRECACHE_URLS.length}`);
+                } else {
+                    console.log('✅ Основные файлы закешированы (' + PRECACHE_URLS.length + ')');
+                }
             })
             .then(() => {
-                console.log('✅ Основные файлы закешированы');
                 return self.skipWaiting();
             })
             .catch((err) => {
-                console.error('❌ Ошибка кеширования:', err);
+                console.error('❌ Ошибка установки:', err);
             })
     );
 });

@@ -5734,7 +5734,7 @@ function initDodo() {
 
 function openDodoCheckout() {
     window.open(
-        "https://checkout.dodopayments.com/buy/pdt_0NomjiaSek3R15G5JSghs?quantity=1",
+        "https://checkout.dodopayments.com/buy/pdt_0Np4y6YIQmNuBOeULNSot?quantity=1",
         "_blank"
     );
 }

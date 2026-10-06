@@ -4991,7 +4991,7 @@ function renderFoodList(type) {
 if (navNutrition) navNutrition.addEventListener('click', switchToNutrition);
 
 // ============================================
-// ПРОГРАММЫ
+// -ПРОГРАММЫ-
 // ============================================
 let currentProgramId = null;
 const navPrograms = document.getElementById('navPrograms');

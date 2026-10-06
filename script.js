@@ -5800,7 +5800,7 @@ function renderPremium() {
             ${p.badge ? `<div class="premium-plan-badge">${p.badge}</div>` : ''}
             <div class="premium-plan-name">${p.name}</div>
             <div class="premium-plan-price">
-                <span class="premium-plan-amount">${p.price} ₽</span>
+                <span class="premium-plan-amount">${p.currency || '$'}${p.price}</span>
                 <span class="premium-plan-period">${p.period}</span>
             </div>
             <div class="premium-plan-desc">${p.description}</div>

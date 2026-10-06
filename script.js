@@ -4736,7 +4736,7 @@ function renderNutrition() {
             </div>
             <div class="food-list" id="foodList"></div>
         </div>
-                <div class="nutrition-warning"><span data-svg="triangle-alert" data-svg-size="14"></span> Расчёт — ориентировочный. Для точного плана обратитесь к диетологу.</div>
+        <div class="nutrition-warning"><span data-svg="triangle-alert" data-svg-size="14"></span> Расчёт — ориентировочный. Для точного плана обратитесь к диетологу.</div>
 
         ${renderSupplementsSection()}
     `;
@@ -4887,7 +4887,7 @@ document.addEventListener('click', (e) => {
         const container = document.getElementById('nutritionContainer');
         if (container) {
             const scrollY = window.scrollY;
-            container.innerHTML = renderNutrition() + renderSupplementsSection();
+            container.innerHTML = renderNutrition();
             requestAnimationFrame(() => window.scrollTo(0, scrollY));
         }
     }
@@ -4912,7 +4912,7 @@ document.addEventListener('input', (e) => {
         const container = document.getElementById('nutritionContainer');
         if (container) {
             const scrollY = window.scrollY;
-            container.innerHTML = renderNutrition() + renderSupplementsSection();
+            container.innerHTML = renderNutrition();
             requestAnimationFrame(() => {
                 window.scrollTo(0, scrollY);
                 const inp = document.getElementById('supplSearch');

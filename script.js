@@ -3934,8 +3934,9 @@ function renderExercisesSection(muscle) {
           <div class="premium-exercises-icon"><span data-svg="gem" data-svg-size="32"></span></div>
            <div class="premium-exercises-text">
                <strong>Ещё ${filtered.length - FREE_LIMIT} ${declOfNum(filtered.length - FREE_LIMIT, ['упражнение', 'упражнения', 'упражнений'])}</strong>
-               <span>💎 Премиум скоро — откроет всю базу упражнений</span>
+               <span>💎 Премиум откроет всю базу упражнений</span>
            </div>
+           <button class="premium-exercises-btn" id="premiumExBtn">Оформить Премиум</button>
        </div>`
     : '';
 
@@ -5765,12 +5766,11 @@ document.addEventListener('click', (e) => {
         }
     }
 
-    // ⛔ ВРЕМЕННО ОТКЛЮЧЕНО (05.10.2026) — до починки Premium
-// Кнопка «Оформить Премиум» в плашке упражнений
-// if (e.target.closest('#premiumExBtn')) {
-//     e.preventDefault();
-//     openDodoCheckout();
-// }
+    // Кнопка «Оформить Премиум» в плашке упражнений
+if (e.target.closest('#premiumExBtn')) {
+    e.preventDefault();
+    openDodoCheckout();
+}
 });
 function closePremium() {
     if (premiumModal) premiumModal.classList.remove('show');
@@ -5826,7 +5826,7 @@ function activatePremium() {
 if (premiumBtn) premiumBtn.addEventListener('click', openPremium);
 if (premiumClose) premiumClose.addEventListener('click', closePremium);
 if (premiumBackdrop) premiumBackdrop.addEventListener('click', closePremium);
-if (premiumCta) premiumCta.addEventListener('click', activatePremium);
+if (premiumCta) premiumCta.addEventListener('click', openDodoCheckout);
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && premiumModal && premiumModal.classList.contains('show')) {

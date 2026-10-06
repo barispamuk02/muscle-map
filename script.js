@@ -4884,12 +4884,9 @@ function renderSupplementCard(s) {
 document.addEventListener('click', (e) => {
     if (e.target.closest('.suppl-cat-btn')) {
         supplementsFilter = e.target.closest('.suppl-cat-btn').dataset.cat;
-        const container = document.getElementById('nutritionContainer');
-        if (container) {
-            const scrollY = window.scrollY;
-            container.innerHTML = renderNutrition();
-            requestAnimationFrame(() => window.scrollTo(0, scrollY));
-        }
+        const scrollY = window.scrollY;
+        renderNutrition();
+        requestAnimationFrame(() => window.scrollTo(0, scrollY));
     }
 
     if (e.target.closest('.suppl-card-toggle')) {
@@ -4909,19 +4906,16 @@ document.addEventListener('click', (e) => {
 document.addEventListener('input', (e) => {
     if (e.target.id === 'supplSearch') {
         supplementsSearch = e.target.value;
-        const container = document.getElementById('nutritionContainer');
-        if (container) {
-            const scrollY = window.scrollY;
-            container.innerHTML = renderNutrition();
-            requestAnimationFrame(() => {
-                window.scrollTo(0, scrollY);
-                const inp = document.getElementById('supplSearch');
-                if (inp) {
-                    inp.focus();
-                    inp.setSelectionRange(inp.value.length, inp.value.length);
-                }
-            });
-        }
+        const scrollY = window.scrollY;
+        renderNutrition();   // ← ✅
+        requestAnimationFrame(() => {
+            window.scrollTo(0, scrollY);
+            const inp = document.getElementById('supplSearch');
+            if (inp) {
+                inp.focus();
+                inp.setSelectionRange(inp.value.length, inp.value.length);
+            }
+        });
     }
 });
 function calculateNutrition() {

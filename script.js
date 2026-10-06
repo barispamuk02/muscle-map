@@ -6288,6 +6288,11 @@ function setPremium(active, days = 30) {
         localStorage.removeItem(PREMIUM_KEY);
         showToast('❌ Премиум отключён');
     }
+
+    updatePremiumUI();
+    updatePremiumButtons();
+}
+
 // ============================================
 // 🔗 СИНХРОНИЗАЦИЯ PREMIUM С BACKEND
 // ============================================
@@ -6327,10 +6332,6 @@ async function syncPremiumFromBackend() {
         console.warn('⚠️ Backend недоступен:', e.message);
     }
 }
-    updatePremiumUI();
-    updatePremiumButtons();
-}
-
 // Обновление UI после смены статуса
 function updatePremiumUI() {
     const isPrem = isPremium();

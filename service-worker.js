@@ -1,8 +1,8 @@
 // ============================================
 // 🔧 SERVICE WORKER — КЕШ ДЛЯ ОФЛАЙН-РЕЖИМА
 // ============================================
-const CACHE_NAME = 'muscle-map-v58';
-const RUNTIME_CACHE = 'muscle-map-runtime-v58';
+const CACHE_NAME = 'muscle-map-v59';
+const RUNTIME_CACHE = 'muscle-map-runtime-v59';
 
 // Файлы, которые кешируем сразу при установке
 const PRECACHE_URLS = [
@@ -26,6 +26,7 @@ const PRECACHE_URLS = [
     './manifest.json',
     './synergists-data.js',
     './mistakes-data.js',
+    './supplements-data.js',
 
     // ============================================
     // 🖼️ PWA-ИКОНКИ

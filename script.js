@@ -4736,13 +4736,194 @@ function renderNutrition() {
             </div>
             <div class="food-list" id="foodList"></div>
         </div>
-        <div class="nutrition-warning"><span data-svg="triangle-alert" data-svg-size="14"></span> Расчёт — ориентировочный. Для точного плана обратитесь к диетологу.</div>
+                <div class="nutrition-warning"><span data-svg="triangle-alert" data-svg-size="14"></span> Расчёт — ориентировочный. Для точного плана обратитесь к диетологу.</div>
+
+        ${renderSupplementsSection()}
     `;
 
     bindNutritionEvents();
     renderFoodList('protein');
 }
 
+// ============================================
+// 🍎 СЕКЦИЯ ДОБАВОК
+// ============================================
+let supplementsFilter = 'all';
+let supplementsSearch = '';
+
+function renderSupplementsSection() {
+    if (typeof supplementsData === 'undefined' || !supplementsData.length) {
+        return '<div class="supplements-empty">База добавок загружается...</div>';
+    }
+
+    // Фильтр
+    let filtered = supplementsData.slice();
+    if (supplementsFilter !== 'all') {
+        filtered = filtered.filter(s => s.category === supplementsFilter);
+    }
+    if (supplementsSearch.trim()) {
+        const q = supplementsSearch.toLowerCase();
+        filtered = filtered.filter(s =>
+            s.name.toLowerCase().includes(q) ||
+            s.nameEn.toLowerCase().includes(q) ||
+            s.shortDesc.toLowerCase().includes(q)
+        );
+    }
+
+    // Категории
+    const categories = [
+        { id: 'all', label: 'Все' },
+        { id: 'protein', label: 'Белки' },
+        { id: 'creatine', label: 'Креатин' },
+        { id: 'amino', label: 'Аминокислоты' },
+        { id: 'pre_workout', label: 'Предтренировочные' },
+        { id: 'fat_burner', label: 'Жиросжигатели' },
+        { id: 'vitamins', label: 'Витамины' },
+        { id: 'joint', label: 'Суставы' },
+        { id: 'recovery', label: 'Восстановление' },
+        { id: 'hormone', label: 'Гормоны' }
+    ];
+
+    const catButtons = categories.map(c => `
+        <button class="suppl-cat-btn ${supplementsFilter === c.id ? 'active' : ''}" data-cat="${c.id}">
+            ${c.label}
+        </button>
+    `).join('');
+
+    const cards = filtered.length > 0
+        ? filtered.map(renderSupplementCard).join('')
+        : '<div class="supplements-empty">Ничего не найдено</div>';
+
+    return `
+        <div class="supplements-section">
+            <h3 class="supplements-title">
+                <span data-svg="dumbbell" data-svg-size="20"></span> Спортивные добавки
+            </h3>
+            <p class="supplements-subtitle">
+                Что принимать, зачем, и чем заменить натуральными продуктами
+            </p>
+
+            <div class="supplements-search">
+                <input type="text" id="supplSearch" placeholder="Поиск по добавкам..." value="${supplementsSearch}">
+            </div>
+
+            <div class="supplements-categories">
+                ${catButtons}
+            </div>
+
+            <div class="supplements-grid">
+                ${cards}
+            </div>
+
+            <div class="supplements-disclaimer">
+                <span data-svg="triangle-alert" data-svg-size="16"></span>
+                <strong>Важно:</strong> добавки не заменяют полноценное питание и не являются лекарством.
+                Перед приёмом проконсультируйтесь с врачом.
+            </div>
+        </div>
+    `;
+}
+
+function renderSupplementCard(s) {
+    const stars = '⭐'.repeat(s.rating) + '☆'.repeat(5 - s.rating);
+    const popularBadge = s.popular ? '<span class="suppl-popular">Популярное</span>' : '';
+    
+    const alternatives = s.naturalAlternatives.map(a => `
+        <li>
+            <strong>${a.product}</strong> — <span>${a.amount}</span>
+        </li>
+    `).join('');
+
+    return `
+        <div class="suppl-card" data-id="${s.id}">
+            <div class="suppl-card-header">
+                <div class="suppl-card-title">${s.name}</div>
+                ${popularBadge}
+            </div>
+            <div class="suppl-card-subtitle">${s.nameEn}</div>
+            <div class="suppl-card-desc">${s.shortDesc}</div>
+            <div class="suppl-card-rating">${stars}</div>
+
+            <button class="suppl-card-toggle">Подробнее</button>
+
+            <div class="suppl-card-details" style="display:none;">
+                <div class="suppl-block">
+                    <div class="suppl-block-title">Что это</div>
+                    <div class="suppl-block-text">${s.whatIs}</div>
+                </div>
+                <div class="suppl-block">
+                    <div class="suppl-block-title">Эффект</div>
+                    <div class="suppl-block-text">${s.effect}</div>
+                </div>
+                <div class="suppl-block">
+                    <div class="suppl-block-title">Дозировка и время</div>
+                    <div class="suppl-block-text"><strong>${s.dose}</strong> — ${s.timing}</div>
+                </div>
+                <div class="suppl-block">
+                    <div class="suppl-block-title">Цена</div>
+                    <div class="suppl-block-text">${s.price}</div>
+                </div>
+                <div class="suppl-block suppl-block-natural">
+                    <div class="suppl-block-title">Чем заменить (продукты)</div>
+                    <ul class="suppl-alternatives">${alternatives}</ul>
+                </div>
+                <div class="suppl-block suppl-block-warning">
+                    <div class="suppl-block-title">Предупреждения</div>
+                    <div class="suppl-block-text">${s.warnings}</div>
+                </div>
+                <div class="suppl-block">
+                    <div class="suppl-block-title">Исследования</div>
+                    <div class="suppl-block-text">${s.research}</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Обработчики добавок
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.suppl-cat-btn')) {
+        supplementsFilter = e.target.closest('.suppl-cat-btn').dataset.cat;
+        const container = document.getElementById('nutritionContainer');
+        if (container) {
+            const scrollY = window.scrollY;
+            container.innerHTML = renderNutrition() + renderSupplementsSection();
+            requestAnimationFrame(() => window.scrollTo(0, scrollY));
+        }
+    }
+
+    if (e.target.closest('.suppl-card-toggle')) {
+        const card = e.target.closest('.suppl-card');
+        const details = card.querySelector('.suppl-card-details');
+        const btn = card.querySelector('.suppl-card-toggle');
+        if (details.style.display === 'none') {
+            details.style.display = 'block';
+            btn.textContent = 'Свернуть';
+        } else {
+            details.style.display = 'none';
+            btn.textContent = 'Подробнее';
+        }
+    }
+});
+
+document.addEventListener('input', (e) => {
+    if (e.target.id === 'supplSearch') {
+        supplementsSearch = e.target.value;
+        const container = document.getElementById('nutritionContainer');
+        if (container) {
+            const scrollY = window.scrollY;
+            container.innerHTML = renderNutrition() + renderSupplementsSection();
+            requestAnimationFrame(() => {
+                window.scrollTo(0, scrollY);
+                const inp = document.getElementById('supplSearch');
+                if (inp) {
+                    inp.focus();
+                    inp.setSelectionRange(inp.value.length, inp.value.length);
+                }
+            });
+        }
+    }
+});
 function calculateNutrition() {
     let bmr;
     if (nutritionState.gender === 'male') {

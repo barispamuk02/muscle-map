@@ -5158,7 +5158,18 @@ function addSetToExercise(exerciseName, weight, reps) {
     const workout = getCurrentWorkout();
     const isPrem = isPremium();
     const limit = isPrem ? Infinity : 3;   // ← 5 упражнений бесплатно
-
+// 🔍 Найти последние значения упражнения (из истории)
+function getLastValues(exName) {
+    const log = getWorkoutLog();
+    const dates = Object.keys(log).sort((a, b) => b.localeCompare(a));  // свежие сверху
+    
+    for (const date of dates) {
+        if (log[date][exName]) {
+            return log[date][exName];
+        }
+    }
+    return [];
+}
     // 🔒 Проверка лимита упражнений
     if (!workout.exercises[exerciseName]) {
         const currentCount = Object.keys(workout.exercises).length;
@@ -5217,7 +5228,96 @@ function saveWorkoutToLog() {
     showToast('✅ Тренировка сохранена!');
     return true;
 }
+function getLastValues(exName) {
+    let log;
+    try {
+        log = JSON.parse(localStorage.getItem(TRACKER_KEYS.workoutLog)) || {};
+    } catch {
+        log = {};
+    }
+    const dates = Object.keys(log).sort((a, b) => b.localeCompare(a));
+    
+    for (const date of dates) {
+        if (log[date] && log[date][exName]) {
+            return log[date][exName];
+        }
+    }
+    return [];
+}
+// ============================================
+// 🔁 ПОВТОРИТЬ ТРЕНИРОВКУ
+// ============================================
+function repeatWorkout(date) {
+    const log = getWorkoutLog();
+    const dayData = log[date];
+    
+    if (!dayData) {
+        showToast('⚠️ Тренировка не найдена');
+        return;
+    }
 
+    const exerciseNames = Object.keys(dayData);
+    if (exerciseNames.length === 0) {
+        showToast('⚠️ В тренировке нет упражнений');
+        return;
+    }
+
+    // 🔒 Проверка: если текущая тренировка не пуста — спросить
+    const current = getCurrentWorkout();
+    if (Object.keys(current.exercises).length > 0) {
+        const ok = confirm(
+            'В текущей тренировке уже есть записанные подходы.\n\n' +
+            'Повторить тренировку от ' + new Date(date).toLocaleDateString('ru-RU') + '?\n' +
+            'Текущая тренировка будет заменена.'
+        );
+        if (!ok) {
+            showToast('↩️ Отменено');
+            return;
+        }
+    }
+
+    // 🔒 Проверка лимита упражнений (для бесплатных)
+    const isPrem = isPremium();
+    const limit = isPrem ? Infinity : 3;
+    if (exerciseNames.length > limit) {
+        showPremiumLock(
+            'Повтор тренировки без ограничений',
+            `В этой тренировке ${exerciseNames.length} упражнений. Бесплатно можно до ${limit}. Откройте Премиум.`
+        );
+        return;
+    }
+
+    // ✅ Создаём новую тренировку — пустые массивы (юзер сам отметит)
+    const newWorkout = {
+        date: new Date().toISOString().split('T')[0],
+        exercises: {}
+    };
+    
+    let notFound = [];
+    exerciseNames.forEach(exName => {
+        // Проверяем, что упражнение есть в базе
+        const allNames = getAllExerciseNames();
+        if (allNames.includes(exName)) {
+            newWorkout.exercises[exName] = [];   // ← пустой массив — юзер вводит заново
+        } else {
+            notFound.push(exName);
+        }
+    });
+
+    if (Object.keys(newWorkout.exercises).length === 0) {
+        showToast('⚠️ Ни одно упражнение не найдено в каталоге');
+        return;
+    }
+
+    saveCurrentWorkout(newWorkout);
+    renderWorkoutTracker();
+    
+    let msg = '🔁 Тренировка повторена! Прошлые значения — как ориентир.';
+    if (notFound.length > 0) {
+        msg += ` Не найдено: ${notFound.join(', ')}`;
+    }
+    showToast(msg);
+}
 function getWorkoutVolume(exercises) {
     let total = 0;
     Object.values(exercises).forEach(sets => {
@@ -5240,26 +5340,34 @@ function renderWorkoutTracker() {
         exercisesHtml = `<div class="tracker-empty">😕 Пока нет записанных подходов<br><span style="font-size: 11px; color: #4a4a6a;">Добавь первый подход ниже</span></div>`;
     } else {
         exercisesHtml = exerciseEntries.map(([exName, sets]) => {
-            const setsHtml = sets.map((s, i) => `
-                <div class="tracker-set">
-                    <span class="set-number">${i + 1}</span>
-                    <span class="set-weight">${s.weight} кг</span>
-                    <span class="set-times">×</span>
-                    <span class="set-reps">${s.reps} раз</span>
-                    <button class="set-remove" data-ex="${encodeURIComponent(exName)}" data-idx="${i}" title="Удалить">✕</button>
-                </div>
-            `).join('');
-            const maxWeight = Math.max(...sets.map(s => s.weight || 0), 0);
-            return `
-                <div class="tracker-exercise">
-                    <div class="tracker-exercise-header">
-                        <div class="tracker-exercise-name">${translateByName(exName)}</div>
-                        <div class="tracker-exercise-stat">${sets.length} подх. · макс ${maxWeight} кг</div>
-                    </div>
-                    <div class="tracker-sets">${setsHtml}</div>
-                </div>
-            `;
-        }).join('');
+    const setsHtml = sets.map((s, i) => `
+        <div class="tracker-set">
+            <span class="set-number">${i + 1}</span>
+            <span class="set-weight">${s.weight} кг</span>
+            <span class="set-times">×</span>
+            <span class="set-reps">${s.reps} раз</span>
+            <button class="set-remove" data-ex="${encodeURIComponent(exName)}" data-idx="${i}" title="Удалить">✕</button>
+        </div>
+    `).join('');
+    const maxWeight = Math.max(...sets.map(s => s.weight || 0), 0);
+    
+    // 🆕 Показ прошлых значений
+    const lastValues = getLastValues(exName);
+    const lastHint = lastValues.length > 0 
+        ? `<div class="tracker-last-hint">В прошлый раз: ${lastValues.slice(0, 3).map(v => `${v.weight}×${v.reps}`).join(' · ')}</div>`
+        : '';
+
+    return `
+        <div class="tracker-exercise">
+            <div class="tracker-exercise-header">
+                <div class="tracker-exercise-name">${translateByName(exName)}</div>
+                <div class="tracker-exercise-stat">${sets.length} подх. · макс ${maxWeight} кг</div>
+            </div>
+            ${lastHint}
+            <div class="tracker-sets">${setsHtml}</div>
+        </div>
+    `;
+}).join('');
     }
 
     container.innerHTML = `
@@ -5368,6 +5476,15 @@ function bindTrackerEvents() {
         if (el) el.addEventListener('keypress', (e) => { if (e.key === 'Enter') addBtn?.click(); });
     });
 }
+// Обработчик кнопки «Повторить тренировку»
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-repeat-workout');
+    if (btn) {
+        e.preventDefault();
+        const date = btn.dataset.date;
+        if (date) repeatWorkout(date);
+    }
+});
 // ============================================
 // 📈 СЕЛЕКТОР ГРАФИКА (с ограничением Премиума)
 // ============================================
@@ -5419,14 +5536,17 @@ function renderWorkoutLog() {
             return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} подх. · макс <strong>${maxW} кг</strong></div></div>`;
         }).join('');
         return `
-            <div class="log-day">
-                <div class="log-day-header">
-                    <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
-                    <div class="log-day-stats">${totalSets} подх. · ${totalVolume} кг</div>
-                </div>
-                <div class="log-day-exercises">${exHtml}</div>
-            </div>
-        `;
+    <div class="log-day">
+        <div class="log-day-header">
+            <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
+            <div class="log-day-stats">${totalSets} подх. · ${totalVolume} кг</div>
+            <button class="btn-repeat-workout" data-date="${date}" title="Повторить эту тренировку">
+                <span data-svg="refresh-cw" data-svg-size="14"></span> Повторить
+            </button>
+        </div>
+        <div class="log-day-exercises">${exHtml}</div>
+    </div>
+`;
     }).join('');
 
     const allExercises = new Set();

@@ -5563,7 +5563,9 @@ setTimeout(() => {
 }, 1000);
 
 console.log('✅ Muscle Map полностью загружен');
-
+// 🔗 Premium: синхронизация с backend
+setTimeout(syncPremiumFromBackend, 2000);  // через 2 сек после загрузки
+setInterval(syncPremiumFromBackend, 60000); // каждые 60 сек
 // ============================================
 // 📈 ГРАФИК ПРОГРЕССА ПО УПРАЖНЕНИЮ
 // ============================================
@@ -5732,10 +5734,14 @@ function initDodo() {
 }
 
 function openDodoCheckout() {
-    window.open(
-        "https://checkout.dodopayments.com/buy/pdt_0Np4y6YIQmNuBOeULNSot?quantity=1",
-        "_blank"
-    );
+    const userId = getUserId();
+    const url = `https://checkout.dodopayments.com/buy/pdt_0Np4y6YIQmNuBOeULNSot?quantity=1&metadata[user_id]=${encodeURIComponent(userId)}`;
+    console.log('🛒 Открываю Dodo checkout для', userId);
+    window.open(url, '_blank');
+    
+    // Проверяем через 3 и 10 сек после возврата
+    setTimeout(syncPremiumFromBackend, 3000);
+    setTimeout(syncPremiumFromBackend, 10000);
 }
 // ============================================
 // 📄 ПАГИНАЦИЯ УПРАЖНЕНИЙ + ПРЕМИУМ-ПЛАШКА
@@ -6232,7 +6238,20 @@ window.viewFeedback = () => {
 // ============================================
 
 const PREMIUM_KEY = 'muscleMap_premium';
+// ============================================
+// 🔗 BACKEND СИНХРОНИЗАЦИЯ
+// ============================================
+const BACKEND_URL = 'https://muscle-map-backend.onrender.com';
 
+function getUserId() {
+    let userId = localStorage.getItem('muscleMap_userId');
+    if (!userId) {
+        userId = 'u_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('muscleMap_userId', userId);
+        console.log('🆔 Создан userId:', userId);
+    }
+    return userId;
+}
 // Проверка — премиум ли пользователь
 function isPremium() {
     try {
@@ -6269,7 +6288,45 @@ function setPremium(active, days = 30) {
         localStorage.removeItem(PREMIUM_KEY);
         showToast('❌ Премиум отключён');
     }
-
+// ============================================
+// 🔗 СИНХРОНИЗАЦИЯ PREMIUM С BACKEND
+// ============================================
+async function syncPremiumFromBackend() {
+    try {
+        const userId = getUserId();
+        const res = await fetch(`${BACKEND_URL}/api/premium/${userId}`, {
+            method: 'GET',
+            cache: 'no-store'
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        const localPremium = isPremium();
+        const backendPremium = data.premium === true;
+        
+        if (backendPremium && !localPremium) {
+            console.log('💎 Backend: Premium активен — обновляю');
+            const expires = new Date();
+            expires.setDate(expires.getDate() + 30);
+            localStorage.setItem(PREMIUM_KEY, JSON.stringify({
+                active: true,
+                since: new Date().toISOString(),
+                expires: expires.toISOString(),
+                plan: 'monthly'
+            }));
+            updatePremiumUI();
+            if (typeof updatePremiumButtons === 'function') updatePremiumButtons();
+            showToast('💎 Премиум активирован!');
+        } else if (!backendPremium && localPremium) {
+            console.log('❌ Backend: Premium не активен — сбрасываю');
+            localStorage.removeItem(PREMIUM_KEY);
+            updatePremiumUI();
+            if (typeof updatePremiumButtons === 'function') updatePremiumButtons();
+        }
+    } catch (e) {
+        console.warn('⚠️ Backend недоступен:', e.message);
+    }
+}
     updatePremiumUI();
     updatePremiumButtons();
 }

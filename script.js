@@ -5535,7 +5535,7 @@ function renderWorkoutLog() {
             const maxW = Math.max(...sets.map(s => s.weight || 0));
             return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} подх. · макс <strong>${maxW} кг</strong></div></div>`;
         }).join('');
-        return `
+       return `
     <div class="log-day">
         <div class="log-day-header">
             <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
@@ -5546,6 +5546,7 @@ function renderWorkoutLog() {
         </div>
         <div class="log-day-exercises">${exHtml}</div>
     </div>
+
 `;
     }).join('');
 
@@ -7386,3 +7387,14 @@ function renderMistakes(ex) {
 }
 
 window.renderMistakes = renderMistakes;
+// Обработчик кнопки «Повторить тренировку»
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-repeat-workout');
+    if (btn) {
+        e.preventDefault();
+        const date = btn.dataset.date;
+        if (date && typeof repeatWorkout === 'function') {
+            repeatWorkout(date);
+        }
+    }
+});

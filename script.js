@@ -5206,6 +5206,26 @@ function getWorkoutLog() {
     try { return JSON.parse(localStorage.getItem(TRACKER_KEYS.workoutLog)) || {}; }
     catch { return {}; }
 }
+// 🔍 Найти ID упражнения по русскому названию
+function findExerciseById(name) {
+    if (typeof exerciseDatabase === 'undefined') return null;
+    // 1. Точное совпадение по name
+    for (const ex of exerciseDatabase) {
+        if (ex.name === name) return ex.id;
+    }
+    // 2. По переведённому имени
+    for (const ex of exerciseDatabase) {
+        if (translateExerciseName(ex) === name) return ex.id;
+    }
+    return null;
+}
+
+// 🔍 Получить название по ID (для отображения)
+function getExerciseNameById(id) {
+    if (typeof exerciseDatabase === 'undefined') return id;
+    const ex = exerciseDatabase.find(e => e.id === id);
+    return ex ? translateExerciseName(ex) : id;
+}
 
 function saveWorkoutToLog() {
     const workout = getCurrentWorkout();
@@ -5578,6 +5598,7 @@ function renderWorkoutLog() {
                     <div class="chart-premium-hint-text">
                         <span data-svg="gem" data-svg-size="14"></span> Ещё ${exerciseList.length - 3} ${exerciseList.length - 3 === 1 ? 'упражнение' : 'упражнений'} доступно в Премиуме
                     </div>
+                    ${renderComparisonBlock()}  
                     <button class="chart-premium-hint-btn" onclick="openPremium()">
                         Открыть Премиум
                     </button>
@@ -5621,8 +5642,222 @@ function renderWorkoutLog() {
             renderProgressChart(selected);
         });
     }
+    
+}
+function renderWorkoutLog() {
+    // ...начало (log, dates, entriesHtml, exerciseList)
+    
+    container.innerHTML = `
+        <div class="log-title">...</div>
+        ${hiddenDays > 0 ? `...` : ''}
+        <div class="progress-chart-block">...</div>
+        
+        ${renderComparisonBlock()}                 ← ✅ СЮДА
+        
+        <div class="log-entries">${entriesHtml}</div>
+        <button class="btn-clear-log">...</button>
+    `;
+
+    // clearLogBtn обработчик
+    // progressChartSelect обработчик
+    
+    // 📊 СЕЛЕКТОРЫ СРАВНЕНИЯ                          ← ✅ СЮДА
+    const compareFrom = document.getElementById('compareFrom');
+    const compareTo = document.getElementById('compareTo');
+    if (compareFrom && compareTo && dates.length >= 2) {
+        compareFrom.value = dates[1];
+        compareTo.value = dates[0];
+        renderComparison(dates[1], dates[0]);
+        const handler = () => renderComparison(compareFrom.value, compareTo.value);
+        compareFrom.addEventListener('change', handler);
+        compareTo.addEventListener('change', handler);
+    }
+}
+// ============================================
+// 📊 СРАВНЕНИЕ ТРЕНИРОВОК (Идея №2)
+// ============================================
+function renderComparisonBlock() {
+    const log = getWorkoutLog();
+    const dates = Object.keys(log).sort((a, b) => b.localeCompare(a));
+
+    if (dates.length < 2) {
+        return `
+            <div class="comparison-block comparison-empty">
+                <div class="comparison-title">
+                    <span data-svg="trending-up" data-svg-size="16"></span> Сравнить тренировки
+                </div>
+                <div class="comparison-hint">Нужно минимум 2 записи в дневнике, чтобы сравнить</div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="comparison-block">
+            <div class="comparison-title">
+                <span data-svg="trending-up" data-svg-size="16"></span> Сравнить тренировки
+            </div>
+            <div class="comparison-selects">
+                <select id="compareFrom">
+                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
+                </select>
+                <span class="comparison-arrow">→</span>
+                <select id="compareTo">
+                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
+                </select>
+            </div>
+            <div id="comparisonResult" class="comparison-result"></div>
+        </div>
+    `;
 }
 
+// 📊 Рендер результата сравнения
+function renderComparison(fromDate, toDate) {
+    const result = document.getElementById('comparisonResult');
+    if (!result) return;
+
+    const log = getWorkoutLog();
+    const fromData = log[fromDate] || {};
+    const toData = log[toDate] || {};
+
+    const fromExs = Object.keys(fromData);
+    const toExs = Object.keys(toData);
+
+    // Собираем ID
+    const mapFrom = {}; // id -> { name, sets }
+    const mapTo = {};
+    const notFoundFrom = [];
+    const notFoundTo = [];
+
+    fromExs.forEach(name => {
+        const id = findExerciseById(name);
+        if (id) mapFrom[id] = { name, sets: fromData[name] };
+        else notFoundFrom.push(name);
+    });
+    toExs.forEach(name => {
+        const id = findExerciseById(name);
+        if (id) mapTo[id] = { name, sets: toData[name] };
+        else notFoundTo.push(name);
+    });
+
+    // Общие, добавленные, убранные
+    const common = [];
+    const added = [];
+    const removed = [];
+
+    Object.keys(mapFrom).forEach(id => {
+        if (mapTo[id]) common.push(id);
+        else removed.push(id);
+    });
+    Object.keys(mapTo).forEach(id => {
+        if (!mapFrom[id]) added.push(id);
+    });
+
+    // Рендер
+    let html = '';
+
+    // Общие упражнения
+    if (common.length > 0) {
+        html += `<div class="comp-section">
+            <div class="comp-section-title">Совпадающие упражнения (${common.length})</div>`;
+        
+        common.forEach(id => {
+            const exFrom = mapFrom[id];
+            const exTo = mapTo[id];
+            html += renderExerciseComparison(id, exFrom, exTo);
+        });
+        html += `</div>`;
+    }
+
+    // Добавленные
+    if (added.length > 0) {
+        html += `<div class="comp-section">
+            <div class="comp-section-title comp-added">Добавлено (${added.length})</div>
+            ${added.map(id => {
+                const ex = mapTo[id];
+                return `<div class="comp-ex-name">+ ${translateByName(ex.name)}</div>`;
+            }).join('')}
+        </div>`;
+    }
+
+    // Убранные
+    if (removed.length > 0) {
+        html += `<div class="comp-section">
+            <div class="comp-section-title comp-removed">Убрано (${removed.length})</div>
+            ${removed.map(id => {
+                const ex = mapFrom[id];
+                return `<div class="comp-ex-name">− ${translateByName(ex.name)}</div>`;
+            }).join('')}
+        </div>`;
+    }
+
+    // Ненайденные
+    if (notFoundFrom.length + notFoundTo.length > 0) {
+        html += `<div class="comp-section comp-notfound">
+            <div class="comp-section-title">Упражнения вне каталога (${notFoundFrom.length + notFoundTo.length})</div>
+            ${notFoundFrom.map(n => `<div class="comp-ex-name">− ${translateByName(n)}</div>`).join('')}
+            ${notFoundTo.map(n => `<div class="comp-ex-name">+ ${translateByName(n)}</div>`).join('')}
+        </div>`;
+    }
+
+    if (common.length === 0 && added.length === 0 && removed.length === 0) {
+        html = `<div class="comparison-hint">Нет упражнений для сравнения</div>`;
+    }
+
+    result.innerHTML = html;
+}
+
+// 📊 Сравнение одного упражнения
+function renderExerciseComparison(id, exFrom, exTo) {
+    const setsFrom = exFrom.sets || [];
+    const setsTo = exTo.sets || [];
+    const name = translateByName(exTo.name);
+
+    // Характеристики
+    const maxFrom = Math.max(...setsFrom.map(s => s.weight || 0), 0);
+    const maxTo = Math.max(...setsTo.map(s => s.weight || 0), 0);
+    const repsFrom = setsFrom.map(s => s.reps);
+    const repsTo = setsTo.map(s => s.reps);
+    
+    // Объём (только для записанных подходов)
+    const volFrom = setsFrom.reduce((sum, s) => sum + (s.weight || 0) * (s.reps || 0), 0);
+    const volTo = setsTo.reduce((sum, s) => sum + (s.weight || 0) * (s.reps || 0), 0);
+
+    // Проверка одинаковой схемы
+    const sameScheme = setsFrom.length === setsTo.length &&
+                       repsFrom.every((r, i) => r === repsTo[i]);
+
+    // Diff
+    const maxDiff = maxTo - maxFrom;
+    let deltaText = '';
+    if (sameScheme && maxDiff !== 0) {
+        const sign = maxDiff > 0 ? '+' : '';
+        deltaText = `Вес ${sign}${maxDiff} кг при том же количестве повторений`;
+    } else if (sameScheme && maxDiff === 0) {
+        deltaText = 'Схема подходов не изменилась';
+    } else {
+        deltaText = 'Схема подходов изменилась; прямое сравнение ограничено';
+    }
+
+    return `
+        <div class="comp-ex">
+            <div class="comp-ex-title">${name}</div>
+            <div class="comp-ex-row">
+                <div class="comp-ex-col">
+                    <div class="comp-ex-label">Было</div>
+                    <div class="comp-ex-value">${setsFrom.length} × ${maxFrom} кг</div>
+                    <div class="comp-ex-reps">${repsFrom.join(' / ')} повторов</div>
+                </div>
+                <div class="comp-ex-col">
+                    <div class="comp-ex-label">Стало</div>
+                    <div class="comp-ex-value">${setsTo.length} × ${maxTo} кг</div>
+                    <div class="comp-ex-reps">${repsTo.join(' / ')} повторов</div>
+                </div>
+            </div>
+            <div class="comp-ex-delta">${deltaText}</div>
+            <div class="comp-ex-volume">Объём: ${volFrom} → ${volTo} кг·повторов</div>
+        </div>
+    `;
+}
 // ============================================
 // ТЕМА
 // ============================================

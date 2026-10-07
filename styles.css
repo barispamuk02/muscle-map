@@ -6722,3 +6722,145 @@ body:has(.premium-modal.show) {
         flex-direction: column;
     }
 }
+/* ============================================
+   ТРЕКЕР ВОДЫ
+   ============================================ */
+.water-tracker {
+    background: linear-gradient(135deg, rgba(41, 128, 185, 0.08), rgba(52, 152, 219, 0.05));
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.water-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.water-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5dade2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.water-date {
+    font-size: 12px;
+    color: #5a5a7a;
+}
+
+.water-main {
+    margin-bottom: 16px;
+}
+
+.water-amount {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 12px;
+    justify-content: center;
+}
+
+.water-current {
+    font-size: 32px;
+    font-weight: 800;
+    color: #5dade2;
+}
+
+.water-sep {
+    font-size: 20px;
+    color: #4a4a6a;
+    margin: 0 4px;
+}
+
+.water-goal {
+    font-size: 20px;
+    font-weight: 600;
+    color: #8892b0;
+}
+
+.water-unit {
+    font-size: 14px;
+    color: #5a5a7a;
+}
+
+.water-progress {
+    width: 100%;
+    height: 8px;
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.water-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #5dade2, #85c1e9);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 10px rgba(93, 173, 226, 0.5);
+}
+
+.water-percent {
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: #5dade2;
+}
+
+.water-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.water-btn {
+    flex: 1;
+    padding: 10px 14px;
+    background: rgba(52, 152, 219, 0.15);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    border-radius: 10px;
+    color: #5dade2;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.water-btn:hover {
+    background: rgba(52, 152, 219, 0.3);
+    transform: translateY(-2px);
+}
+
+.water-btn:active {
+    transform: translateY(0);
+}
+
+.water-btn-reset {
+    flex: 0 0 auto;
+    padding: 10px 14px;
+    background: rgba(255, 71, 87, 0.1);
+    border-color: rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+}
+
+.water-btn-reset:hover {
+    background: rgba(255, 71, 87, 0.2);
+}
+
+@media (max-width: 600px) {
+    .water-tracker {
+        padding: 16px;
+    }
+    .water-current {
+        font-size: 26px;
+    }
+    .water-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}

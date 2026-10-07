@@ -6068,44 +6068,127 @@ function renderRestTimer() {
     const circumference = 2 * Math.PI * 45;
     const strokeDashoffset = circumference - (percent / 100) * circumference;
 
-    container.innerHTML = `
+        container.innerHTML = `
         <div class="rest-timer ${isActive ? 'active' : ''}">
-            <div class="rest-timer-header">
-                <div class="rest-timer-title">⏱️ Отдых между подходами</div>
-                <label class="rest-timer-auto">
-                    <input type="checkbox" id="autoRestCheckbox" ${restTimer.autoStart ? 'checked' : ''}>
-                    <span>Автозапуск</span>
-                </label>
-            </div>
-            <div class="rest-timer-main">
-                <div class="rest-timer-circle">
-                    <svg width="120" height="120" viewBox="0 0 120 120">
-                        <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
-                        <circle cx="60" cy="60" r="45" fill="none" stroke="${isActive ? '#00b894' : '#6fb3ff'}" stroke-width="8"
-                                stroke-dasharray="${circumference}" stroke-dashoffset="${strokeDashoffset}"
-                                stroke-linecap="round" transform="rotate(-90 60 60)"
-                                style="transition: stroke-dashoffset 1s linear;"/>
-                    </svg>
-                    <div class="rest-timer-display">${isActive ? formatTime(restTimer.timeLeft) : 'Готов'}</div>
+            ...
+        </div>
+        <div class="water-tracker" id="waterTracker">
+            <div class="water-header">
+                <div class="water-title">
+                    <span data-svg="droplet" data-svg-size="18"></span> Трекер воды
                 </div>
-                <div class="rest-timer-controls">
-                    <button class="rest-btn ${isActive ? 'pause' : 'play'}" id="restPauseBtn" ${!isActive ? 'disabled' : ''}>
-                        ${restTimer.isRunning ? '⏸️ Пауза' : (isActive ? '▶️ Продолжить' : '—')}
-                    </button>
-                   <button class="rest-btn reset" id="restResetBtn" ${!isActive ? 'disabled' : ''}><span data-svg="refresh-cw" data-svg-size="14"></span> Сброс</button>
-                </div>
+                <div class="water-date" id="waterDate"></div>
             </div>
-            <div class="rest-timer-presets">
-                <button class="rest-preset" data-time="30">30 сек</button>
-                <button class="rest-preset" data-time="60">1 мин</button>
-                <button class="rest-preset" data-time="90">1:30</button>
-                <button class="rest-preset" data-time="120">2 мин</button>
-                <button class="rest-preset" data-time="180">3 мин</button>
+            <div class="water-main">
+                <div class="water-amount">
+                    <span class="water-current" id="waterCurrent">0</span>
+                    <span class="water-sep">/</span>
+                    <span class="water-goal" id="waterGoal">2000</span>
+                    <span class="water-unit">мл</span>
+                </div>
+                <div class="water-progress">
+                    <div class="water-progress-fill" id="waterProgress" style="width: 0%;"></div>
+                </div>
+                <div class="water-percent" id="waterPercent">0%</div>
+            </div>
+            <div class="water-actions">
+                <button class="water-btn" data-amount="100">+100</button>
+                <button class="water-btn" data-amount="200">+200</button>
+                <button class="water-btn" data-amount="500">+500</button>
+                <button class="water-btn water-btn-reset" id="waterReset" title="Сброс">↺</button>
             </div>
         </div>
     `;
     bindRestTimerEvents();
+    renderWaterTracker();   // ← ✅ добавили вызов
 }
+// ============================================
+// 💧 ТРЕКЕР ВОДЫ
+// ============================================
+const WATER_KEY = 'muscleMap_water';
+const WATER_GOAL = 2000;
+
+function getWaterData() {
+    try {
+        return JSON.parse(localStorage.getItem(WATER_KEY)) || {};
+    } catch {
+        return {};
+    }
+}
+
+function getTodayWater() {
+    const data = getWaterData();
+    const today = new Date().toISOString().split('T')[0];
+    return data[today] || 0;
+}
+
+function setTodayWater(amount) {
+    const data = getWaterData();
+    const today = new Date().toISOString().split('T')[0];
+    data[today] = Math.max(0, amount);
+    
+    // Очистка старше 30 дней
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    const cutoffStr = cutoff.toISOString().split('T')[0];
+    Object.keys(data).forEach(d => {
+        if (d < cutoffStr) delete data[d];
+    });
+    
+    localStorage.setItem(WATER_KEY, JSON.stringify(data));
+    renderWaterTracker();
+}
+
+function addWater(amount) {
+    const current = getTodayWater();
+    const newAmount = current + amount;
+    setTodayWater(newAmount);
+    
+    if (newAmount >= WATER_GOAL && current < WATER_GOAL) {
+        showToast('🎉 Цель по воде достигнута!');
+    } else {
+        showToast(`💧 +${amount} мл`);
+    }
+}
+
+function renderWaterTracker() {
+    const current = getTodayWater();
+    const currentEl = document.getElementById('waterCurrent');
+    const progressEl = document.getElementById('waterProgress');
+    const percentEl = document.getElementById('waterPercent');
+    const dateEl = document.getElementById('waterDate');
+    
+    if (!currentEl) return;
+    
+    currentEl.textContent = current;
+    if (percentEl) percentEl.textContent = Math.round((current / WATER_GOAL) * 100) + '%';
+    if (progressEl) progressEl.style.width = Math.min(100, (current / WATER_GOAL) * 100) + '%';
+    
+    if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString('ru-RU', { 
+            day: 'numeric', month: 'long' 
+        });
+    }
+}
+
+// Обработчики
+document.addEventListener('click', (e) => {
+    const waterBtn = e.target.closest('.water-btn[data-amount]');
+    if (waterBtn) {
+        e.preventDefault();
+        addWater(parseInt(waterBtn.dataset.amount));
+        return;
+    }
+    
+    if (e.target.closest('#waterReset')) {
+        e.preventDefault();
+        if (confirm('Сбросить воду за сегодня?')) {
+            setTodayWater(0);
+            showToast('↺ Сброшено');
+        }
+        return;
+    }
+});
 
 function bindRestTimerEvents() {
     document.querySelectorAll('.rest-preset').forEach(btn => {

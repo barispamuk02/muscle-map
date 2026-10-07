@@ -5645,8 +5645,51 @@ function renderWorkoutLog() {
     
 }
 function renderWorkoutLog() {
-    // ...начало (log, dates, entriesHtml, exerciseList)
-    
+    const container = document.getElementById('workoutLog');
+    if (!container) return;
+    const log = getWorkoutLog();
+    // 🔒 Бесплатно — 3 последних дня, Премиум — все
+    const isPrem = isPremium();
+    const daysLimit = isPrem ? Infinity : 3;
+    const allDates = Object.keys(log).sort((a, b) => b.localeCompare(a));
+    const dates = allDates.slice(0, daysLimit === Infinity ? allDates.length : daysLimit);
+    const hiddenDays = allDates.length - dates.length;
+
+    if (dates.length === 0) {
+        container.innerHTML = `<div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> Дневник тренировок</div><div class="log-empty">Пока нет сохранённых тренировок</div>`;
+        return;
+    }
+
+    const entriesHtml = dates.map(date => {
+        const dayData = log[date];
+        const exercises = Object.entries(dayData);
+        const totalVolume = getWorkoutVolume(dayData);
+        const totalSets = exercises.reduce((sum, [, sets]) => sum + sets.length, 0);
+        const exHtml = exercises.map(([name, sets]) => {
+            const maxW = Math.max(...sets.map(s => s.weight || 0));
+            return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} подх. · макс <strong>${maxW} кг</strong></div></div>`;
+        }).join('');
+       return `
+    <div class="log-day">
+        <div class="log-day-header">
+            <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
+            <div class="log-day-stats">${totalSets} подх. · ${totalVolume} кг</div>
+            <button class="btn-repeat-workout" data-date="${date}" title="Повторить эту тренировку">
+                <span data-svg="refresh-cw" data-svg-size="14"></span> Повторить
+            </button>
+        </div>
+        <div class="log-day-exercises">${exHtml}</div>
+    </div>
+
+`;
+    }).join('');
+
+    const allExercises = new Set();
+    Object.values(log).forEach(dayData => {
+        Object.keys(dayData).forEach(exName => allExercises.add(exName));
+    });
+    const exerciseList = Array.from(allExercises).sort();
+
     container.innerHTML = `
         <div class="log-title">...</div>
         ${hiddenDays > 0 ? `...` : ''}

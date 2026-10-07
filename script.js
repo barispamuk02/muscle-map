@@ -6773,7 +6773,7 @@ function initFeedbackForm() {
 
     if (!form) return;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const type = document.getElementById('feedbackType').value;
@@ -6793,47 +6793,80 @@ function initFeedbackForm() {
 
         // Блокируем кнопку
         submitBtn.disabled = true;
+        const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<span data-svg="refresh-cw" data-svg-size="16"></span> Отправка...';
 
-        // Формируем заявку
+        // Сохраняем в localStorage (backup)
         const feedback = {
             type,
             name: name || 'Аноним',
             email: email || 'не указан',
             message,
             date: new Date().toISOString(),
-            page: window.location.href,
-            userAgent: navigator.userAgent
+            page: window.location.href
         };
 
-        // Сохраняем в localStorage
-        const allFeedback = JSON.parse(localStorage.getItem('muscleMap_feedback') || '[]');
-        allFeedback.push(feedback);
-        localStorage.setItem('muscleMap_feedback', JSON.stringify(allFeedback));
+        try {
+            const allFeedback = JSON.parse(localStorage.getItem('muscleMap_feedback') || '[]');
+            allFeedback.push(feedback);
+            localStorage.setItem('muscleMap_feedback', JSON.stringify(allFeedback));
+        } catch (err) {
+            console.warn('localStorage backup failed:', err);
+        }
 
-        // Имитация отправки
-        setTimeout(() => {
-            // Скрываем форму
+        // Отправка в Formspree
+        try {
+            const response = await fetch('https://formspree.io/f/moejeenr', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    type: type,
+                    name: name || 'Аноним',
+                    email: email || 'не указан',
+                    message: message,
+                    _subject: 'Muscle Map — новое предложение',
+                    page: window.location.href
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+
+            // Успех
+            console.log('📩 Заявка отправлена в Formspree');
             form.style.display = 'none';
-
-            // Показываем success
             success.style.display = 'block';
-
-            // Логируем
-            console.log('📩 Заявка сохранена:', feedback);
-            console.log(`📊 Всего заявок: ${allFeedback.length}`);
-
             showToast('✅ Спасибо! Предложение отправлено');
 
-            // Через 5 секунд — можно вернуться (для теста)
+            // Через 5 сек — вернуть форму
             setTimeout(() => {
                 form.style.display = '';
                 form.reset();
                 success.style.display = 'none';
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span data-svg="refresh-cw" data-svg-size="16"></span> Отправка...';
+                submitBtn.innerHTML = originalText;
             }, 5000);
-        }, 800);
+
+        } catch (err) {
+            console.error('Formspree error:', err);
+            showToast('⚠️ Не удалось отправить. Заявка сохранена локально.');
+            
+            // Fallback — показать успех (сохранено в localStorage)
+            form.style.display = 'none';
+            success.style.display = 'block';
+            
+            setTimeout(() => {
+                form.style.display = '';
+                form.reset();
+                success.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }, 5000);
+        }
     });
 }
 

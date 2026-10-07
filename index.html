@@ -362,6 +362,53 @@
         <div class="replace-results" id="replaceResults"></div>
     </div>
 </div>
+<!-- 🖼️ МОДАЛКА КАРТОЧКИ ТРЕНИРОВКИ -->
+<div class="sharecard-modal" id="shareCardModal">
+    <div class="sharecard-backdrop" id="shareCardBackdrop"></div>
+    <div class="sharecard-content">
+        <button class="sharecard-close" id="shareCardClose"><span data-svg="x" data-svg-size="18"></span></button>
+        <div class="sharecard-title"><span data-svg="send-horizontal" data-svg-size="20"></span> Карточка тренировки</div>
+
+        <!-- Режим -->
+        <div class="sharecard-mode-title">Режим:</div>
+        <div class="sharecard-mode">
+            <button class="sharecard-mode-btn" data-mode="plan">План</button>
+            <button class="sharecard-mode-btn active" data-mode="result">Результат</button>
+        </div>
+
+        <!-- Видимость -->
+        <div class="sharecard-options-title">Показывать в карточке:</div>
+        <div class="sharecard-options">
+            <label class="sharecard-option">
+                <input type="checkbox" id="scShowDate" checked>
+                <span>Дата тренировки</span>
+            </label>
+            <label class="sharecard-option">
+                <input type="checkbox" id="scShowWeight" checked>
+                <span>Веса</span>
+            </label>
+            <label class="sharecard-option">
+                <input type="checkbox" id="scShowReps" checked>
+                <span>Повторы</span>
+            </label>
+        </div>
+
+        <!-- Превью -->
+        <div class="sharecard-preview-wrap">
+            <canvas id="shareCardCanvas" class="sharecard-canvas"></canvas>
+        </div>
+
+        <!-- Кнопки -->
+        <div class="sharecard-actions">
+            <button class="sharecard-btn sharecard-btn-download" id="shareCardDownload">
+                <span data-svg="download" data-svg-size="16"></span> Скачать PNG
+            </button>
+            <button class="sharecard-btn sharecard-btn-share" id="shareCardShare">
+                <span data-svg="send-horizontal" data-svg-size="16"></span> Поделиться
+            </button>
+        </div>
+    </div>
+</div>
 <script src="script.js"></script>
 </body>
 </html>

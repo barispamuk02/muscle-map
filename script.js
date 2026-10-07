@@ -5663,6 +5663,9 @@ function renderWorkoutLog() {
             <button class="btn-repeat-workout" data-date="${date}" title="Повторить эту тренировку">
                 <span data-svg="refresh-cw" data-svg-size="14"></span> Повторить
             </button>
+      <button class="btn-share-workout" data-date="${date}" title="Создать карточку тренировки">
+    <span data-svg="send-horizontal" data-svg-size="14"></span> Карточка
+</button>      
         </div>
         <div class="log-day-exercises">${exHtml}</div>
     </div>
@@ -8012,5 +8015,281 @@ document.addEventListener('click', (e) => {
     if (selectBtn) {
         selectAlternative(selectBtn.dataset.selectId);
         return;
+    }
+});
+// ============================================
+// 🖼️ КАРТОЧКА ТРЕНИРОВКИ (PNG)
+// ============================================
+let shareCardState = {
+    date: null,
+    mode: 'result',
+    showDate: true,
+    showWeight: true,
+    showReps: true
+};
+
+function openShareCardModal(date) {
+    const modal = document.getElementById('shareCardModal');
+    if (!modal) return;
+
+    shareCardState.date = date;
+    shareCardState.mode = 'result';
+    shareCardState.showDate = true;
+    shareCardState.showWeight = true;
+    shareCardState.showReps = true;
+
+    // Сброс UI
+    document.querySelectorAll('.sharecard-mode-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.sharecard-mode-btn[data-mode="result"]')?.classList.add('active');
+    const scDate = document.getElementById('scShowDate'); if (scDate) scDate.checked = true;
+    const scW = document.getElementById('scShowWeight'); if (scW) scW.checked = true;
+    const scR = document.getElementById('scShowReps'); if (scR) scR.checked = true;
+
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    // Первый рендер
+    setTimeout(() => renderShareCard(), 50);
+}
+
+function closeShareCardModal() {
+    const modal = document.getElementById('shareCardModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+function renderShareCard() {
+    const canvas = document.getElementById('shareCardCanvas');
+    if (!canvas) return;
+
+    const log = getWorkoutLog();
+    const dayData = log[shareCardState.date];
+    if (!dayData) return;
+
+    const exercises = Object.entries(dayData);
+
+    // Размеры (2x для retina)
+    const SCALE = 2;
+    const W = 600 * SCALE;
+    const HEADER_H = 140 * SCALE;
+    const ROW_H = 70 * SCALE;
+    const FOOTER_H = 70 * SCALE;
+    const H = HEADER_H + exercises.length * ROW_H + FOOTER_H;
+
+    canvas.width = W;
+    canvas.height = H;
+    canvas.style.maxWidth = '100%';
+
+    const ctx = canvas.getContext('2d');
+    const S = SCALE;
+
+    // Фон
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#0a0a12');
+    bg.addColorStop(1, '#12142a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Рамка
+    ctx.strokeStyle = 'rgba(111, 179, 255, 0.2)';
+    ctx.lineWidth = 2 * S;
+    ctx.strokeRect(10 * S, 10 * S, W - 20 * S, H - 20 * S);
+
+    // Заголовок
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${28 * S}px Roboto, Arial, sans-serif`;
+    ctx.textBaseline = 'top';
+    const titleY = 40 * S;
+    ctx.fillText('Muscle Map', 40 * S, titleY);
+
+    // Режим
+    const modeText = shareCardState.mode === 'plan' ? 'ПЛАН ТРЕНИРОВКИ' : 'РЕЗУЛЬТАТ';
+    const modeColor = shareCardState.mode === 'plan' ? '#6fb3ff' : '#00b894';
+    ctx.fillStyle = modeColor;
+    ctx.font = `${14 * S}px Roboto, Arial, sans-serif`;
+    ctx.fillText(modeText, 40 * S, titleY + 38 * S);
+
+    // Дата
+    if (shareCardState.showDate) {
+        ctx.fillStyle = '#8892b0';
+        ctx.font = `${13 * S}px Roboto, Arial, sans-serif`;
+        const dateStr = new Date(shareCardState.date).toLocaleDateString('ru-RU', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+        ctx.fillText(dateStr, 40 * S, titleY + 62 * S);
+    }
+
+    // Линия
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.lineWidth = 1 * S;
+    ctx.beginPath();
+    ctx.moveTo(40 * S, HEADER_H - 10 * S);
+    ctx.lineTo(W - 40 * S, HEADER_H - 10 * S);
+    ctx.stroke();
+
+    // Список упражнений
+    ctx.fillStyle = '#fff';
+    let y = HEADER_H + 10 * S;
+
+    exercises.forEach(([name, sets], i) => {
+        // Название
+        ctx.font = `bold ${16 * S}px Roboto, Arial, sans-serif`;
+        ctx.fillStyle = '#fff';
+        const displayName = translateByName(name);
+        const truncated = displayName.length > 42 ? displayName.substring(0, 40) + '…' : displayName;
+        ctx.fillText(truncated, 40 * S, y);
+
+        // Метрики
+        if (sets.length > 0) {
+            const setsText = sets.map(s => {
+                let t = '';
+                if (shareCardState.showWeight && s.weight) t += `${s.weight} кг`;
+                if (shareCardState.showReps && s.reps) t += (t ? ' × ' : '× ') + `${s.reps}`;
+                return t || '—';
+            }).join(' · ');
+            ctx.font = `${12 * S}px Roboto, Arial, sans-serif`;
+            ctx.fillStyle = '#8892b0';
+            ctx.fillText(setsText, 40 * S, y + 24 * S);
+        } else {
+            ctx.font = `${12 * S}px Roboto, Arial, sans-serif`;
+            ctx.fillStyle = '#5a5a7a';
+            ctx.fillText('Не выполнено', 40 * S, y + 24 * S);
+        }
+
+        // Разделитель
+        if (i < exercises.length - 1) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1 * S;
+            ctx.beginPath();
+            ctx.moveTo(40 * S, y + ROW_H - 8 * S);
+            ctx.lineTo(W - 40 * S, y + ROW_H - 8 * S);
+            ctx.stroke();
+        }
+
+        y += ROW_H;
+    });
+
+    // Footer
+    const footerY = H - 50 * S;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.beginPath();
+    ctx.moveTo(40 * S, footerY - 10 * S);
+    ctx.lineTo(W - 40 * S, footerY - 10 * S);
+    ctx.stroke();
+
+    ctx.fillStyle = '#6fb3ff';
+    ctx.font = `${12 * S}px Roboto, Arial, sans-serif`;
+    ctx.fillText('muscle-map', 40 * S, footerY + 4 * S);
+
+    ctx.fillStyle = '#5a5a7a';
+    ctx.textAlign = 'right';
+    ctx.fillText('Сделано в Muscle Map', W - 40 * S, footerY + 4 * S);
+    ctx.textAlign = 'left';
+}
+
+function downloadShareCard() {
+    const canvas = document.getElementById('shareCardCanvas');
+    if (!canvas) return;
+
+    canvas.toBlob(blob => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `muscle-map-${shareCardState.date}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('🖼️ Карточка скачана');
+    }, 'image/png');
+}
+
+async function shareShareCard() {
+    const canvas = document.getElementById('shareCardCanvas');
+    if (!canvas) return;
+
+    // Проверка: поддерживает ли share файлы
+    if (navigator.share && navigator.canShare) {
+        canvas.toBlob(async blob => {
+            if (!blob) return;
+            const file = new File([blob], `muscle-map-${shareCardState.date}.png`, { type: 'image/png' });
+            if (navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Моя тренировка',
+                        text: 'Muscle Map — тренировка'
+                    });
+                } catch (e) {
+                    // Отмена пользователем — норм
+                }
+                return;
+            }
+            // Fallback — скачать
+            downloadShareCard();
+        }, 'image/png');
+    } else {
+        // Fallback
+        downloadShareCard();
+    }
+}
+
+// Обработчики
+document.addEventListener('click', (e) => {
+    // Открытие
+    const shareBtn = e.target.closest('[data-date].btn-share-workout');
+    if (shareBtn) {
+        e.preventDefault();
+        openShareCardModal(shareBtn.dataset.date);
+        return;
+    }
+    if (e.target.closest('.btn-share-workout')) {
+        e.preventDefault();
+        const btn = e.target.closest('.btn-share-workout');
+        if (btn.dataset.date) openShareCardModal(btn.dataset.date);
+        return;
+    }
+
+    // Закрытие
+    if (e.target.closest('#shareCardClose') || e.target.closest('#shareCardBackdrop')) {
+        closeShareCardModal();
+        return;
+    }
+
+    // Режим
+    const modeBtn = e.target.closest('.sharecard-mode-btn');
+    if (modeBtn) {
+        document.querySelectorAll('.sharecard-mode-btn').forEach(b => b.classList.remove('active'));
+        modeBtn.classList.add('active');
+        shareCardState.mode = modeBtn.dataset.mode;
+        renderShareCard();
+        return;
+    }
+
+    // Скачать / Поделиться
+    if (e.target.closest('#shareCardDownload')) {
+        downloadShareCard();
+        return;
+    }
+    if (e.target.closest('#shareCardShare')) {
+        shareShareCard();
+        return;
+    }
+});
+
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'scShowDate') {
+        shareCardState.showDate = e.target.checked;
+        renderShareCard();
+    }
+    if (e.target.id === 'scShowWeight') {
+        shareCardState.showWeight = e.target.checked;
+        renderShareCard();
+    }
+    if (e.target.id === 'scShowReps') {
+        shareCardState.showReps = e.target.checked;
+        renderShareCard();
     }
 });

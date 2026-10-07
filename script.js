@@ -3827,13 +3827,16 @@ function renderExerciseCard(ex) {
                         <p>${ex.description || 'Описание недоступно'}</p>
                         ${ex.sets ? `<p><strong>Подходы:</strong> ${ex.sets}</p>` : ''}
                     </div>
-                    <div class="exercise-actions">
-                        <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
-    ${done 
-        ? '<span data-svg="circle-check-big" data-svg-size="16"></span> Выполнено' 
-        : '<span data-svg="check" data-svg-size="16"></span> Отметить выполненным'}
-</button>
-                    </div>
+                <div class="exercise-actions">
+    <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
+        ${done 
+            ? '<span data-svg="circle-check-big" data-svg-size="16"></span> Выполнено' 
+            : '<span data-svg="check" data-svg-size="16"></span> Отметить выполненным'}
+    </button>
+    <button class="btn-replace" data-replace-id="${ex.id}" title="Заменить упражнение">
+        <span data-svg="refresh-cw" data-svg-size="16"></span> Заменить
+    </button>
+</div>
                 </div>
             </div>
         `;
@@ -5137,8 +5140,104 @@ if (navPrograms) navPrograms.addEventListener('click', switchToPrograms);
 const TRACKER_KEYS = {
     workoutLog: 'muscleMap_workoutLog',
     currentWorkout: 'muscleMap_currentWorkout',
+    userEquipment: 'muscleMap_userEquipment',   // ← НОВОЕ
 };
+// ============================================
+// 🔧 ДОСТУПНОЕ ОБОРУДОВАНИЕ ПОЛЬЗОВАТЕЛЯ
+// ============================================
+function getUserEquipment() {
+    try {
+        return JSON.parse(localStorage.getItem(TRACKER_KEYS.userEquipment)) || {
+            excluded: []   // список недоступного оборудования
+        };
+    } catch {
+        return { excluded: [] };
+    }
+}
 
+function setUserEquipment(data) {
+    localStorage.setItem(TRACKER_KEYS.userEquipment, JSON.stringify(data));
+}
+
+function isEquipmentAvailable(equip, userEquip) {
+    if (!equip || equip === 'body weight') return true;
+    return !userEquip.excluded.includes(equip);
+}
+// ============================================
+// 🔄 ЗАМЕНА УПРАЖНЕНИЯ
+// ============================================
+function findAlternatives(ex, reason, userEquip) {
+    // Проверка данных
+    if (typeof synergistsData === 'undefined') {
+        return { alternatives: [], error: 'no-synergists-data' };
+    }
+    if (!ex || !ex.name_en) {
+        return { alternatives: [], error: 'no-exercise-data' };
+    }
+
+    const sourceSyn = synergistsData[ex.name_en];
+    if (!sourceSyn || !sourceSyn.primary) {
+        return { alternatives: [], error: 'no-primary-muscle' };
+    }
+
+    const sourcePrimaryId = sourceSyn.primary.muscleId;
+    const sourceEquip = ex.equipment;
+
+    // Собираем кандидатов
+    let candidates = exerciseDatabase.filter(cand => {
+        // 1. Не исходное
+        if (cand.id === ex.id) return false;
+
+        // 2. Данные синергистов
+        const candSyn = synergistsData[cand.name_en];
+        if (!candSyn || !candSyn.primary) return false;
+
+        // 3. Основная мышца должна совпадать
+        if (candSyn.primary.muscleId !== sourcePrimaryId) return false;
+
+        // 4. Доступное оборудование
+        if (!isEquipmentAvailable(cand.equipment, userEquip)) return false;
+
+        // 5. Причина
+        if (reason === 'busy') {
+            // Оборудование занято: не предлагать то же оборудование
+            if (cand.equipment === sourceEquip) return false;
+        } else if (reason === 'hard') {
+            // Слишком сложно: только проверенные пары
+            if (typeof substitutesData === 'undefined') return false;
+            if (substitutesData[ex.name_en] !== cand.name_en) return false;
+        } else if (reason === 'home') {
+            // Дома: не gym-оборудование
+            if (equipmentGroups.gym.includes(cand.equipment)) return false;
+        }
+
+        return true;
+    });
+
+    // Убираем дубли по ID
+    const seen = new Set();
+    candidates = candidates.filter(c => {
+        if (seen.has(c.id)) return false;
+        seen.add(c.id);
+        return true;
+    });
+
+    // Сортировка
+    candidates.sort((a, b) => {
+        // 1. Совпадение оборудования с исходным
+        const aMatch = a.equipment === sourceEquip ? 1 : 0;
+        const bMatch = b.equipment === sourceEquip ? 1 : 0;
+        // 2. Совпадение synergistic
+        const aSyn = synergistsData[a.name_en]?.synergists?.length || 0;
+        const bSyn = synergistsData[b.name_en]?.synergists?.length || 0;
+        return (bMatch - aMatch) || (bSyn - aSyn);
+    });
+
+    return {
+        alternatives: candidates.slice(0, 5),
+        error: candidates.length === 0 ? 'no-results' : null
+    };
+}
 function getCurrentWorkout() {
     try {
         return JSON.parse(localStorage.getItem(TRACKER_KEYS.currentWorkout)) || {
@@ -7674,5 +7773,243 @@ document.addEventListener('click', (e) => {
         if (date && typeof repeatWorkout === 'function') {
             repeatWorkout(date);
         }
+    }
+});
+// ============================================
+// 🔄 МОДАЛКА ЗАМЕНЫ — логика
+// ============================================
+let replaceState = {
+    exercise: null,
+    reason: null,
+    source: null   // 'catalog' | 'workout'
+};
+
+function openReplaceModal(ex, source) {
+    replaceState.exercise = ex;
+    replaceState.reason = null;
+    replaceState.source = source || 'catalog';
+
+    const modal = document.getElementById('replaceModal');
+    if (!modal) return;
+
+    // Исходное упражнение
+    const srcEl = document.getElementById('replaceSource');
+    const name = translateExerciseName(ex);
+    const equip = equipmentNames[ex.equipment] || ex.equipment;
+    srcEl.innerHTML = `
+        <div class="replace-source-label">Исходное:</div>
+        <div class="replace-source-name">${name}</div>
+        <div class="replace-source-equip">${equip}</div>
+    `;
+
+    // Сброс результатов
+    document.getElementById('replaceResults').innerHTML = '';
+    document.querySelectorAll('.replace-reason-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('replaceEquipPanel').style.display = 'none';
+
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeReplaceModal() {
+    const modal = document.getElementById('replaceModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+    replaceState = { exercise: null, reason: null, source: null };
+}
+
+function showEquipmentPanel() {
+    const panel = document.getElementById('replaceEquipPanel');
+    if (!panel) return;
+
+    const userEquip = getUserEquipment();
+    const allEquip = Object.keys(equipmentNames);
+
+    panel.innerHTML = `
+        <div class="replace-equip-title">Отметьте недоступное оборудование:</div>
+        <div class="replace-equip-list">
+            ${allEquip.map(e => `
+                <label class="replace-equip-item">
+                    <input type="checkbox" data-equip="${e}" ${userEquip.excluded.includes(e) ? 'checked' : ''}>
+                    <span>${equipmentNames[e]}</span>
+                </label>
+            `).join('')}
+        </div>
+        <button class="replace-equip-save" id="replaceEquipSave">Сохранить</button>
+    `;
+
+    panel.style.display = 'block';
+
+    panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const excluded = [];
+            panel.querySelectorAll('input[type="checkbox"]:checked').forEach(c => excluded.push(c.dataset.equip));
+            setUserEquipment({ excluded });
+            // Обновить результаты если причина уже выбрана
+            if (replaceState.reason) {
+                showAlternatives(replaceState.reason);
+            }
+        });
+    });
+}
+
+function showAlternatives(reason) {
+    replaceState.reason = reason;
+    const resultsEl = document.getElementById('replaceResults');
+    const userEquip = getUserEquipment();
+
+    const res = findAlternatives(replaceState.exercise, reason, userEquip);
+
+    if (res.error === 'no-results') {
+        resultsEl.innerHTML = `<div class="replace-empty">По выбранным условиям замена не найдена. Измените оборудование или причину.</div>`;
+        return;
+    }
+    if (res.error === 'no-synergists-data' || res.error === 'no-exercise-data') {
+        resultsEl.innerHTML = `<div class="replace-empty">Недостаточно данных для подбора</div>`;
+        return;
+    }
+    if (res.alternatives.length === 0) {
+        resultsEl.innerHTML = `<div class="replace-empty">Замена не найдена</div>`;
+        return;
+    }
+
+    resultsEl.innerHTML = `
+        <div class="replace-results-title">Подходящие варианты (${res.alternatives.length}):</div>
+        ${res.alternatives.map(alt => {
+            const altName = translateExerciseName(alt);
+            const altEquip = equipmentNames[alt.equipment] || alt.equipment;
+            const altSyn = synergistsData[alt.name_en];
+            const samePrimary = altSyn.primary.muscleId === synergistsData[replaceState.exercise.name_en].primary.muscleId;
+            const equipChanged = alt.equipment !== replaceState.exercise.equipment;
+            
+            const whyText = samePrimary 
+                ? 'Основная целевая мышца сохраняется.' 
+                : 'Основная мышца совпадает.';
+            const whatText = equipChanged 
+                ? `Оборудование: ${altEquip}. Рабочий вес нужно выбрать отдельно.` 
+                : 'Схожее оборудование.';
+
+            return `
+                <div class="replace-card" data-alt-id="${alt.id}">
+                    <div class="replace-card-img">
+                        ${alt.image ? `<img src="${alt.image}" alt="${altName}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='💪';">` : '💪'}
+                    </div>
+                    <div class="replace-card-info">
+                        <div class="replace-card-name">${altName}</div>
+                        <div class="replace-card-equip">${altEquip}</div>
+                        <div class="replace-card-why"><strong>Почему подходит:</strong> ${whyText}</div>
+                        <div class="replace-card-what"><strong>Что изменится:</strong> ${whatText}</div>
+                    </div>
+                    <button class="replace-card-btn" data-select-id="${alt.id}">Выбрать</button>
+                </div>
+            `;
+        }).join('')}
+    `;
+}
+
+function selectAlternative(newId) {
+    const oldEx = replaceState.exercise;
+    const newEx = exerciseDatabase.find(e => e.id === newId);
+    if (!newEx) return;
+
+    // Проверка: если открыто из тренировки — замена
+    if (replaceState.source === 'workout') {
+        const current = getCurrentWorkout();
+        const oldName = oldEx.name;   // в log ключ — name, не name_en
+        const oldNameRu = translateExerciseName(oldEx);
+        const newNameRu = translateExerciseName(newEx);
+
+        // Найти ключ в currentWorkout по name или name_en
+        const keyInWorkout = Object.keys(current.exercises).find(k => 
+            k === oldName || k === oldNameRu || k === oldEx.name_en
+        );
+
+        if (!keyInWorkout) {
+            showToast('⚠️ Упражнение не найдено в текущей тренировке');
+            return;
+        }
+
+        // Проверка: есть выполненные подходы?
+        const existingSets = current.exercises[keyInWorkout] || [];
+        if (existingSets.length > 0) {
+            showToast('⚠️ Выполненные подходы сохраняются. Добавь альтернативу отдельным упражнением.');
+            return;
+        }
+
+        // Confirm
+        const ok = confirm(`Заменить "${oldNameRu}" на "${newNameRu}"?`);
+        if (!ok) return;
+
+        // Замена: удалить старый ключ, добавить новый с пустыми подходами
+        delete current.exercises[keyInWorkout];
+        current.exercises[newEx.name_en] = [];   // ключ — name_en (как в log)
+        saveCurrentWorkout(current);
+        renderWorkoutTracker();
+        closeReplaceModal();
+        showToast('🔄 Упражнение заменено');
+        return;
+    }
+
+    // Из каталога — открыть карточку новой альтернативы
+    closeReplaceModal();
+    if (typeof selectMuscle === 'function' && newEx.muscleId) {
+        // Не меняем мышцу — просто открываем карточку упражнения
+        // Или — скроллим к упражнению
+        const card = document.querySelector(`[data-ex-id="${newId}"]`);
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.classList.add('highlight');
+            setTimeout(() => card.classList.remove('highlight'), 2000);
+        }
+    }
+    showToast(`Открыто: ${translateExerciseName(newEx)}`);
+}
+
+// Обработчики модалки
+document.addEventListener('click', (e) => {
+    // Открытие
+    const replaceBtn = e.target.closest('[data-replace-id]');
+    if (replaceBtn) {
+        e.preventDefault();
+        const id = replaceBtn.dataset.replaceId;
+        const ex = exerciseDatabase.find(e => e.id === id);
+        if (!ex) return;
+
+        // Определяем, откуда открыто
+        const current = getCurrentWorkout();
+        const inWorkout = Object.keys(current.exercises).some(k => 
+            k === ex.name || k === translateExerciseName(ex) || k === ex.name_en
+        );
+        openReplaceModal(ex, inWorkout ? 'workout' : 'catalog');
+        return;
+    }
+
+    // Закрытие
+    if (e.target.closest('#replaceClose') || e.target.closest('#replaceBackdrop')) {
+        closeReplaceModal();
+        return;
+    }
+
+    // Причина
+    const reasonBtn = e.target.closest('.replace-reason-btn');
+    if (reasonBtn) {
+        document.querySelectorAll('.replace-reason-btn').forEach(b => b.classList.remove('active'));
+        reasonBtn.classList.add('active');
+        showAlternatives(reasonBtn.dataset.reason);
+        return;
+    }
+
+    // Панель оборудования
+    if (e.target.closest('#replaceEquipBtn')) {
+        showEquipmentPanel();
+        return;
+    }
+
+    // Выбор альтернативы
+    const selectBtn = e.target.closest('[data-select-id]');
+    if (selectBtn) {
+        selectAlternative(selectBtn.dataset.selectId);
+        return;
     }
 });

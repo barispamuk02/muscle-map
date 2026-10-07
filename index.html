@@ -294,6 +294,7 @@
     <script src="custom-exercises.js"></script>
     <script src="premium-data.js"></script>
     <script src="supplements-data.js"></script>
+    <script src="substitutes-data.js"></script>
     <!-- 📄 jsPDF для экспорта -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fonts.js"></script>   
@@ -341,6 +342,26 @@
 </div>
         </div>
     </div>
+    <!-- 🔄 МОДАЛКА ЗАМЕНЫ УПРАЖНЕНИЯ -->
+<div class="replace-modal" id="replaceModal">
+    <div class="replace-backdrop" id="replaceBackdrop"></div>
+    <div class="replace-content">
+        <button class="replace-close" id="replaceClose"><span data-svg="x" data-svg-size="18"></span></button>
+        <div class="replace-title">Заменить упражнение</div>
+        <div class="replace-source" id="replaceSource"></div>
+        <div class="replace-reason-title">Причина замены:</div>
+        <div class="replace-reasons">
+            <button class="replace-reason-btn" data-reason="busy">Оборудование занято</button>
+            <button class="replace-reason-btn" data-reason="home">Тренируюсь дома</button>
+            <button class="replace-reason-btn" data-reason="hard">Слишком сложно</button>
+        </div>
+        <div class="replace-equipment-toggle">
+            <button class="replace-equipment-btn" id="replaceEquipBtn">⚙️ Настроить оборудование</button>
+        </div>
+        <div class="replace-equipment-panel" id="replaceEquipPanel" style="display:none;"></div>
+        <div class="replace-results" id="replaceResults"></div>
+    </div>
+</div>
 <script src="script.js"></script>
 </body>
 </html>

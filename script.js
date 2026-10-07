@@ -5815,15 +5815,18 @@ function renderComparison(fromDate, toDate) {
     const notFoundTo = [];
 
     fromExs.forEach(name => {
-        const id = findExerciseById(name);
-        if (id) mapFrom[id] = { name, sets: fromData[name] };
-        else notFoundFrom.push(name);
-    });
+    // Пробуем найти ID в каталоге
+    let id = findExerciseById(name);
+    // Fallback: если не найдено — используем само имя как ключ
+    // Это позволяет сравнивать custom упражнения
+    if (!id) id = '_custom_' + name;
+    mapFrom[id] = { name, sets: fromData[name] };
+});
     toExs.forEach(name => {
-        const id = findExerciseById(name);
-        if (id) mapTo[id] = { name, sets: toData[name] };
-        else notFoundTo.push(name);
-    });
+    let id = findExerciseById(name);
+    if (!id) id = '_custom_' + name;
+    mapTo[id] = { name, sets: toData[name] };
+});
 
     // Общие, добавленные, убранные
     const common = [];
@@ -5877,15 +5880,7 @@ function renderComparison(fromDate, toDate) {
     }
 
     // Ненайденные
-    if (notFoundFrom.length + notFoundTo.length > 0) {
-        html += `<div class="comp-section comp-notfound">
-            <div class="comp-section-title">Упражнения вне каталога (${notFoundFrom.length + notFoundTo.length})</div>
-            ${notFoundFrom.map(n => `<div class="comp-ex-name">− ${translateByName(n)}</div>`).join('')}
-            ${notFoundTo.map(n => `<div class="comp-ex-name">+ ${translateByName(n)}</div>`).join('')}
-        </div>`;
-    }
-
-    if (common.length === 0 && added.length === 0 && removed.length === 0) {
+       if (common.length === 0 && added.length === 0 && removed.length === 0) {
         html = `<div class="comparison-hint">Нет упражнений для сравнения</div>`;
     }
 

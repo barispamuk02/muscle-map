@@ -3833,9 +3833,7 @@ function renderExerciseCard(ex) {
             ? '<span data-svg="circle-check-big" data-svg-size="16"></span> Выполнено' 
             : '<span data-svg="check" data-svg-size="16"></span> Отметить выполненным'}
     </button>
-    <button class="btn-replace" data-replace-id="${ex.id}" title="Заменить упражнение">
-        <span data-svg="refresh-cw" data-svg-size="16"></span> Заменить
-    </button>
+    
 </div>
                 </div>
             </div>
@@ -3881,6 +3879,9 @@ function renderExerciseCard(ex) {
         ? '<span data-svg="circle-check-big" data-svg-size="16"></span> Выполнено' 
         : '<span data-svg="check" data-svg-size="16"></span> Отметить выполненным'}
 </button>
+<button class="btn-replace" data-replace-id="${ex.id}" title="Заменить упражнение">
+        <span data-svg="refresh-cw" data-svg-size="16"></span> Заменить
+    </button>
                 </div>
             </div>
         </div>

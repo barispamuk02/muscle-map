@@ -8400,3 +8400,18 @@ document.addEventListener('click', (e) => {
         setTimeout(() => highlightSynergists(card.dataset.exNameEn), 100);
     }
 });
+// ============================================
+// 🌍 ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА
+// ============================================
+document.addEventListener('click', (e) => {
+    if (e.target.closest('#langToggle')) {
+        e.preventDefault();
+        if (typeof setLang === 'function') {
+            const newLang = currentLang === 'ru' ? 'en' : 'ru';
+            setLang(newLang);
+            showToast(newLang === 'en' ? '🇬🇧 English' : '🇷🇺 Русский');
+        } else {
+            console.warn('⚠️ translations.js не загружен');
+        }
+    }
+});

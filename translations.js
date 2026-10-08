@@ -650,3 +650,43 @@ console.log('✅ translations.js loaded | lang:', currentLang, '| keys:', Object
 document.addEventListener('DOMContentLoaded', () => {
     applyTranslations();
 });
+
+// ============================================
+// 🌍 АВТО-ПЕРЕПРИМЕНЕНИЕ ПЕРЕВОДОВ
+// ============================================
+// 1. При полной загрузке страницы
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (typeof applyTranslations === 'function') applyTranslations();
+    }, 100);
+    setTimeout(() => {
+        if (typeof applyTranslations === 'function') applyTranslations();
+    }, 500);
+});
+
+// 2. При любом изменении DOM (MutationObserver)
+if (typeof MutationObserver !== 'undefined') {
+    let timeoutId;
+    const observer = new MutationObserver(() => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            if (typeof applyTranslations === 'function') applyTranslations();
+        }, 100);
+    });
+    
+    const startObserving = () => {
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            console.log('🌍 MutationObserver запущен');
+        }
+    };
+    
+    if (document.body) {
+        startObserving();
+    } else {
+        document.addEventListener('DOMContentLoaded', startObserving);
+    }
+}

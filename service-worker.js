@@ -1,8 +1,8 @@
 // ============================================
 // 🔧 SERVICE WORKER — КЕШ ДЛЯ ОФЛАЙН-РЕЖИМА
 // ============================================
-const CACHE_NAME = 'muscle-map-v97';
-const RUNTIME_CACHE = 'muscle-map-runtime-v97';
+const CACHE_NAME = 'muscle-map-v98';
+const RUNTIME_CACHE = 'muscle-map-runtime-v98';
 
 // Файлы, которые кешируем сразу при установке
 const PRECACHE_URLS = [

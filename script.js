@@ -3796,7 +3796,7 @@ function capitalize(s) {
 // ============================================
 function renderExerciseCard(ex) {
     if (ex.isCustom) {
-        const equipment = equipmentNames[ex.equipment] || 'Своё тело';
+        const equipment = (typeof getEquipmentName === 'function') ? getEquipmentName(ex.equipment) : (equipmentNames[ex.equipment] || 'Своё тело');
         const gifPath = ex.gif || '';
         const displayName = ex.name;    // ← для custom — name уже русский
         const done = isCompleted(ex.id);
@@ -3844,7 +3844,7 @@ function renderExerciseCard(ex) {
         `;
     }
 
-    const equipment = equipmentNames[ex.equipment] || ex.equipment;
+    const equipment = (typeof getEquipmentName === 'function') ? getEquipmentName(ex.equipment) : (equipmentNames[ex.equipment] || ex.equipment);
     const imagePath = ex.image || '';
     const gifPath = ex.gif || '';
     const displayName = translateExerciseName(ex);
@@ -7884,7 +7884,7 @@ function openReplaceModal(ex, source) {
     // Исходное упражнение
     const srcEl = document.getElementById('replaceSource');
     const name = translateExerciseName(ex);
-    const equip = equipmentNames[ex.equipment] || ex.equipment;
+    const equip = (typeof getEquipmentName === 'function') ? getEquipmentName(ex.equipment) : (equipmentNames[ex.equipment] || ex.equipment);
     srcEl.innerHTML = `
         <div class="replace-source-label">Исходное:</div>
         <div class="replace-source-name">${name}</div>
@@ -7921,7 +7921,7 @@ function showEquipmentPanel() {
             ${allEquip.map(e => `
                 <label class="replace-equip-item">
                     <input type="checkbox" data-equip="${e}" ${userEquip.excluded.includes(e) ? 'checked' : ''}>
-                    <span>${equipmentNames[e]}</span>
+                    <span>${(typeof getEquipmentName === 'function') ? getEquipmentName(e) : equipmentNames[e]}</span>
                 </label>
             `).join('')}
         </div>
@@ -7967,7 +7967,7 @@ function showAlternatives(reason) {
         <div class="replace-results-title">Подходящие варианты (${res.alternatives.length}):</div>
         ${res.alternatives.map(alt => {
             const altName = translateExerciseName(alt);
-            const altEquip = equipmentNames[alt.equipment] || alt.equipment;
+            const altEquip = (typeof getEquipmentName === 'function') ? getEquipmentName(alt.equipment) : (equipmentNames[alt.equipment] || alt.equipment);
             const altSyn = synergistsData[alt.name_en];
             const samePrimary = altSyn.primary.muscleId === synergistsData[replaceState.exercise.name_en].primary.muscleId;
             const equipChanged = alt.equipment !== replaceState.exercise.equipment;

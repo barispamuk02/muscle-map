@@ -505,7 +505,61 @@ const translations = {
         'common.loading': 'Loading...',
     }
 };
+// ============================================
+// 🌍 ПЕРЕВОДЫ ОБОРУДОВАНИЯ
+// ============================================
+const equipmentTranslations = {
+    ru: {
+        'body weight': 'Своё тело',
+        'dumbbell': 'Гантели',
+        'barbell': 'Штанга',
+        'cable': 'Блок',
+        'machine': 'Тренажёр',
+        'smith machine': 'Смит',
+        'ez barbell': 'EZ-штанга',
+        'olympic barbell': 'Олимпийская штанга',
+        'kettlebell': 'Гиря',
+        'band': 'Эспандер',
+        'stability ball': 'Фитбол',
+        'medicine ball': 'Медбол',
+        'leverage machine': 'Рычажный',
+        'assisted': 'С поддержкой',
+        'weighted': 'С отягощением',
+        'bosu ball': 'Босу',
+        'rope': 'Канат',
+        'trap bar': 'Трап-штанга',
+        'wheel roller': 'Ролик',
+    },
+    en: {
+        'body weight': 'Body weight',
+        'dumbbell': 'Dumbbell',
+        'barbell': 'Barbell',
+        'cable': 'Cable',
+        'machine': 'Machine',
+        'smith machine': 'Smith machine',
+        'ez barbell': 'EZ barbell',
+        'olympic barbell': 'Olympic barbell',
+        'kettlebell': 'Kettlebell',
+        'band': 'Band',
+        'stability ball': 'Stability ball',
+        'medicine ball': 'Medicine ball',
+        'leverage machine': 'Leverage machine',
+        'assisted': 'Assisted',
+        'weighted': 'Weighted',
+        'bosu ball': 'Bosu ball',
+        'rope': 'Rope',
+        'trap bar': 'Trap bar',
+        'wheel roller': 'Wheel roller',
+    }
+};
 
+function getEquipmentName(equipmentKey) {
+    const lang = (typeof currentLang !== 'undefined') ? currentLang : 'ru';
+    if (equipmentTranslations[lang] && equipmentTranslations[lang][equipmentKey]) {
+        return equipmentTranslations[lang][equipmentKey];
+    }
+    return equipmentKey;
+}
 // ============================================
 // ФУНКЦИИ
 // ============================================

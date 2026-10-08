@@ -3829,19 +3829,18 @@ function renderExerciseCard(ex) {
                                  onerror="this.parentElement.style.display='none';">
                         </div>
                     ` : ''}
-                    <div class="exercise-instructions">
-                        <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> Описание:</div>
+                                        <div class="exercise-instructions">
+                        <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> ${t('exercises.description')}:</div>
                        
                         <p>${ex.description || 'Описание недоступно'}</p>
                         ${ex.sets ? `<p><strong>Подходы:</strong> ${ex.sets}</p>` : ''}
                     </div>
-                <div class="exercise-actions">
+                                <div class="exercise-actions">
     <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
         ${done 
-            ? '<span data-svg="circle-check-big" data-svg-size="16"></span> Выполнено' 
-            : '<span data-svg="check" data-svg-size="16"></span> Отметить выполненным'}
+            ? `<span data-svg="circle-check-big" data-svg-size="16"></span> ${t('exercises.done')}` 
+            : `<span data-svg="check" data-svg-size="16"></span> ${t('exercises.markDone')}`}
     </button>
-    
 </div>
                 </div>
             </div>
@@ -3872,8 +3871,8 @@ function renderExerciseCard(ex) {
                         <img src="${gifPath}" alt="${displayName}" loading="lazy" data-gif="${gifPath}" data-name="${displayName}" onerror="this.parentElement.style.display='none';">
                     </div>
                 ` : ''}
-                <div class="exercise-instructions">
-                    <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> Инструкция:</div>
+                                <div class="exercise-instructions">
+                    <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> ${t('exercises.instructions')}:</div>
                     ${ex.instruction_steps_ru && ex.instruction_steps_ru.length > 0
             ? `<ol>${ex.instruction_steps_ru.map(step => `<li>${step}</li>`).join('')}</ol>`
             : `<p>${ex.instructions_ru || 'Инструкция недоступна'}</p>`}
@@ -3882,13 +3881,13 @@ function renderExerciseCard(ex) {
                 ${renderSynergists(ex)}
                 <div class="exercise-attribution">${ex.attribution || ''}</div>
                 <div class="exercise-actions">
-                    <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
+                                        <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
     ${done 
-        ? '<span data-svg="circle-check-big" data-svg-size="16"></span> Выполнено' 
-        : '<span data-svg="check" data-svg-size="16"></span> Отметить выполненным'}
+        ? `<span data-svg="circle-check-big" data-svg-size="16"></span> ${t('exercises.done')}` 
+        : `<span data-svg="check" data-svg-size="16"></span> ${t('exercises.markDone')}`}
 </button>
-<button class="btn-replace" data-replace-id="${ex.id}" title="Заменить упражнение">
-        <span data-svg="refresh-cw" data-svg-size="16"></span> Заменить
+<button class="btn-replace" data-replace-id="${ex.id}" title="${t('exercises.replace')}">
+        <span data-svg="refresh-cw" data-svg-size="16"></span> ${t('exercises.replace')}
     </button>
                 </div>
             </div>
@@ -3922,7 +3921,7 @@ function renderExercisesSection(muscle) {
         const end = page * PAGE_SIZE;
         visible = filtered.slice(0, end);
         showMoreButton = filtered.length > end;
-        counterText = `Показано ${Math.min(end, filtered.length)} из ${filtered.length}`;
+                counterText = `${t('exercises.counter')} ${Math.min(end, filtered.length)} ${t('exercises.of')} ${filtered.length}`;
     } else {
         // 🎯 Бесплатно: только 4
         visible = filtered.slice(0, FREE_LIMIT);
@@ -3931,30 +3930,30 @@ function renderExercisesSection(muscle) {
 
     const buttons = `
     <div class="equipment-filter">
-        <button class="filter-btn ${currentEquipmentFilter === 'all' ? 'active' : ''}" data-filter="all"><span data-svg="clipboard-list" data-svg-size="14"></span> Всё (${allExercises.length})</button>
-        <button class="filter-btn ${currentEquipmentFilter === 'home' ? 'active' : ''}" data-filter="home"><span data-svg="house" data-svg-size="14"></span> Дом (${filterByEquipment(allExercises, 'home').length})</button>
-        <button class="filter-btn ${currentEquipmentFilter === 'gym' ? 'active' : ''}" data-filter="gym"><span data-svg="dumbbell" data-svg-size="14"></span> Зал (${filterByEquipment(allExercises, 'gym').length})</button>
+        <button class="filter-btn ${currentEquipmentFilter === 'all' ? 'active' : ''}" data-filter="all"><span data-svg="clipboard-list" data-svg-size="14"></span> ${t('exercises.all')} (${allExercises.length})</button>
+        <button class="filter-btn ${currentEquipmentFilter === 'home' ? 'active' : ''}" data-filter="home"><span data-svg="house" data-svg-size="14"></span> ${t('exercises.home')} (${filterByEquipment(allExercises, 'home').length})</button>
+        <button class="filter-btn ${currentEquipmentFilter === 'gym' ? 'active' : ''}" data-filter="gym"><span data-svg="dumbbell" data-svg-size="14"></span> ${t('exercises.gym')} (${filterByEquipment(allExercises, 'gym').length})</button>
     </div>
 `;
-    const cards = visible.length > 0
+        const cards = visible.length > 0
         ? visible.map(renderExerciseCard).join('')
-        : '<div class="no-exercises"><span data-svg="frown" data-svg-size="32"></span> Нет упражнений для этого фильтра</div>';
+        : `<div class="no-exercises"><span data-svg="frown" data-svg-size="32"></span> ${t('exercises.none')}</div>`;
 
         // 🎯 Плашка Премиума (только для бесплатных)
-    const premiumBanner = showPremiumBanner
-    ? `<div class="premium-exercises-banner">
-          <div class="premium-exercises-icon"><span data-svg="gem" data-svg-size="32"></span></div>
-           <div class="premium-exercises-text">
-               <strong>Ещё ${filtered.length - FREE_LIMIT} ${declOfNum(filtered.length - FREE_LIMIT, ['упражнение', 'упражнения', 'упражнений'])}</strong>
-               <span>💎 Премиум откроет всю базу упражнений</span>
-           </div>
-           <button class="premium-exercises-btn" id="premiumExBtn">Оформить Премиум</button>
-       </div>`
-    : '';
+        const premiumBanner = showPremiumBanner
+        ? `<div class="premium-exercises-banner">
+              <div class="premium-exercises-icon"><span data-svg="gem" data-svg-size="32"></span></div>
+               <div class="premium-exercises-text">
+                   <strong>${t('exercises.moreCount')} ${filtered.length - FREE_LIMIT}</strong>
+                   <span>💎 ${t('exercises.premiumUnlock')}</span>
+               </div>
+               <button class="premium-exercises-btn" id="premiumExBtn">${t('premium.cta')}</button>
+           </div>`
+        : '';
 
     // 🎯 Кнопка «Показать ещё» (только для Премиума)
-    const moreBtn = showMoreButton
-        ? `<button class="btn-show-more" id="btnShowMore"><span data-svg="plus" data-svg-size="16"></span> Показать ещё ${Math.min(PAGE_SIZE, filtered.length - visible.length)}</button>`
+        const moreBtn = showMoreButton
+        ? `<button class="btn-show-more" id="btnShowMore"><span data-svg="plus" data-svg-size="16"></span> ${t('exercises.showMore')} ${Math.min(PAGE_SIZE, filtered.length - visible.length)}</button>`
         : '';
 
     // 🎯 Счётчик (только для Премиума)
@@ -3962,9 +3961,9 @@ function renderExercisesSection(muscle) {
         ? `<div class="exercises-counter">${counterText}</div>`
         : '';
 
-    return `
+        return `
         <div class="exercises-block">
-            <h3><span data-svg="dumbbell" data-svg-size="18"></span> Упражнения</h3>
+            <h3><span data-svg="dumbbell" data-svg-size="18"></span> ${t('exercises.title')}</h3>
             ${buttons}
             <div class="exercises-list" data-page="1" data-total="${filtered.length}">
                 ${cards}
@@ -7845,9 +7844,9 @@ function renderMistakes(ex) {
     
     return `
         <div class="exercise-mistakes">
-            <div class="mistakes-title">
-                <span data-svg="triangle-alert" data-svg-size="16"></span>
-                Частые ошибки
+                        <div class="mistakes-title">
+                <span data-svg="triangle-alert" data-svg-size="14"></span>
+                ${t('mistakes.title')}
             </div>
             <div class="mistakes-list">
                 ${html}

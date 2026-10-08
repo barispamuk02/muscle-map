@@ -66,6 +66,8 @@ const translations = {
         'exercises.markDone': 'Отметить выполненным',
         'exercises.done': 'Выполнено',
         'exercises.replace': 'Заменить',
+        'exercises.moreCount': 'Ещё',
+        'exercises.premiumUnlock': 'Премиум откроет всю базу упражнений',
 
         // СИНЕРГИСТЫ И ОШИБКИ
         'synergists.title': 'Мышцы в работе',
@@ -315,6 +317,9 @@ const translations = {
         'exercises.markDone': 'Mark as done',
         'exercises.done': 'Done',
         'exercises.replace': 'Replace',
+        'exercises.moreCount': 'More',
+        'exercises.premiumUnlock': 'Premium unlocks the entire exercise base',
+     
 
         // SYNERGISTS & MISTAKES
         'synergists.title': 'Muscles involved',

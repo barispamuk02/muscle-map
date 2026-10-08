@@ -3797,7 +3797,7 @@ function renderExerciseCard(ex) {
         const done = isCompleted(ex.id);
 
         return `
-            <div class="exercise-card ${done ? 'completed' : ''}" data-ex-id="${ex.id}">
+    <div class="exercise-card ${done ? 'completed' : ''}" data-ex-id="${ex.id}" data-ex-name-en="${ex.name_en || ''}">
                 <div class="exercise-header">
                     <div class="exercise-image">
                         ${gifPath
@@ -6718,7 +6718,34 @@ async function loadSvgLayer(layerId, muscles) {
 
     return contents.filter(s => s).length;
 }
+// ============================================
+// 🎯 ПОДСВЕТКА СИНЕРГИСТОВ
+// ============================================
+function highlightSynergists(exNameEn) {
+    // Сброс предыдущей подсветки
+    document.querySelectorAll('.body-svg-layer svg path.synergist-active')
+        .forEach(p => p.classList.remove('synergist-active'));
 
+    if (!exNameEn) return;
+    if (typeof synergistsData === 'undefined') return;
+
+    const syn = synergistsData[exNameEn];
+    if (!syn || !syn.synergists || syn.synergists.length === 0) return;
+
+    // Подсвечиваем каждого синергиста
+    syn.synergists.forEach(s => {
+        if (!s.muscleId) return;
+        const paths = document.querySelectorAll(
+            `.body-svg-layer svg path[data-muscle-id="${s.muscleId}"]`
+        );
+        paths.forEach(p => p.classList.add('synergist-active'));
+    });
+}
+
+function clearSynergistsHighlight() {
+    document.querySelectorAll('.body-svg-layer svg path.synergist-active')
+        .forEach(p => p.classList.remove('synergist-active'));
+}
 // Показ слоя с fade
 function showSvgLayer(view) {
     const front = document.getElementById('bodySvgFront');
@@ -8341,5 +8368,26 @@ document.addEventListener('change', (e) => {
     if (e.target.id === 'scShowReps') {
         shareCardState.showReps = e.target.checked;
         renderShareCard();
+    }
+});
+// ============================================
+// 🎯 ПОДСВЕТКА СИНЕРГИСТОВ ПРИ КЛИКЕ НА КАРТОЧКУ
+// ============================================
+document.addEventListener('click', (e) => {
+    // Клик по заголовку карточки упражнения (не по кнопкам)
+    const header = e.target.closest('.exercise-header');
+    const card = header ? header.closest('.exercise-card') : null;
+    
+    if (card && card.dataset.exNameEn) {
+        // Задержка — чтобы DOM успел раскрыться
+        setTimeout(() => {
+            highlightSynergists(card.dataset.exNameEn);
+        }, 100);
+        return;
+    }
+    
+    // Если клик по другой карточке (свернул) — сбросить подсветку
+    if (e.target.closest('.exercise-card') && !header) {
+        clearSynergistsHighlight();
     }
 });

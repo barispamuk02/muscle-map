@@ -3846,8 +3846,8 @@ function renderExerciseCard(ex) {
     const displayName = translateExerciseName(ex);
     const done = isCompleted(ex.id);
 
-    return `
-        <div class="exercise-card ${done ? 'completed' : ''}" data-ex-id="${ex.id}">
+        return `
+        <div class="exercise-card ${done ? 'completed' : ''}" data-ex-id="${ex.id}" data-ex-name-en="${ex.name_en || ''}">
             <div class="exercise-header">
                 <div class="exercise-image">
                     ${imagePath ? `<img src="${imagePath}" alt="${displayName}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='💪';">` : '💪'}

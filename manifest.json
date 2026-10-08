@@ -1,16 +1,23 @@
 {
+  "id": "/muscle-map/",
   "name": "Muscle Map — Калькулятор мышц",
-  "short_name": "ММ",
+ "short_name": "Muscle Map",
   "description": "Выбери мышцу → узнай упражнения. 30 мышц, 1295 упражнений, восстановление, питание и программы тренировок.",
   "start_url": "/muscle-map/",
   "scope": "/muscle-map/",
   "display": "standalone",
+"display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0a0a12",
   "theme_color": "#0a0a12",
   "lang": "ru",
   "dir": "ltr",
-  "categories": ["health", "fitness", "sports"],
+  "categories": [
+  "health",
+  "fitness",
+  "sports"
+],
+"prefer_related_applications": false,
   "icons": [
     {
       "src": "icons/icon-192.png",

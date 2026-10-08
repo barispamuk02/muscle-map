@@ -6150,7 +6150,6 @@ function addWater(amount) {
         showToast(`💧 +${amount} мл`);
     }
 }
-
 function renderWaterTracker() {
     const current = getTodayWater();
     const currentEl = document.getElementById('waterCurrent');

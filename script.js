@@ -370,15 +370,15 @@ function renderList(muscles) {
 
     const filterBar = `
     <div class="list-filter-bar">
-        <button class="list-filter-btn ${currentListFilter === 'all' ? 'active' : ''}" data-filter="all"><span data-svg="clipboard-list" data-svg-size="14"></span> Все (${muscles.length})</button>
-        <button class="list-filter-btn ${currentListFilter === 'favorites' ? 'active' : ''}" data-filter="favorites"><span data-svg="star" data-svg-size="14"></span> Избранное (${getFavorites().length})</button>
+        <button class="list-filter-btn ${currentListFilter === 'all' ? 'active' : ''}" data-filter="all"><span data-svg="clipboard-list" data-svg-size="14"></span> ${t('muscles.all')} (${muscles.length})</button>
+        <button class="list-filter-btn ${currentListFilter === 'favorites' ? 'active' : ''}" data-filter="favorites"><span data-svg="star" data-svg-size="14"></span> ${t('muscles.favorites')} (${getFavorites().length})</button>
     </div>
 `;
-    if (filtered.length === 0) {
-        muscleListEl.innerHTML = filterBar + `<div class="empty-state"><span data-svg="star" data-svg-size="20"></span> Нет избранных мышц</div>`;
-        bindListFilter();
-        return;
-    }
+if (filtered.length === 0) {
+    muscleListEl.innerHTML = filterBar + `<div class="empty-state"><span data-svg="star" data-svg-size="20"></span> ${t('muscles.favoritesEmpty') || 'Нет избранных мышц'}</div>`;
+    bindListFilter();
+    return;
+}
 
     let html = '';
     filtered.forEach(muscle => {

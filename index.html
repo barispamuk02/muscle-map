@@ -123,12 +123,11 @@
 </section>
 
     <section class="recovery-header" id="recoveryHeader">
-        <div class="recovery-title"><span data-svg="heart-plus" data-svg-size="18"></span> Восстановление после травм</div>
-        <div class="recovery-warning">
-            <span data-svg="triangle-alert" data-svg-size="16"></span> <strong>Важно:</strong> эти упражнения... эти упражнения — для профилактики и лёгких состояний. 
-            При острой боли, после операции или травмы — консультация врача обязательна!
-        </div>
-    </section>
+    <div class="recovery-title" data-i18n="recovery.title"><span data-svg="heart-plus" data-svg-size="18"></span> Восстановление после травм</div>
+    <div class="recovery-warning">
+        <span data-svg="triangle-alert" data-svg-size="16"></span> <strong data-i18n="recovery.warningStrong">Важно:</strong> <span data-i18n="recovery.warning">эти упражнения — для профилактики и лёгких состояний. При острой боли, после операции или травмы — консультация врача обязательна!</span>
+    </div>
+</section>
 
     <main class="main-content" id="mainContent">
 
@@ -143,7 +142,9 @@
 <div class="body-svg-layer body-svg-back" id="bodySvgBack"></div>  
 <!-- ← НОВОЕ -->
 </div>
-                    <button class="view-toggle-btn" id="viewToggle"><span data-svg="refresh-cw" data-svg-size="16"></span> Вид сзади</button>
+                    <button class="view-toggle-btn" id="viewToggle">
+    <span data-svg="refresh-cw" data-svg-size="16"></span> <span data-i18n="muscles.viewBack">Вид сзади</span>
+</button>
                 </div>
             </section>
             <section class="info-panel" id="infoContent"></section>
@@ -153,10 +154,10 @@
             <aside class="recovery-list" id="recoveryList"></aside>
             <section class="recovery-content" id="recoveryContent">
                 <div class="recovery-placeholder">
-                    <div style="margin-bottom: 16px; opacity: 0.4;"><span data-svg="heart-plus" data-svg-size="60"></span></div>
-                    <div style="font-size: 20px; color: #5a5a7a;">Выбери категорию слева</div>
-                    <div style="font-size: 14px; color: #3a3a5a; margin-top: 8px;">Программы реабилитации и ЛФК</div>
-                </div>
+    <div style="margin-bottom: 16px; opacity: 0.4;"><span data-svg="heart-plus" data-svg-size="60"></span></div>
+    <div style="font-size: 20px; color: #5a5a7a;" data-i18n="recovery.placeholder.title">Выбери категорию слева</div>
+    <div style="font-size: 14px; color: #3a3a5a; margin-top: 8px;" data-i18n="recovery.placeholder.subtitle">Программы реабилитации и ЛФК</div>
+</div>
             </section>
         </div>
 

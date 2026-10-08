@@ -86,6 +86,7 @@ const translations = {
         'tracker.clear': 'Очистить',
         'tracker.sets': 'подходов',
         'tracker.kgVolume': 'кг объём',
+        'tracker.repsError': 'Введите повторы',
 
         // ОТДЫХ
         'rest.title': 'Отдых между подходами',
@@ -338,6 +339,7 @@ const translations = {
         'tracker.clear': 'Clear',
         'tracker.sets': 'sets',
         'tracker.kgVolume': 'kg volume',
+        'tracker.repsError': 'Enter reps',
 
         // REST
         'rest.title': 'Rest between sets',

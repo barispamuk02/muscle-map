@@ -5466,7 +5466,7 @@ function renderWorkoutTracker() {
 
     let exercisesHtml = '';
     if (exerciseEntries.length === 0) {
-        exercisesHtml = `<div class="tracker-empty">😕 Пока нет записанных подходов<br><span style="font-size: 11px; color: #4a4a6a;">Добавь первый подход ниже</span></div>`;
+        exercisesHtml = `<div class="tracker-empty">😕 ${t('tracker.noSets')}<br><span style="font-size: 11px; color: #4a4a6a;">${t('tracker.addFirst')}</span></div>`;
     } else {
         exercisesHtml = exerciseEntries.map(([exName, sets]) => {
     const setsHtml = sets.map((s, i) => `
@@ -5503,7 +5503,7 @@ function renderWorkoutTracker() {
         <div class="tracker-card">
             <div class="tracker-header">
                 <div>
-                    <div class="tracker-title"><span data-svg="dumbbell" data-svg-size="18"></span> Тренировка сегодня</div>
+                    <div class="tracker-title"><span data-svg="dumbbell" data-svg-size="18"></span> ${t('tracker.title')}</div>
                     <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(workout.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                 </div>
                 <div class="tracker-stats">
@@ -5519,20 +5519,18 @@ function renderWorkoutTracker() {
             </div>
             <div class="tracker-exercises">${exercisesHtml}</div>
             <div class="tracker-add">
-                <input type="text" id="trackerExName" placeholder="Упражнение (напр. Жим лёжа)" list="trackerExList">
+               <input type="text" id="trackerExName" placeholder="${t('tracker.exercisePlaceholder')}" list="trackerExList">
                 <datalist id="trackerExList">
                     ${getAllExerciseNames().map(n => `<option value="${n}">`).join('')}
                 </datalist>
                 <div class="tracker-add-row">
-                    <input type="number" id="trackerWeight" placeholder="Вес (кг)" min="0" step="0.5">
-                    <input type="number" id="trackerReps" placeholder="Повторы" min="1" max="100">
-                    <button class="btn-tracker-add" id="trackerAddBtn"><span data-svg="plus" data-svg-size="14"></span> Добавить</button>
-                </div>
+                   <input type="number" id="trackerWeight" placeholder="${t('tracker.weight')}" min="0" step="0.5">
+                    <input type="number" id="trackerReps" placeholder="${t('tracker.reps')}" min="1" max="100">
+                   <button class="btn-tracker-add" id="trackerAddBtn"><span data-svg="plus" data-svg-size="14"></span> ${t('tracker.add')}</button>
             </div>
             <div class="tracker-actions">
-                <button class="btn-tracker-save" id="trackerSaveBtn"><span data-svg="save" data-svg-size="14"></span> Сохранить в дневник</button>
-                <button class="btn-tracker-clear" id="trackerClearBtn"><span data-svg="trash" data-svg-size="14"></span> Очистить</button>
-            </div>
+                <button class="btn-tracker-save" id="trackerSaveBtn"><span data-svg="save" data-svg-size="14"></span> ${t('tracker.save')}</button>
+               <button class="btn-tracker-clear" id="trackerClearBtn"><span data-svg="trash" data-svg-size="14"></span> ${t('tracker.clear')}</button>
         </div>
         <div class="workout-log" id="workoutLog"></div>
     `;
@@ -5577,7 +5575,7 @@ function bindTrackerEvents() {
             const reps = document.getElementById('trackerReps').value;
             if (!name) { showToast('⚠️ Введите название'); return; }
             if (!weight && weight !== '0') { showToast('⚠️ Введите вес'); return; }
-            if (!reps) { showToast('⚠️ Введите повторы'); return; }
+            if (!reps) { showToast('⚠️ ' + t('tracker.repsError')); return; }
             addSetToExercise(name, weight, reps);
             showToast('✅ Подход добавлен!');
             renderWorkoutTracker();
@@ -6077,14 +6075,45 @@ function renderRestTimer() {
     const circumference = 2 * Math.PI * 45;
     const strokeDashoffset = circumference - (percent / 100) * circumference;
 
-        container.innerHTML = `
+    container.innerHTML = `
         <div class="rest-timer ${isActive ? 'active' : ''}">
-            ...
+            <div class="rest-timer-header">
+                <div class="rest-timer-title">⏱️ ${t('rest.title')}</div>
+                <label class="rest-timer-auto">
+                    <input type="checkbox" id="autoRestCheckbox" ${restTimer.autoStart ? 'checked' : ''}>
+                    <span>${t('rest.auto')}</span>
+                </label>
+            </div>
+            <div class="rest-timer-main">
+                <div class="rest-timer-circle">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+                        <circle cx="60" cy="60" r="45" fill="none" stroke="${isActive ? '#00b894' : '#6fb3ff'}" stroke-width="8"
+                                stroke-dasharray="${circumference}" stroke-dashoffset="${strokeDashoffset}"
+                                stroke-linecap="round" transform="rotate(-90 60 60)"
+                                style="transition: stroke-dashoffset 1s linear;"/>
+                    </svg>
+                    <div class="rest-timer-display">${isActive ? formatTime(restTimer.timeLeft) : t('rest.ready')}</div>
+                </div>
+                <div class="rest-timer-controls">
+                    <button class="rest-btn ${isActive ? 'pause' : 'play'}" id="restPauseBtn" ${!isActive ? 'disabled' : ''}>
+                        ${restTimer.isRunning ? '⏸️ ' + t('rest.pause') : (isActive ? '▶️ ' + t('rest.resume') : '—')}
+                    </button>
+                    <button class="rest-btn reset" id="restResetBtn" ${!isActive ? 'disabled' : ''}><span data-svg="refresh-cw" data-svg-size="14"></span> ${t('rest.reset')}</button>
+                </div>
+            </div>
+            <div class="rest-timer-presets">
+                <button class="rest-preset" data-time="30">30 ${t('rest.sec')}</button>
+                <button class="rest-preset" data-time="60">1 ${t('rest.min')}</button>
+                <button class="rest-preset" data-time="90">1:30</button>
+                <button class="rest-preset" data-time="120">2 ${t('rest.min')}</button>
+                <button class="rest-preset" data-time="180">3 ${t('rest.min')}</button>
+            </div>
         </div>
         <div class="water-tracker" id="waterTracker">
             <div class="water-header">
                 <div class="water-title">
-                    <span data-svg="droplet" data-svg-size="18"></span> Трекер воды
+                    <span data-svg="droplet" data-svg-size="18"></span> ${t('water.title')}
                 </div>
                 <div class="water-date" id="waterDate"></div>
             </div>
@@ -6093,7 +6122,7 @@ function renderRestTimer() {
                     <span class="water-current" id="waterCurrent">0</span>
                     <span class="water-sep">/</span>
                     <span class="water-goal" id="waterGoal">2000</span>
-                    <span class="water-unit">мл</span>
+                    <span class="water-unit">${t('water.unit')}</span>
                 </div>
                 <div class="water-progress">
                     <div class="water-progress-fill" id="waterProgress" style="width: 0%;"></div>
@@ -6104,12 +6133,12 @@ function renderRestTimer() {
                 <button class="water-btn" data-amount="100">+100</button>
                 <button class="water-btn" data-amount="200">+200</button>
                 <button class="water-btn" data-amount="500">+500</button>
-                <button class="water-btn water-btn-reset" id="waterReset" title="Сброс">↺</button>
+                <button class="water-btn water-btn-reset" id="waterReset" title="${t('rest.reset')}">↺</button>
             </div>
         </div>
     `;
     bindRestTimerEvents();
-    renderWaterTracker();   // ← ✅ добавили вызов
+    renderWaterTracker();
 }
 // ============================================
 // 💧 ТРЕКЕР ВОДЫ

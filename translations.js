@@ -524,6 +524,24 @@ function setLang(lang) {
             console.warn('renderList error:', e);
         }
     }
+    
+    // Обновить кнопку «Вид»
+    if (typeof currentView !== 'undefined') {
+        const btn = document.getElementById('viewToggle');
+        if (btn) btn.innerHTML = currentView === 'front' 
+            ? `<span data-svg="refresh-cw" data-svg-size="16"></span> ${t('muscles.viewBack')}` 
+            : `<span data-svg="refresh-cw" data-svg-size="16"></span> ${t('muscles.viewFront')}`;
+    }
+    
+    // Перерисовать карточку мышцы (если открыта)
+    if (typeof currentMuscleId !== 'undefined' && typeof muscleDatabase !== 'undefined' && currentMuscleId) {
+        try {
+            const muscle = muscleDatabase[currentMuscleId];
+            if (muscle && typeof renderInfo === 'function') renderInfo(muscle);
+        } catch(e) {
+            console.warn('renderInfo error:', e);
+        }
+    }
 }
 
 function applyTranslations() {

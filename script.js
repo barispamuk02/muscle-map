@@ -351,8 +351,8 @@ function toggleView() {
     currentView = currentView === 'front' ? 'back' : 'front';
     const btn = document.getElementById('viewToggle');
     if (btn) btn.innerHTML = currentView === 'front' 
-    ? '<span data-svg="refresh-cw" data-svg-size="16"></span> Вид сзади' 
-    : '<span data-svg="refresh-cw" data-svg-size="16"></span> Вид спереди';
+        ? `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewBack') : 'Вид сзади'}` 
+        : `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewFront') : 'Вид спереди'}`;
     updateBodyImage();
     setTimeout(() => { isTransitioning = false; }, 600);
 }
@@ -421,12 +421,12 @@ function selectMuscle(id) {
     localStorage.setItem(STORAGE_KEYS.lastSelected, id);
     incrementViews(id);
     currentEquipmentFilter = 'all';
-    if (muscle.side && muscle.side !== 'both' && muscle.side !== currentView) {
+        if (muscle.side && muscle.side !== 'both' && muscle.side !== currentView) {
         currentView = muscle.side;
         const btn = document.getElementById('viewToggle');
         if (btn) btn.innerHTML = currentView === 'front' 
-    ? '<span data-svg="refresh-cw" data-svg-size="16"></span> Вид сзади' 
-    : '<span data-svg="refresh-cw" data-svg-size="16"></span> Вид спереди';
+            ? `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewBack') : 'Вид сзади'}` 
+            : `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewFront') : 'Вид спереди'}`;
     }
     renderList(Object.values(muscleDatabase));
     renderInfo(muscle);

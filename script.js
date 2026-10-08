@@ -3734,15 +3734,19 @@ exerciseNameDict.sort((a, b) => b[0].length - a[0].length);
 // 🌐 ПЕРЕВОД НАЗВАНИЙ УПРАЖНЕНИЙ
 // ============================================
 function translateExerciseName(ex) {
-    // 1. Ручной перевод из JSON (приоритет)
+    // 🇬🇧 Если английский — используем name_en
+    if (typeof currentLang !== 'undefined' && currentLang === 'en') {
+        return ex.name_en || ex.name || '';
+    }
+    
+    // 🇷🇺 Если русский — используем ручной перевод
     if (typeof exerciseNameRU !== 'undefined') {
         const key = (ex.name_en || '').toLowerCase().trim();
         if (key && exerciseNameRU[key]) {
             return exerciseNameRU[key];
         }
     }
-
-    // 2. Fallback — name (уже русский)
+    // Fallback — name (уже русский)
     return ex.name || ex.name_en || '';
 }
 /**
@@ -3750,27 +3754,20 @@ function translateExerciseName(ex) {
  * Ищет по name_en (английскому), возвращает красивый перевод
  */
 function translateByName(name) {
-    if (!name) return '';
-
-    // Если это уже красивое русское название — вернуть как есть
-    // (проверяем: есть ли кириллица + не в базе латиницы)
-    if (/[а-яё]/i.test(name) && !/[a-z]{3,}/i.test(name)) {
+    // 🇬🇧 EN — ищем в базе по name, возвращаем name_en
+    if (typeof currentLang !== 'undefined' && currentLang === 'en') {
+        if (typeof exerciseDatabase !== 'undefined') {
+            const ex = exerciseDatabase.find(e => 
+                e.name === name || 
+                (typeof exerciseNameRU !== 'undefined' && exerciseNameRU[e.name_en?.toLowerCase()] === name)
+            );
+            if (ex && ex.name_en) return ex.name_en;
+        }
         return name;
     }
-
-    // Ищем упражнение в базе по имени (русскому или английскому)
-    if (typeof exerciseDatabase !== 'undefined') {
-        const ex = exerciseDatabase.find(e =>
-            e.name === name ||
-            e.name_en === name ||
-            e.name_en?.toLowerCase() === name.toLowerCase()
-        );
-        if (ex) {
-            return translateExerciseName(ex);
-        }
-    }
-
-    // Fallback — как есть
+    
+    // 🇷🇺 RU — текущая логика
+    // ...
     return name;
 }
 // ============================================

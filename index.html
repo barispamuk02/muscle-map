@@ -63,64 +63,64 @@
     </header>
 
     <section class="quote-section" id="quoteSection">
-        <div class="quote-inner">
-            <div class="quote-label"><span data-svg="message-circle-more" data-svg-size="14"></span> ЦИТАТА ДНЯ</div>
-            <div class="quote-text" id="quoteText">Загрузка...</div>
-            <div class="quote-author" id="quoteAuthor"></div>
-        </div>
-        <div class="quote-actions">
-           <button class="quote-btn" id="quoteShareBtn" title="Поделиться"><span data-svg="send-horizontal" data-svg-size="16"></span></button>
-<button class="quote-btn" id="quoteCopyBtn" title="Скопировать"><span data-svg="clipboard-list" data-svg-size="16"></span></button>
-        </div>
-    </section>
+    <div class="quote-inner">
+        <div class="quote-label" data-i18n="quote.label"><span data-svg="message-circle-more" data-svg-size="14"></span> ЦИТАТА ДНЯ</div>
+        <div class="quote-text" id="quoteText">Загрузка...</div>
+        <div class="quote-author" id="quoteAuthor"></div>
+    </div>
+    <div class="quote-actions">
+        <button class="quote-btn" id="quoteShareBtn" data-i18n-title="quote.share" title="Поделиться"><span data-svg="send-horizontal" data-svg-size="16"></span></button>
+        <button class="quote-btn" id="quoteCopyBtn" data-i18n-title="quote.copy" title="Скопировать"><span data-svg="clipboard-list" data-svg-size="16"></span></button>
+    </div>
+</section>
 
     <!-- 📊 Статистика проекта -->
 <section class="stats-section" id="statsSection">
     <div class="stats-grid">
         <div class="stat-box">
-    <div class="stat-box-icon" data-svg="biceps-flexed" data-svg-size="32"></div>
-    <div class="stat-box-value" data-count="30">0</div>
-    <div class="stat-box-label">мышц</div>
-</div>
+            <div class="stat-box-icon" data-svg="biceps-flexed" data-svg-size="32"></div>
+            <div class="stat-box-value" data-count="30">0</div>
+            <div class="stat-box-label" data-i18n="stats.muscles">мышц</div>
+        </div>
         <div class="stat-box">
             <div class="stat-box-icon" data-svg="dumbbell" data-svg-size="32"></div>
             <div class="stat-box-value" data-count="1365">0</div>
-            <div class="stat-box-label">упражнений</div>
+            <div class="stat-box-label" data-i18n="stats.exercises">упражнений</div>
         </div>
         <div class="stat-box">
             <div class="stat-box-icon" data-svg="clapperboard" data-svg-size="32"></div>
             <div class="stat-box-value" data-count="1300">0</div>
-            <div class="stat-box-label">АНИМАЦИЙ</div>
+            <div class="stat-box-label" data-i18n="stats.animations">АНИМАЦИЙ</div>
         </div>
         <div class="stat-box">
             <div class="stat-box-icon" data-svg="message-circle-more" data-svg-size="32"></div>
             <div class="stat-box-value" data-count="365">0</div>
-            <div class="stat-box-label">цитат</div>
+            <div class="stat-box-label" data-i18n="stats.quotes">цитат</div>
         </div>
         <div class="stat-box">
             <div class="stat-box-icon" data-svg="calendar-days" data-svg-size="32"></div>
             <div class="stat-box-value" data-count="6">0</div>
-            <div class="stat-box-label">программ</div>
+            <div class="stat-box-label" data-i18n="stats.programs">программ</div>
         </div>
         <div class="stat-box">
             <div class="stat-box-icon" data-svg="heart-plus" data-svg-size="32"></div>
             <div class="stat-box-value" data-count="6">0</div>
-            <div class="stat-box-label">категорий ЛФК</div>
+            <div class="stat-box-label" data-i18n="stats.recovery">категорий ЛФК</div>
         </div>
     </div>
 </section>
 
     <section class="challenges-section" id="challengesSection">
-        <div class="challenges-header">
-            <span class="challenges-title"><span data-svg="flame" data-svg-size="18"></span> Челленджи</span>
-            <span class="challenges-hint">Выполняй упражнения → прогресс растёт</span>
-        </div>
-        <div class="challenges-scroll" id="challengesList"></div>
-    </section>
+    <div class="challenges-header">
+        <span class="challenges-title" data-i18n="challenges.title"><span data-svg="flame" data-svg-size="18"></span> Челленджи</span>
+        <span class="challenges-hint" data-i18n="challenges.hint">Выполняй упражнения → прогресс растёт</span>
+    </div>
+    <div class="challenges-scroll" id="challengesList"></div>
+</section>
 
     <section class="search-section" id="searchSection">
-        <input type="text" id="searchInput" placeholder="Найти мышцу..." />
-    </section>
+    <input type="text" id="searchInput" data-i18n-placeholder="search.placeholder" placeholder="Найти мышцу..." />
+</section>
 
     <section class="recovery-header" id="recoveryHeader">
         <div class="recovery-title"><span data-svg="heart-plus" data-svg-size="18"></span> Восстановление после травм</div>

@@ -7481,10 +7481,12 @@ function renderSvgIcons(container = document) {
             el.innerHTML = icon(svgName, size);
             el.dataset.svgDone = '1';
         }
-    });    // 🌍 После отрисовки иконок — применить переводы
-    if (typeof applyTranslations === 'function') {
-        applyTranslations();
-    }
+    });
+    
+    // 🌍 Принудительно применить переводы после отрисовки
+    setTimeout(() => {
+        if (typeof applyTranslations === 'function') applyTranslations();
+    }, 50);
 }
 
 // Автозапуск при загрузке

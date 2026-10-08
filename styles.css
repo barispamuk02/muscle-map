@@ -6883,3 +6883,16 @@ body:has(.premium-modal.show) {
     fill: #ffb800 !important;
     opacity: 0.7 !important;
 }
+/* 🔥 ЖЁСТКО: скрытый слой — никаких hover */
+.body-svg-layer:not(.visible) svg path,
+.body-svg-layer:not(.visible) svg,
+.body-svg-layer:not(.visible) {
+    pointer-events: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    display: none !important;   /* ⭐ ЖЁСТКО */
+}
+
+.body-svg-layer.visible svg path {
+    pointer-events: auto;
+}

@@ -321,6 +321,11 @@ function updateBodyImage() {
         }, 300);
     }
     renderOverlays();
+
+    // ⭐ ФИКС: переключаем SVG-слой синхронно с картинкой
+    if (typeof showSvgLayer === 'function') {
+        showSvgLayer(currentView);
+    }
 }
 
 function renderOverlays() {
@@ -8374,20 +8379,24 @@ document.addEventListener('change', (e) => {
 // 🎯 ПОДСВЕТКА СИНЕРГИСТОВ ПРИ КЛИКЕ НА КАРТОЧКУ
 // ============================================
 document.addEventListener('click', (e) => {
-    // Клик по заголовку карточки упражнения (не по кнопкам)
+    const toggle = e.target.closest('.exercise-toggle');
     const header = e.target.closest('.exercise-header');
-    const card = header ? header.closest('.exercise-card') : null;
-    
-    if (card && card.dataset.exNameEn) {
-        // Задержка — чтобы DOM успел раскрыться
-        setTimeout(() => {
-            highlightSynergists(card.dataset.exNameEn);
-        }, 100);
-        return;
-    }
-    
-    // Если клик по другой карточке (свернул) — сбросить подсветку
-    if (e.target.closest('.exercise-card') && !header) {
-        clearSynergistsHighlight();
+    const card = (header || toggle)?.closest('.exercise-card');
+
+    if (!card) return;
+
+    // Определяем: открывается или закрывается?
+    const details = card.querySelector('.exercise-details');
+    const isCurrentlyOpen = details && details.style.display === 'block';
+
+    // Всегда сбрасываем старую подсветку
+    clearSynergistsHighlight();
+
+    // Если карточка ЗАКРЫВАЕТСЯ — не подсвечиваем
+    if (isCurrentlyOpen) return;
+
+    // Если ОТКРЫВАЕТСЯ — подсвечиваем через задержку
+    if (card.dataset.exNameEn) {
+        setTimeout(() => highlightSynergists(card.dataset.exNameEn), 100);
     }
 });

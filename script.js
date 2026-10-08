@@ -3734,12 +3734,12 @@ exerciseNameDict.sort((a, b) => b[0].length - a[0].length);
 // 🌐 ПЕРЕВОД НАЗВАНИЙ УПРАЖНЕНИЙ
 // ============================================
 function translateExerciseName(ex) {
-    // 🇬🇧 Если английский — используем name_en
+    // 🌍 EN — возвращаем английское название
     if (typeof currentLang !== 'undefined' && currentLang === 'en') {
         return ex.name_en || ex.name || '';
     }
     
-    // 🇷🇺 Если русский — используем ручной перевод
+    // 🇷🇺 RU — ручной перевод из JSON
     if (typeof exerciseNameRU !== 'undefined') {
         const key = (ex.name_en || '').toLowerCase().trim();
         if (key && exerciseNameRU[key]) {

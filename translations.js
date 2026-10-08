@@ -85,15 +85,37 @@ function setLang(lang) {
 
 function applyTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
-        el.textContent = t(el.dataset.i18n);
+        const key = el.dataset.i18n;
+        const translated = t(key);
+        
+        // Проверяем — есть ли SVG-иконка внутри
+        const svgIcon = el.querySelector('[data-svg]');
+        
+        if (svgIcon) {
+            // Сохраняем иконку, заменяем только текстовый узел
+            let replaced = false;
+            for (let node of el.childNodes) {
+                if (node.nodeType === 3 && node.textContent.trim()) {
+                    node.textContent = ' ' + translated;
+                    replaced = true;
+                    break;
+                }
+            }
+            if (!replaced) {
+                el.appendChild(document.createTextNode(' ' + translated));
+            }
+        } else {
+            el.textContent = translated;
+        }
     });
+    
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         el.placeholder = t(el.dataset.i18nPlaceholder);
     });
+    
     const langBtn = document.getElementById('langToggle');
-    if (langBtn) {
-        langBtn.textContent = currentLang === 'ru' ? 'EN' : 'RU';
-    }
+    if (langBtn) langBtn.textContent = currentLang === 'ru' ? 'EN' : 'RU';
+    
     document.documentElement.lang = currentLang;
 }
 

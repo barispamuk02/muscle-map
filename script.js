@@ -338,7 +338,8 @@ function renderOverlays() {
         const showOnBack = currentView === 'back' && (m.side === 'back' || m.side === 'both');
         if (showOnFront || showOnBack) {
             const activeClass = (m.id === currentMuscleId) ? 'active' : '';
-            overlays.push(`<img class="body-overlay ${activeClass}" data-muscle-id="${m.id}" src="${m.overlay}" alt="${m.name}" onerror="this.style.display='none';">`);
+            const altName = (typeof getMuscleName === 'function') ? getMuscleName(m) : m.name;
+            overlays.push(`<img class="body-overlay ${activeClass}" data-muscle-id="${m.id}" src="${m.overlay}" alt="${altName}" onerror="this.style.display='none';">`);
         }
     }
     bodyOverlays.innerHTML = overlays.join('');
@@ -382,17 +383,19 @@ if (filtered.length === 0) {
 
     let html = '';
     filtered.forEach(muscle => {
-        const active = muscle.id === currentMuscleId ? 'active' : '';
+              const active = muscle.id === currentMuscleId ? 'active' : '';
         const views = getViews(muscle.id);
         const color = getGroupColor(muscle.group);
         const svg = getGroupSvg(muscle.group);
+        const muscleName = (typeof getMuscleName === 'function') ? getMuscleName(muscle) : muscle.name;
+        const muscleGroup = (typeof getMuscleGroup === 'function') ? getMuscleGroup(muscle.group) : muscle.group;
         html += `
             <div class="list-item ${active}" data-id="${muscle.id}">
                 <div class="list-item-content">
                     <span class="color-dot" style="background:${color};"></span>
-                    <span>${muscle.name}</span>
+                    <span>${muscleName}</span>
                 </div>
-               <span class="group-tag"><span data-svg="${svg}" data-svg-size="12"></span> ${muscle.group} <span data-svg="eye" data-svg-size="12"></span> ${views}</span>
+               <span class="group-tag"><span data-svg="${svg}" data-svg-size="12"></span> ${muscleGroup} <span data-svg="eye" data-svg-size="12"></span> ${views}</span>
             </div>
         `;
     });
@@ -3983,8 +3986,13 @@ function renderInfo(muscle) {
     const color = getGroupColor(muscle.group);
     const fav = isFavorite(muscle.id);
 
+        const muscleNameTranslated = (typeof getMuscleName === 'function') ? getMuscleName(muscle) : muscle.name;
+    const muscleGroupTranslated = (typeof getMuscleGroup === 'function') ? getMuscleGroup(muscle.group) : muscle.group;
+    const muscleDescTranslated = (typeof getMuscleDescription === 'function') ? getMuscleDescription(muscle) : muscle.description;
+    const muscleFuncTranslated = (typeof getMuscleFunction === 'function') ? getMuscleFunction(muscle) : muscle.function;
+
     const imageBlock = muscle.image
-        ? `<div class="muscle-image-block"><div class="muscle-image-title"><span data-svg="image" data-svg-size="14"></span> Анатомия</div><img src="${muscle.image}" alt="${muscle.name}" onerror="this.parentElement.style.display='none';"></div>`
+        ? `<div class="muscle-image-block"><div class="muscle-image-title"><span data-svg="image" data-svg-size="14"></span> ${t('anatomy.title')}</div><img src="${muscle.image}" alt="${muscleNameTranslated}" onerror="this.parentElement.style.display='none';"></div>`
         : '';
 
     const newCard = document.createElement('div');
@@ -3994,17 +4002,17 @@ function renderInfo(muscle) {
     newCard.innerHTML = `
         <div class="card-header">
             <div>
-                <div class="card-name">${muscle.name}</div>
+                                <div class="card-name">${muscleNameTranslated}</div>
                 <div class="card-latin">${muscle.latin || ''}</div>
-                <div class="card-views"><span data-svg="eye" data-svg-size="14"></span> Просмотров: <span>${views}</span></div>
+                <div class="card-views"><span data-svg="eye" data-svg-size="14"></span> ${t('muscles.views')}: <span>${views}</span></div>
             </div>
             <div class="card-header-right">
-                <span class="card-group" style="..."><span data-svg="${svg}" data-svg-size="14"></span> ${muscle.group}</span>
+                <span class="card-group" style="..."><span data-svg="${svg}" data-svg-size="14"></span> ${muscleGroupTranslated}</span>
                 <button class="card-favorite ${fav ? 'active' : ''}"><span data-svg="star" data-svg-size="20"></span></button>
             </div>
         </div>
-        ${muscle.function ? `<div class="card-function"><span data-svg="lightbulb" data-svg-size="16"></span> ${muscle.function}</div>` : ''}
-        ${muscle.description ? `<div class="card-description">${muscle.description}</div>` : ''}
+                ${muscleFuncTranslated ? `<div class="card-function"><span data-svg="lightbulb" data-svg-size="16"></span> ${muscleFuncTranslated}</div>` : ''}
+        ${muscleDescTranslated ? `<div class="card-description">${muscleDescTranslated}</div>` : ''}
         ${renderExercisesSection(muscle)}
 ${imageBlock}
 ${renderMuscleSynergists(muscle)}
@@ -7700,9 +7708,9 @@ function renderSynergists(ex) {
     
     const primaryHtml = primaryMuscle ? `
         <a class="synergist-item primary" data-muscle-id="${primary.muscleId}" href="#" onclick="event.preventDefault(); selectMuscle('${primary.muscleId}');">
-            <span class="synergist-name">
+                        <span class="synergist-name">
                 <span data-svg="biceps-flexed" data-svg-size="12"></span>
-                ${primaryMuscle.name}
+                ${(typeof getMuscleName === 'function') ? getMuscleName(primaryMuscle) : primaryMuscle.name}
             </span>
             <div class="synergist-bar">
                 <div class="synergist-bar-fill" style="width: ${primary.percent}%"></div>
@@ -7717,9 +7725,9 @@ function renderSynergists(ex) {
         
         return `
             <a class="synergist-item" data-muscle-id="${s.muscleId}" href="#" onclick="event.preventDefault(); selectMuscle('${s.muscleId}');">
-                <span class="synergist-name">
+                                <span class="synergist-name">
                     <span data-svg="dumbbell" data-svg-size="12"></span>
-                    ${muscle.name}
+                    ${(typeof getMuscleName === 'function') ? getMuscleName(muscle) : muscle.name}
                 </span>
                 <div class="synergist-bar">
                     <div class="synergist-bar-fill" style="width: ${s.percent}%"></div>
@@ -7730,10 +7738,9 @@ function renderSynergists(ex) {
     }).join('');
     
     return `
-        <div class="exercise-synergists">
-            <div class="synergists-title">
+                                <div class="muscle-synergists-title">
                 <span data-svg="crosshair" data-svg-size="14"></span>
-                Мышцы в работе
+                ${(typeof t === 'function') ? t('synergists.title') : 'Мышцы в работе'}
             </div>
             <div class="synergists-list">
                 ${primaryHtml}
@@ -7782,7 +7789,7 @@ function renderMuscleSynergists(muscle) {
             <a class="muscle-synergist-item" onclick="event.preventDefault(); selectMuscle('${id}');" href="#">
                 <span class="muscle-synergist-name">
                     <span data-svg="dumbbell" data-svg-size="12"></span>
-                    ${m.name}
+                                        ${(typeof getMuscleName === 'function') ? getMuscleName(m) : m.name}
                 </span>
                 <span class="muscle-synergist-arrow">→</span>
             </a>

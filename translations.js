@@ -518,10 +518,11 @@ function setLang(lang) {
     
     // Перерисовать динамические блоки
     if (typeof renderList === 'function' && typeof muscleDatabase !== 'undefined') {
-    try {
-        renderList(Object.values(muscleDatabase));
-    } catch(e) {
-        console.warn('renderList error:', e);
+        try {
+            renderList(Object.values(muscleDatabase));
+        } catch(e) {
+            console.warn('renderList error:', e);
+        }
     }
 }
 

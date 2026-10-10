@@ -5699,7 +5699,7 @@ function renderWorkoutLog() {
     ` : ''}
         <div class="progress-chart-block">
             <div class="progress-chart-header">
-                <div class="progress-chart-title"><span data-svg="trending-up" data-svg-size="16"></span> ${t('dashboard.volume')}</div>
+                <div class="progress-chart-title"><span data-svg="trending-up" data-svg-size="16"></span> ${t('log.chartTitle')}</div>
                 ${renderChartSelect(exerciseList)}
             </div>
             <div class="progress-chart-container" id="progressChart"></div>
@@ -5941,7 +5941,7 @@ function renderExerciseComparison(id, exFrom, exTo) {
                 </div>
             </div>
             <div class="comp-ex-delta">${deltaText}</div>
-            <div class="comp-ex-volume">Объём: ${volFrom} → ${volTo} кг·повторов</div>
+            <div class="comp-ex-volume">${t('compare.volume')}: ${volFrom} → ${volTo}  ${t('compare.reps')}</div>
         </div>
     `;
 }
@@ -6399,19 +6399,19 @@ function renderProgressChart(exerciseName) {
             <text x="${width - padding.right}" y="${height - 8}" fill="#5a5a7a" font-size="10" text-anchor="end">${lastDate}</text>
         </svg>
         <div class="progress-chart-stats">
-            <div class="progress-chart-stat">
-                <span class="progress-chart-stat-label">Мин:</span>
-                <span class="progress-chart-stat-value">${minW} кг</span>
-            </div>
-            <div class="progress-chart-stat">
-                <span class="progress-chart-stat-label">Макс:</span>
-                <span class="progress-chart-stat-value">${maxW} кг</span>
-            </div>
-            <div class="progress-chart-stat">
-                <span class="progress-chart-stat-label">Рост:</span>
-                <span class="progress-chart-stat-value" style="color: #00b894;">+${maxW - minW} кг</span>
-            </div>
-        </div>
+    <div class="progress-chart-stat">
+        <span class="progress-chart-stat-label">${t('log.min')}</span>
+        <span class="progress-chart-stat-value">${minW} ${t('common.kg')}</span>
+    </div>
+    <div class="progress-chart-stat">
+        <span class="progress-chart-stat-label">${t('log.max')}</span>
+        <span class="progress-chart-stat-value">${maxW} ${t('common.kg')}</span>
+    </div>
+    <div class="progress-chart-stat">
+        <span class="progress-chart-stat-label">${t('log.growth')}</span>
+        <span class="progress-chart-stat-value" style="color: #00b894;">+${maxW - minW} ${t('common.kg')}</span>
+    </div>
+</div>>
     `;
 }
 

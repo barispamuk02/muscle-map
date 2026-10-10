@@ -116,6 +116,10 @@ const translations = {
         'log.clearConfirm': 'Удалить ВСЮ историю тренировок?',
         'log.cleared': 'Дневник очищен',
         'log.repeatConfirm': 'Повторить тренировку от',
+        'log.chartTitle': 'Прогресс по упражнению',
+        'log.min': 'Мин:',
+'log.growth': 'Рост:',
+'log.chartTitle': 'Прогресс по упражнению',
 
         // СРАВНЕНИЕ
         'compare.title': 'Сравнить тренировки',
@@ -130,6 +134,7 @@ const translations = {
         'compare.added': 'Добавлено',
         'compare.removed': 'Убрано',
         'compare.outOfCatalog': 'Упражнения вне каталога',
+        'compare.kgReps': 'кг·повторов',
 
         // КАРТОЧКА
         'card.title': 'Карточка тренировки',
@@ -253,6 +258,7 @@ const translations = {
         'common.delete': 'Удалить',
         'common.error': 'Ошибка',
         'common.loading': 'Загрузка...',
+        'common.kg': 'кг',
     },
 
     en: {
@@ -370,6 +376,10 @@ const translations = {
         'log.clearConfirm': 'Delete ALL workout history?',
         'log.cleared': 'Log cleared',
         'log.repeatConfirm': 'Repeat workout from',
+        'log.chartTitle': 'Progress by exercise',
+        'log.min': 'Min:',
+'log.growth': 'Growth:',
+'log.chartTitle': 'Progress by exercise',
 
         // COMPARE
         'compare.title': 'Compare workouts',
@@ -384,6 +394,7 @@ const translations = {
         'compare.added': 'Added',
         'compare.removed': 'Removed',
         'compare.outOfCatalog': 'Exercises out of catalog',
+        'compare.kgReps': 'kg·reps',
 
         // CARD
         'card.title': 'Workout card',
@@ -507,6 +518,8 @@ const translations = {
         'common.delete': 'Delete',
         'common.error': 'Error',
         'common.loading': 'Loading...',
+        'common.kg': 'kg',
+           
     }
 };
 // ============================================

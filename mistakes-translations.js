@@ -3,6 +3,7 @@
 // ============================================
 
 const mistakesTranslations = {
+  en: {
   "3/4 sit-up": [
     { error: "Lifting the hips off the bench", fix: "Keep your hips and shoulder blades pressed against the bench" },
     { error: "Moving too quickly", fix: "Perform the movement smoothly and with control" },
@@ -8326,12 +8327,13 @@ const mistakesTranslations = {
     { error: "Using too much weight", fix: "Choose a weight that allows you to perform the exercise correctly" },
     { error: "Skipping the warm-up", fix: "Always warm up your wrists before starting the exercise" }
   ]
+  }
 };
 
 function getMistakesTranslation(nameEn) {
     if (typeof currentLang === 'undefined' || currentLang === 'ru') return null;
-    if (typeof mistakesTranslations === 'undefined') return null;
-    return mistakesTranslations.en[nameEn] || null;
+    // Прямой доступ без .en
+    return mistakesTranslations[nameEn] || null;
 }
 
 function getMistakes(nameEn) {
@@ -8343,12 +8345,11 @@ function getMistakes(nameEn) {
     }
     
     const enData = getMistakesTranslation(nameEn);
-    if (!enData) return ruData.mistakes; // fallback на RU
+    if (!enData) return ruData.mistakes;
     
-    // Мержим: error + fix из EN, consequence остаётся RU (или без него)
     return ruData.mistakes.map((ruMistake, i) => ({
         error: enData[i]?.error || ruMistake.error,
-        consequence: ruMistake.consequence, // RU (при EN можно не показывать)
+        consequence: ruMistake.consequence,
         fix: enData[i]?.fix || ruMistake.fix
     }));
 }

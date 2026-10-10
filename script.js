@@ -8006,7 +8006,7 @@ function showAlternatives(reason) {
     }
 
     resultsEl.innerHTML = `
-        <div class="replace-results-title">Подходящие варианты (${res.alternatives.length}):</div>
+        <div class="replace-results-title">${t('replace.suitable')} (${res.alternatives.length}):</div>
         ${res.alternatives.map(alt => {
             const altName = translateExerciseName(alt);
             const altEquip = (typeof getEquipmentName === 'function') ? getEquipmentName(alt.equipment) : (equipmentNames[alt.equipment] || alt.equipment);
@@ -8015,11 +8015,11 @@ function showAlternatives(reason) {
             const equipChanged = alt.equipment !== replaceState.exercise.equipment;
             
             const whyText = samePrimary 
-                ? 'Основная целевая мышца сохраняется.' 
-                : 'Основная мышца совпадает.';
+                ? t('replace.whyPrimary') 
+                : t('replace.whyPrimary');
             const whatText = equipChanged 
-                ? `Оборудование: ${altEquip}. Рабочий вес нужно выбрать отдельно.` 
-                : 'Схожее оборудование.';
+                ? `${t('replace.equipment')}: ${altEquip}. ${t('replace.chooseWeight')}` 
+                : t('replace.sameEquip');
 
             return `
                 <div class="replace-card" data-alt-id="${alt.id}">
@@ -8029,10 +8029,10 @@ function showAlternatives(reason) {
                     <div class="replace-card-info">
                         <div class="replace-card-name">${altName}</div>
                         <div class="replace-card-equip">${altEquip}</div>
-                        <div class="replace-card-why"><strong>Почему подходит:</strong> ${whyText}</div>
-                        <div class="replace-card-what"><strong>Что изменится:</strong> ${whatText}</div>
+                        <div class="replace-card-why"><strong>${t('replace.why')}</strong> ${whyText}</div>
+                        <div class="replace-card-what"><strong>${t('replace.what')}</strong> ${whatText}</div>
                     </div>
-                    <button class="replace-card-btn" data-select-id="${alt.id}">Выбрать</button>
+                    <button class="replace-card-btn" data-select-id="${alt.id}">${t('replace.select')}</button>
                 </div>
             `;
         }).join('')}

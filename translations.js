@@ -69,6 +69,7 @@ const translations = {
         'exercises.moreCount': 'Ещё',
         'exercises.premiumUnlock': 'Премиум откроет всю базу упражнений',
 
+
         // СИНЕРГИСТЫ И ОШИБКИ
         'synergists.title': 'Мышцы в работе',
         'mistakes.title': 'Частые ошибки',
@@ -170,6 +171,10 @@ const translations = {
         'replace.notFound': 'Замена не найдена',
         'replace.confirm': 'Заменить',
         'replace.on': 'на',
+        'replace.whyPrimary': 'Основная целевая мышца сохраняется.',
+'replace.sameEquip': 'Схожее оборудование.',
+'replace.equipment': 'Оборудование',
+'replace.chooseWeight': 'Рабочий вес нужно выбрать отдельно.',
 
         // ПИТАНИЕ
         'nutrition.title': 'Калькулятор питания',
@@ -431,6 +436,10 @@ const translations = {
         'replace.notFound': 'No replacement found',
         'replace.confirm': 'Replace',
         'replace.on': 'with',
+        'replace.whyPrimary': 'Primary target muscle is preserved.',
+'replace.sameEquip': 'Similar equipment.',
+'replace.equipment': 'Equipment',
+'replace.chooseWeight': 'Working weight must be chosen separately.',
 
         // NUTRITION
         'nutrition.title': 'Nutrition calculator',

@@ -4232,24 +4232,24 @@ function shareProject() {
 // ЦИТАТА
 // ============================================
 function renderQuoteOfDay() {
-    if (typeof getQuoteOfDay !== 'function') return;
+    if (typeof getQuoteOfDayTranslated !== 'function') return;
     if (!quoteText) return;
-    const quote = getQuoteOfDay();
+    const quote = getQuoteOfDayTranslated();
     quoteText.textContent = `«${quote.text}»`;
     quoteAuthor.textContent = `— ${quote.author}`;
 }
 
 function shareQuote() {
-    if (typeof getQuoteOfDay !== 'function') return;
-    const quote = getQuoteOfDay();
+    if (typeof getQuoteOfDayTranslated !== 'function') return;
+    const quote = getQuoteOfDayTranslated();
     const text = `«${quote.text}» — ${quote.author}\n\n💪 Muscle Map`;
     if (navigator.share) navigator.share({ title: 'Цитата дня', text: text }).catch(() => { });
     else navigator.clipboard.writeText(text).then(() => showToast('✅ Цитата скопирована!'));
 }
 
 function copyQuote() {
-    if (typeof getQuoteOfDay !== 'function') return;
-    const quote = getQuoteOfDay();
+    if (typeof getQuoteOfDayTranslated !== 'function') return;
+    const quote = getQuoteOfDayTranslated();
     navigator.clipboard.writeText(`«${quote.text}» — ${quote.author}`).then(() => showToast('✅ Цитата скопирована!'));
 }
 

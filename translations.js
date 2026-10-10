@@ -701,6 +701,15 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
     renderRecoveryList();
     renderRecoveryInfo(recoveryDatabase[currentRecoveryId]);
 }
+    // 💬 Перерисовать цитату дня (всегда — она на главной)
+    if (typeof renderQuoteOfDay === 'function') {
+        try {
+            renderQuoteOfDay();
+        } catch(e) {
+            console.warn('renderQuoteOfDay error:', e);
+        }
+    }
+
 }
 
 // ============================================

@@ -2,7 +2,7 @@
 // MISTAKES TRANSLATIONS (1289 упражнений)
 // ============================================
 
-const mistakesPart1 = {
+const mistakesTranslations = {
   "3/4 sit-up": [
     { error: "Lifting the hips off the bench", fix: "Keep your hips and shoulder blades pressed against the bench" },
     { error: "Moving too quickly", fix: "Perform the movement smoothly and with control" },

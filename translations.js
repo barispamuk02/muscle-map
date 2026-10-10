@@ -115,6 +115,7 @@ const translations = {
         'log.clear': 'Очистить дневник',
         'log.clearConfirm': 'Удалить ВСЮ историю тренировок?',
         'log.cleared': 'Дневник очищен',
+        'log.repeatConfirm': 'Повторить тренировку от',
 
         // СРАВНЕНИЕ
         'compare.title': 'Сравнить тренировки',
@@ -368,6 +369,7 @@ const translations = {
         'log.clear': 'Clear log',
         'log.clearConfirm': 'Delete ALL workout history?',
         'log.cleared': 'Log cleared',
+        'log.repeatConfirm': 'Repeat workout from',
 
         // COMPARE
         'compare.title': 'Compare workouts',

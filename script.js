@@ -5396,7 +5396,7 @@ function repeatWorkout(date) {
     if (Object.keys(current.exercises).length > 0) {
         const ok = confirm(
             'В текущей тренировке уже есть записанные подходы.\n\n' +
-            'Повторить тренировку от ' + new Date(date).toLocaleDateString('ru-RU') + '?\n' +
+            t('log.repeatConfirm') + ' ' + new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US') + '?\n' +
             'Текущая тренировка будет заменена.'
         );
         if (!ok) {
@@ -5649,7 +5649,7 @@ function renderWorkoutLog() {
     const hiddenDays = allDates.length - dates.length;
 
     if (dates.length === 0) {
-        container.innerHTML = `<div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> Дневник тренировок</div><div class="log-empty">Пока нет сохранённых тренировок</div>`;
+        container.innerHTML = `<div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('log.title')}</div><div class="log-empty">${t('log.empty')}</div>`;
         return;
     }
 
@@ -5660,7 +5660,7 @@ function renderWorkoutLog() {
         const totalSets = exercises.reduce((sum, [, sets]) => sum + sets.length, 0);
         const exHtml = exercises.map(([name, sets]) => {
             const maxW = Math.max(...sets.map(s => s.weight || 0));
-            return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} подх. · макс <strong>${maxW} кг</strong></div></div>`;
+            return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} ${t('log.sets')} · ${t('log.max')} <strong>${maxW} кг</strong></div></div>`;
         }).join('');
        return `
     <div class="log-day">
@@ -5717,19 +5717,18 @@ function renderWorkoutLog() {
         </div>
         ${renderComparisonBlock()} 
         <div class="log-entries">${entriesHtml}</div>
-        <button class="btn-clear-log" id="clearLogBtn"><span data-svg="trash" data-svg-size="14"></span> Очистить дневник</button>
+        <button class="btn-clear-log" id="clearLogBtn"><span data-svg="trash" data-svg-size="14"></span> ${t('log.clear')}</button>
     `;
 
     const clearLogBtn = document.getElementById('clearLogBtn');
-    if (clearLogBtn) {
-        clearLogBtn.addEventListener('click', () => {
-            if (!confirm('Удалить ВСЮ историю тренировок?')) return;
-            localStorage.removeItem(TRACKER_KEYS.workoutLog);
-            showToast('🗑️ Дневник очищен');
-            renderWorkoutTracker();
-        });
-    }
-
+if (clearLogBtn) {
+    clearLogBtn.addEventListener('click', () => {
+        if (!confirm(t('log.clearConfirm'))) return;
+        localStorage.removeItem(TRACKER_KEYS.workoutLog);
+        showToast('🗑️ ' + t('log.cleared'));
+        renderWorkoutTracker();
+    });
+}
     const select = document.getElementById('progressChartSelect');
     if (select && exerciseList.length > 0) {
         renderProgressChart(exerciseList[0]);
@@ -5777,9 +5776,9 @@ function renderComparisonBlock() {
         return `
             <div class="comparison-block comparison-empty">
                 <div class="comparison-title">
-                    <span data-svg="trending-up" data-svg-size="16"></span> Сравнить тренировки
-                </div>
-                <div class="comparison-hint">Нужно минимум 2 записи в дневнике, чтобы сравнить</div>
+    <span data-svg="trending-up" data-svg-size="16"></span> ${t('compare.title')}
+</div>
+                <div class="comparison-hint">${t('compare.needTwo')}</div>
             </div>
         `;
     }
@@ -5787,15 +5786,15 @@ function renderComparisonBlock() {
     return `
         <div class="comparison-block">
             <div class="comparison-title">
-                <span data-svg="trending-up" data-svg-size="16"></span> Сравнить тренировки
-            </div>
+    <span data-svg="trending-up" data-svg-size="16"></span> ${t('compare.title')}
+</div>
             <div class="comparison-selects">
                 <select id="compareFrom">
-                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
+                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
                 </select>
                 <span class="comparison-arrow">→</span>
                 <select id="compareTo">
-                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
+                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
                 </select>
             </div>
             <div id="comparisonResult" class="comparison-result"></div>
@@ -5854,7 +5853,7 @@ function renderComparison(fromDate, toDate) {
     // Общие упражнения
     if (common.length > 0) {
         html += `<div class="comp-section">
-            <div class="comp-section-title">Совпадающие упражнения (${common.length})</div>`;
+            <div class="comp-section-title">${t('compare.matching')} (${common.length})</div>`;
         
         common.forEach(id => {
             const exFrom = mapFrom[id];
@@ -5867,7 +5866,7 @@ function renderComparison(fromDate, toDate) {
     // Добавленные
     if (added.length > 0) {
         html += `<div class="comp-section">
-            <div class="comp-section-title comp-added">Добавлено (${added.length})</div>
+            <div class="comp-section-title comp-added">${t('compare.added')} (${added.length})</div>
             ${added.map(id => {
                 const ex = mapTo[id];
                 return `<div class="comp-ex-name">+ ${translateByName(ex.name)}</div>`;
@@ -5878,7 +5877,7 @@ function renderComparison(fromDate, toDate) {
     // Убранные
     if (removed.length > 0) {
         html += `<div class="comp-section">
-            <div class="comp-section-title comp-removed">Убрано (${removed.length})</div>
+            <div class="comp-section-title comp-removed">${t('compare.removed')} (${removed.length})</div>
             ${removed.map(id => {
                 const ex = mapFrom[id];
                 return `<div class="comp-ex-name">− ${translateByName(ex.name)}</div>`;
@@ -5921,9 +5920,9 @@ function renderExerciseComparison(id, exFrom, exTo) {
         const sign = maxDiff > 0 ? '+' : '';
         deltaText = `Вес ${sign}${maxDiff} кг при том же количестве повторений`;
     } else if (sameScheme && maxDiff === 0) {
-        deltaText = 'Схема подходов не изменилась';
+        deltaText = t('compare.sameScheme');
     } else {
-        deltaText = 'Схема подходов изменилась; прямое сравнение ограничено';
+        deltaText = t('compare.schemeChanged');
     }
 
     return `
@@ -5931,12 +5930,12 @@ function renderExerciseComparison(id, exFrom, exTo) {
             <div class="comp-ex-title">${name}</div>
             <div class="comp-ex-row">
                 <div class="comp-ex-col">
-                    <div class="comp-ex-label">Было</div>
+                    <div class="comp-ex-label">${t('compare.was')}</div>
                     <div class="comp-ex-value">${setsFrom.length} × ${maxFrom} кг</div>
                     <div class="comp-ex-reps">${repsFrom.join(' / ')} повторов</div>
                 </div>
                 <div class="comp-ex-col">
-                    <div class="comp-ex-label">Стало</div>
+                    <div class="comp-ex-label">${t('compare.became')}</div>
                     <div class="comp-ex-value">${setsTo.length} × ${maxTo} кг</div>
                     <div class="comp-ex-reps">${repsTo.join(' / ')} повторов</div>
                 </div>

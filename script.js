@@ -4659,11 +4659,27 @@ function renderNutrition() {
             <div class="nutrition-card">
                 <h3 class="nutrition-card-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('nutrition.yourData')}</h3>
                 <div class="nutrition-field">
-                    <label>${t('nutrition.gender')}</label>
-                    <div class="nutrition-toggle">
-                        <button class="toggle-btn ${nutritionState.gender === 'male' ? 'active' : ''}" data-gender="male"><span data-svg="users-round" data-svg-size="16"></span> ${t('nutrition.male')}</button>
-                        <button class="toggle-btn ${nutritionState.gender === 'female' ? 'active' : ''}" data-gender="female"><span data-svg="users-round" data-svg-size="16"></span> ${t('nutrition.female')}</button>
-                    </div>
+    <label>${t('nutrition.activity')}</label>
+    <div class="custom-select" id="nutActivitySelect">
+        <button type="button" class="custom-select-btn" id="nutActivityBtn">
+            <span id="nutActivityLabel">
+                ${(() => {
+                    const current = activityLevels.find(a => a.id === nutritionState.activity);
+                    return current ? getActivityName(current) + ' — ' + getActivityDescription(current) : '';
+                })()}
+            </span>
+            <span class="custom-select-arrow" data-svg="chevrons-down" data-svg-size="14"></span>
+        </button>
+        <div class="custom-select-list" id="nutActivityList" style="display: none;">
+            ${activityLevels.map(a => `
+                <div class="custom-select-option ${nutritionState.activity === a.id ? 'selected' : ''}" data-value="${a.id}">
+                    <div class="custom-select-option-name">${getActivityName(a)}</div>
+                    <div class="custom-select-option-desc">${getActivityDescription(a)}</div>
+                </div>
+            `).join('')}
+        </div>
+    </div>
+</div>
                 </div>
                 <div class="nutrition-field">
                     <label>${t('nutrition.age')}</label>
@@ -4973,11 +4989,11 @@ function bindNutritionEvents() {
     const ageInput = document.getElementById('nutAge');
     const weightInput = document.getElementById('nutWeight');
     const heightInput = document.getElementById('nutHeight');
-    const activitySelect = document.getElementById('nutActivity');
+    const nativeActivitySelect = document.getElementById('nutActivity');
     if (ageInput) ageInput.addEventListener('change', (e) => { nutritionState.age = parseInt(e.target.value) || 30; renderNutrition(); });
     if (weightInput) weightInput.addEventListener('change', (e) => { nutritionState.weight = parseFloat(e.target.value) || 75; renderNutrition(); });
     if (heightInput) heightInput.addEventListener('change', (e) => { nutritionState.height = parseInt(e.target.value) || 180; renderNutrition(); });
-    if (activitySelect) activitySelect.addEventListener('change', (e) => { nutritionState.activity = e.target.value; renderNutrition(); });
+    if (nativeActivitySelect) nativeActivitySelect.addEventListener('change', (e) => { nutritionState.activity = e.target.value; renderNutrition(); });
     document.querySelectorAll('.food-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.food-tab').forEach(t => t.classList.remove('active'));
@@ -4985,6 +5001,69 @@ function bindNutritionEvents() {
             renderFoodList(tab.dataset.food);
         });
     });
+    // 🔽 Custom select для активности
+    const activityBtn = document.getElementById('nutActivityBtn');
+    const activityList = document.getElementById('nutActivityList');
+    const customActivitySelect = document.getElementById('nutActivitySelect');
+    const activityLabel = document.getElementById('nutActivityLabel');
+
+    if (activityBtn && activityList && customActivitySelect) {
+        // Открыть/закрыть
+        activityBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = activitySelect.classList.contains('open');
+            
+            // Закрыть все другие
+            document.querySelectorAll('.custom-select.open').forEach(el => {
+                el.classList.remove('open');
+                const l = el.querySelector('.custom-select-list');
+                if (l) l.style.display = 'none';
+            });
+            
+            if (!isOpen) {
+                activitySelect.classList.add('open');
+                activityList.style.display = 'block';
+            }
+        });
+
+        // Выбор опции
+        activityList.querySelectorAll('.custom-select-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const value = opt.dataset.value;
+                nutritionState.activity = value;
+                
+                // Обновить лейбл
+                const act = activityLevels.find(a => a.id === value);
+                if (act && activityLabel) {
+                    activityLabel.textContent = getActivityName(act) + ' — ' + getActivityDescription(act);
+                }
+                
+                // Обновить выделение
+                activityList.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                
+                // Закрыть
+                activitySelect.classList.remove('open');
+                activityList.style.display = 'none';
+                
+                // Пересчитать
+                renderNutrition();
+            });
+        });
+
+        // Закрыть при клике вне
+        if (!window._customSelectHandler) {
+            window._customSelectHandler = true;
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.custom-select.open').forEach(el => {
+                    el.classList.remove('open');
+                    const l = el.querySelector('.custom-select-list');
+                    if (l) l.style.display = 'none';
+                });
+            });
+        }
+    }
 }
 
 function renderFoodList(type) {

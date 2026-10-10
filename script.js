@@ -5454,6 +5454,15 @@ function getWorkoutVolume(exercises) {
     });
     return Math.round(total);
 }
+function pluralizeSets(n) {
+    if (currentLang === 'ru') {
+        if (n === 1) return 'подход';
+        if (n < 5) return 'подхода';
+        return 'подходов';
+    } else {
+        return n === 1 ? 'set' : 'sets';
+    }
+}
 
 function renderWorkoutTracker() {
     const container = document.getElementById('workoutTracker');
@@ -5472,9 +5481,9 @@ function renderWorkoutTracker() {
     const setsHtml = sets.map((s, i) => `
         <div class="tracker-set">
             <span class="set-number">${i + 1}</span>
-            <span class="set-weight">${s.weight} кг</span>
-            <span class="set-times">×</span>
-            <span class="set-reps">${s.reps} раз</span>
+            <span class="set-weight">${s.weight} ${t('common.kg')}</span>
+<span class="set-times">×</span>
+<span class="set-reps">${s.reps} ${t('common.times')}</span>
             <button class="set-remove" data-ex="${encodeURIComponent(exName)}" data-idx="${i}" title="Удалить">✕</button>
         </div>
     `).join('');
@@ -5483,15 +5492,14 @@ function renderWorkoutTracker() {
     // 🆕 Показ прошлых значений
     const lastValues = getLastValues(exName);
     const lastHint = lastValues.length > 0 
-        ? `<div class="tracker-last-hint">В прошлый раз: ${lastValues.slice(0, 3).map(v => `${v.weight}×${v.reps}`).join(' · ')}</div>`
+        ? `<div class="tracker-last-hint">${t('tracker.lastTime')}: ${lastValues.slice(0, 3).map(v => `${v.weight}×${v.reps}`).join(' · ')}</div>`
         : '';
 
     return `
         <div class="tracker-exercise">
             <div class="tracker-exercise-header">
                 <div class="tracker-exercise-name">${translateByName(exName)}</div>
-                <div class="tracker-exercise-stat">${sets.length} ${t('log.sets')} · макс ${maxWeight} кг</div>
-            </div>
+                <div class="tracker-exercise-stat">${sets.length} ${pluralizeSets(sets.length)} · ${t('log.max')} ${maxWeight} ${t('common.kg')}</div>
             ${lastHint}
             <div class="tracker-sets">${setsHtml}</div>
         </div>
@@ -5506,15 +5514,14 @@ function renderWorkoutTracker() {
                     <div class="tracker-title"><span data-svg="dumbbell" data-svg-size="18"></span> ${t('tracker.title')}</div>
                     <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(workout.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                 </div>
-                <div class="tracker-stats">
-                    <div class="tracker-stat">
-                        <div class="tracker-stat-value">${totalSets}</div>
-                        <div class="tracker-stat-label">подходов</div>
-                    </div>
-                    <div class="tracker-stat">
-                        <div class="tracker-stat-value">${totalVolume}</div>
-                        <div class="tracker-stat-label">кг объём</div>
-                    </div>
+                <div class="tracker-stat">
+    <div class="tracker-stat-value">${totalSets}</div>
+    <div class="tracker-stat-label">${t('tracker.sets')}</div>
+</div>
+<div class="tracker-stat">
+    <div class="tracker-stat-value">${totalVolume}</div>
+    <div class="tracker-stat-label">${t('tracker.kgVolume')}</div>
+</div>
                 </div>
             </div>
             <div class="tracker-exercises">${exercisesHtml}</div>
@@ -5932,12 +5939,14 @@ function renderExerciseComparison(id, exFrom, exTo) {
                 <div class="comp-ex-col">
                     <div class="comp-ex-label">${t('compare.was')}</div>
                     <div class="comp-ex-value">${setsFrom.length} × ${maxFrom} кг</div>
-                    <div class="comp-ex-reps">${repsFrom.join(' / ')} повторов</div>
+                    <div class="comp-ex-reps">${repsFrom.join(' / ')} ${t('compare.reps')}</div>
+<div class="comp-ex-reps">${repsTo.join(' / ')} ${t('compare.reps')}</div>
                 </div>
                 <div class="comp-ex-col">
                     <div class="comp-ex-label">${t('compare.became')}</div>
                     <div class="comp-ex-value">${setsTo.length} × ${maxTo} кг</div>
-                    <div class="comp-ex-reps">${repsTo.join(' / ')} повторов</div>
+                    <div class="comp-ex-reps">${repsFrom.join(' / ')} ${t('compare.reps')}</div>
+<div class="comp-ex-reps">${repsTo.join(' / ')} ${t('compare.reps')}</div>
                 </div>
             </div>
             <div class="comp-ex-delta">${deltaText}</div>

@@ -365,19 +365,21 @@
         </div>
     </div>
     <!-- 🔄 МОДАЛКА ЗАМЕНЫ УПРАЖНЕНИЯ -->
+<!-- 🔄 МОДАЛКА ЗАМЕНЫ УПРАЖНЕНИЯ -->
 <div class="replace-modal" id="replaceModal">
     <div class="replace-backdrop" id="replaceBackdrop"></div>
     <div class="replace-content">
         <button class="replace-close" id="replaceClose"><span data-svg="x" data-svg-size="18"></span></button>
-       <div class="replace-title" data-i18n="replace.title">Заменить упражнение</div>
-...
-<div class="replace-reason-title" data-i18n="replace.reason">Причина замены:</div>
-...
-<button class="replace-reason-btn" data-reason="busy" data-i18n="replace.busy">Оборудование занято</button>
-<button class="replace-reason-btn" data-reason="home" data-i18n="replace.home">Тренируюсь дома</button>
-<button class="replace-reason-btn" data-reason="hard" data-i18n="replace.hard">Слишком сложно</button>
-...
-<button class="replace-equipment-btn" id="replaceEquipBtn"><span>⚙️</span> <span data-i18n="replace.setupEquip">Настроить оборудование</span></button>
+        <div class="replace-title" data-i18n="replace.title">Заменить упражнение</div>
+        <div class="replace-source" id="replaceSource"></div>
+        <div class="replace-reason-title" data-i18n="replace.reason">Причина замены:</div>
+        <div class="replace-reasons">
+            <button class="replace-reason-btn" data-reason="busy" data-i18n="replace.busy">Оборудование занято</button>
+            <button class="replace-reason-btn" data-reason="home" data-i18n="replace.home">Тренируюсь дома</button>
+            <button class="replace-reason-btn" data-reason="hard" data-i18n="replace.hard">Слишком сложно</button>
+        </div>
+        <div class="replace-equipment-toggle">
+            <button class="replace-equipment-btn" id="replaceEquipBtn"><span>⚙️</span> <span data-i18n="replace.setupEquip">Настроить оборудование</span></button>
         </div>
         <div class="replace-equipment-panel" id="replaceEquipPanel" style="display:none;"></div>
         <div class="replace-results" id="replaceResults"></div>

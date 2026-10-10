@@ -5042,11 +5042,11 @@ function renderPrograms() {
         <div class="program-card ${currentProgramId === p.id ? 'active' : ''}" data-program="${p.id}">
             <div class="program-card-icon" style="background: ${p.color}20; color: ${p.color}; border-color: ${p.color}40;">${p.icon}</div>
             <div class="program-card-info">
-                <div class="program-card-name">${p.name}</div>
-                <div class="program-card-subtitle">${p.subtitle}</div>
+                <div class="program-card-name">${getProgramName(p)}</div>
+                <div class="program-card-subtitle">${getProgramSubtitle(p)}</div>
                 <div class="program-card-meta">
-                    <span class="program-badge">${p.level}</span>
-                    <span class="program-badge">${p.duration}</span>
+                    <span class="program-badge">${getProgramLevel(p)}</span>
+                    <span class="program-badge">${getProgramDuration(p)}</span>
                 </div>
             </div>
         </div>
@@ -5058,7 +5058,7 @@ function renderPrograms() {
         const daysHtml = program.days.map((day, idx) => `
             <div class="program-day" data-day="${idx}">
                 <div class="program-day-header">
-                    <div class="program-day-title">${day.name}</div>
+                    <div class="program-day-title">${getProgramDayName(program, idx)}</div>
                    <div class="program-day-toggle"><span data-svg="chevrons-down" data-svg-size="16"></span></div>
                 </div>
                 <div class="program-day-exercises">
@@ -5066,7 +5066,7 @@ function renderPrograms() {
                         <div class="program-exercise">
                             <div class="program-exercise-name">${ex.name}</div>
                             <div class="program-exercise-sets">${ex.sets}</div>
-                            <div class="program-exercise-rest">⏱ ${ex.rest}</div>
+                            <div class="program-exercise-rest">⏱ ${formatRest(ex.rest)}</div>
                         </div>
                     `).join('')}
                 </div>
@@ -5079,19 +5079,19 @@ function renderPrograms() {
                 <div class="program-details-header" style="border-left-color: ${program.color};">
                     <div class="program-details-icon">${program.icon}</div>
                     <div>
-                        <div class="program-details-title">${program.name}</div>
-                        <div class="program-details-subtitle">${program.subtitle}</div>
+                        <div class="program-details-title">${getProgramName(program)}</div>
+                        <div class="program-details-subtitle">${getProgramSubtitle(program)}</div>
                         <div class="program-details-meta">
-                            <span><span data-svg="crosshair" data-svg-size="14"></span> ${program.goal}</span>
-                            <span><span data-svg="chart-column-increasing" data-svg-size="14"></span> ${program.level}</span>
-                            <span>⏱ ${program.duration}</span>
+                            <span><span data-svg="crosshair" data-svg-size="14"></span> ${getProgramGoal(program)}</span>
+                            <span><span data-svg="chart-column-increasing" data-svg-size="14"></span> ${getProgramLevel(program)}</span>
+                            <span>⏱ ${getProgramDuration(program)}</span>
                         </div>
                     </div>
                 </div>
-                <div class="program-description">${program.description}</div>
-                <h3 class="program-section-title"><span data-svg="calendar-days" data-svg-size="16"></span> Дни тренировок</h3>
+                <div class="program-description">${getProgramDescription(program)}</div>
+                <h3 class="program-section-title"><span data-svg="calendar-days" data-svg-size="16"></span> ${t('programs.days')}</h3>
                 <div class="program-days">${daysHtml}</div>
-                <h3 class="program-section-title"><span data-svg="lightbulb" data-svg-size="16"></span> Советы</h3>
+                <h3 class="program-section-title"><span data-svg="lightbulb" data-svg-size="16"></span> ${t('programs.tips')}</h3>
                 <div class="program-tips">${tipsHtml}</div>
             </div>
         `;

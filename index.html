@@ -257,47 +257,53 @@
         <div class="dashboard-backdrop" id="dashboardBackdrop"></div>
         <div class="dashboard-content">
            <button class="dashboard-close" id="dashboardClose"><span data-svg="x" data-svg-size="18"></span></button>
-            <h2 class="dashboard-title"><span data-svg="chart-column-increasing" data-svg-size="20"></span> Твой прогресс</h2>
+            <h2 class="dashboard-title"><span data-svg="chart-column-increasing" data-svg-size="20"></span> <span data-i18n="dashboard.title">Твой прогресс</span></h2>
             <div class="dashboard-stats" id="dashboardStats"></div>
             <div class="dashboard-section">
                 <h3 class="dashboard-section-title"><span data-svg="calendar-days" data-svg-size="16"></span> Календарь активности (30 дней)</h3>
                 <div class="activity-calendar" id="activityCalendar"></div>
              </div>
 <div class="dashboard-section" id="analyticsSection">
-    <h3 class="dashboard-section-title"><span data-svg="chart-column-increasing" data-svg-size="16"></span> Аналитика</h3>
+    <span data-svg="chart-column-increasing" data-svg-size="16"></span> <span data-i18n="dashboard.analytics">Аналитика</span>
     
     <div class="analytics-block">
-        <h4 class="analytics-subtitle"><span data-svg="trending-up" data-svg-size="14"></span> Объём по дням</h4>
+        <span data-svg="trending-up" data-svg-size="14"></span> <span data-i18n="dashboard.volume">Объём по дням</span>
         <div class="analytics-chart" id="volumeChart"></div>
     </div>
     
     <div class="analytics-block">
-        <h4 class="analytics-subtitle"><span data-svg="chart-column-increasing" data-svg-size="14"></span> Топ-5 упражнений</h4>
+        <span data-svg="chart-column-increasing" data-svg-size="14"></span> <span data-i18n="dashboard.top">Топ-5 упражнений</span>
         <div class="analytics-chart" id="topExercises"></div>
     </div>
     
     <div class="analytics-block">
-        <h4 class="analytics-subtitle"><span data-svg="flame" data-svg-size="14"></span> Streak-календарь</h4>
+        <h4 class="analytics-subtitle"><span data-svg="flame" data-svg-size="14"></span> <span data-i18n="dashboard.streak">Streak-календарь</span>
+</h4>
         <div class="analytics-chart" id="streakHeatmap"></div>
     </div>
 </div>
             <div class="dashboard-section">
-                <h3 class="dashboard-section-title"><span data-svg="trophy" data-svg-size="16"></span> Достижения</h3>
+                <h3 class="dashboard-section-title"><span data-svg="trophy" data-svg-size="16"></span> <span data-i18n="dashboard.achievements">Достижения</span>
+</h3>
                 <div class="dashboard-achievements" id="dashboardAchievements"></div>
             </div>
             <div class="dashboard-section">
-                <h3 class="dashboard-section-title"><span data-svg="clock" data-svg-size="16"></span> Последние выполненные</h3>
+                <h3 class="dashboard-section-title"><span data-svg="clock" data-svg-size="16"></span> <span data-i18n="dashboard.recent"></span>Последние выполненные</span></h3>
                 <div class="dashboard-history" id="dashboardHistory"></div>
             </div>
                             <div class="dashboard-section">
-    <h3 class="dashboard-section-title"><span data-svg="save" data-svg-size="16"></span> Данные</h3>
+    <h3 class="dashboard-section-title"><span data-svg="save" data-svg-size="16"></span> <span data-i18n="dashboard.data">Данные</span>
+</h3>
     <div class="data-actions">
-        <button class="btn-data btn-export" id="exportBtn"><span data-svg="send-horizontal" data-svg-size="14"></span> Скачать прогресс</button>
+        <button class="btn-data btn-export" id="exportBtn"><span data-svg="send-horizontal" data-svg-size="14"></span> <span data-i18n="dashboard.download">Скачать прогресс</span>
+</button>
         <label class="btn-data btn-import">
-            <span data-svg="download" data-svg-size="14"></span> Загрузить прогресс
+            <span data-svg="download" data-svg-size="14"></span> <span data-i18n="dashboard.upload">Загрузить прогресс</span>
+
             <input type="file" id="importFile" accept=".json" style="display:none;">
         </label>
-        <button class="btn-data btn-export-pdf" id="exportPdfBtn"><span data-svg="file-text" data-svg-size="14"></span> Скачать PDF <span data-svg="gem" data-svg-size="14"></span></button>
+        <button class="btn-data btn-export-pdf" id="exportPdfBtn"><span data-svg="file-text" data-svg-size="14"></span> <span data-i18n="dashboard.pdf">Скачать PDF</span>
+ <span data-svg="gem" data-svg-size="14"></span></button>
     </div>
 </div>
  </div>
@@ -307,6 +313,7 @@
     <script src="exercise-data.js"></script>
     <script src="synergists-data.js"></script>
     <script src="mistakes-data.js"></script>
+    <script src="programs-translations.js"></script>
     <script src="muscle-data.js"></script>
     <script src="recovery-data.js"></script>
     <script src="nutrition-data.js"></script>

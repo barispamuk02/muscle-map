@@ -208,6 +208,8 @@ const translations = {
         'programs.subtitle': 'Готовые планы под разные цели',
         'programs.choose': 'Выбери программу слева',
         'programs.count': 'готовых планов',
+        'programs.days': 'Дни тренировок',
+'programs.tips': 'Советы',
 
         // ПРЕМИУМ
         'premium.title': 'Muscle Map Премиум',
@@ -473,6 +475,8 @@ const translations = {
         'programs.subtitle': 'Ready-made plans for different goals',
         'programs.choose': 'Choose a program on the left',
         'programs.count': 'ready plans',
+        'programs.days': 'Training days',
+'programs.tips': 'Tips',
 
         // PREMIUM
         'premium.title': 'Muscle Map Premium',

@@ -4693,13 +4693,7 @@ function renderNutrition() {
                     <label>${t('nutrition.height')}</label>
                     <input type="number" id="nutHeight" value="${nutritionState.height}" min="120" max="250" />
                 </div>
-                <div class="nutrition-field">
-                    <label>${t('nutrition.activity')}</label>
-                    <select id="nutActivity">
-    ${activityLevels.map(a => `<option value="${a.id}" ${nutritionState.activity === a.id ? 'selected' : ''}>${getActivityName(a)} — ${getActivityDescription(a)}</option>`).join('')}
-</select>
-                </div>
-                <div class="nutrition-field">
+                                <div class="nutrition-field">
                     <label>${t('nutrition.goal')}</label>
                     <div class="goal-grid">
                         ${goals.map(g => {

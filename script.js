@@ -4986,14 +4986,12 @@ function bindNutritionEvents() {
     document.querySelectorAll('[data-goal]').forEach(btn => {
         btn.addEventListener('click', () => { nutritionState.goal = btn.dataset.goal; renderNutrition(); });
     });
-    const ageInput = document.getElementById('nutAge');
+        const ageInput = document.getElementById('nutAge');
     const weightInput = document.getElementById('nutWeight');
     const heightInput = document.getElementById('nutHeight');
-    const activitySelect = document.getElementById('nutActivity');
     if (ageInput) ageInput.addEventListener('change', (e) => { nutritionState.age = parseInt(e.target.value) || 30; renderNutrition(); });
     if (weightInput) weightInput.addEventListener('change', (e) => { nutritionState.weight = parseFloat(e.target.value) || 75; renderNutrition(); });
     if (heightInput) heightInput.addEventListener('change', (e) => { nutritionState.height = parseInt(e.target.value) || 180; renderNutrition(); });
-    if (activitySelect) activitySelect.addEventListener('change', (e) => { nutritionState.activity = e.target.value; renderNutrition(); });
     document.querySelectorAll('.food-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.food-tab').forEach(t => t.classList.remove('active'));

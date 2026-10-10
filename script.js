@@ -4157,7 +4157,7 @@ function openDashboard() {
         const ex = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.id === exId) : null;
         const name = ex ? translateExerciseName(ex) : `Упражнение ${exId}`;
         const date = new Date(timestamp);
-        const dateStr = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        const dateStr = date.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
         return `<div class="history-item"><div class="history-item-name">${name}</div><div class="history-item-date">${dateStr}</div></div>`;
     });
 
@@ -5504,7 +5504,7 @@ function renderWorkoutTracker() {
             <div class="tracker-header">
                 <div>
                     <div class="tracker-title"><span data-svg="dumbbell" data-svg-size="18"></span> ${t('tracker.title')}</div>
-                    <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(workout.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                    <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(workout.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                 </div>
                 <div class="tracker-stats">
                     <div class="tracker-stat">
@@ -5665,14 +5665,14 @@ function renderWorkoutLog() {
        return `
     <div class="log-day">
         <div class="log-day-header">
-            <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
+            <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
             <div class="log-day-stats">${totalSets} подх. · ${totalVolume} кг</div>
-            <button class="btn-repeat-workout" data-date="${date}" title="Повторить эту тренировку">
-                <span data-svg="refresh-cw" data-svg-size="14"></span> Повторить
-            </button>
-      <button class="btn-share-workout" data-date="${date}" title="Создать карточку тренировки">
-    <span data-svg="send-horizontal" data-svg-size="14"></span> Карточка
-</button>      
+           <button class="btn-repeat-workout" data-date="${date}" title="${t('log.repeat')}">
+    <span data-svg="refresh-cw" data-svg-size="14"></span> ${t('log.repeat')}
+</button>
+    <button class="btn-share-workout" data-date="${date}" title="${t('log.card')}">
+    <span data-svg="send-horizontal" data-svg-size="14"></span> ${t('log.card')}
+</button>    
         </div>
         <div class="log-day-exercises">${exHtml}</div>
     </div>
@@ -5687,7 +5687,7 @@ function renderWorkoutLog() {
     const exerciseList = Array.from(allExercises).sort();
 
     container.innerHTML = `
-    <div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> Дневник тренировок <span class="log-count">...
+    <div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('log.title')} <span class="log-count">...
     
     ${hiddenDays > 0 ? `
         <div class="log-premium-hint">
@@ -6201,10 +6201,11 @@ function renderWaterTracker() {
     if (progressEl) progressEl.style.width = Math.min(100, (current / WATER_GOAL) * 100) + '%';
     
     if (dateEl) {
-        dateEl.textContent = new Date().toLocaleDateString('ru-RU', { 
-            day: 'numeric', month: 'long' 
-        });
-    }
+    dateEl.textContent = new Date().toLocaleDateString(
+        currentLang === 'ru' ? 'ru-RU' : 'en-US',
+        { day: 'numeric', month: 'long' }
+    );
+}
 }
 
 // Обработчики
@@ -6369,14 +6370,14 @@ function renderProgressChart(exerciseName) {
     const dots = points.map(p => `
         <circle cx="${p.x}" cy="${p.y}" r="4" 
                 fill="#00b894" stroke="#0a0a12" stroke-width="2">
-            <title>${new Date(p.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })} — ${p.weight} кг</title>
+            <title>${new Date(p.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' })} — ${p.weight} кг</title>
         </circle>
         <text x="${p.x}" y="${p.y - 10}" 
               fill="#00b894" font-size="10" font-weight="600" text-anchor="middle">${p.weight}</text>
     `).join('');
 
-    const firstDate = new Date(points[0].date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-    const lastDate = new Date(points[points.length - 1].date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    const firstDate = new Date(points[0].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
+    const lastDate = new Date(points[points.length - 1].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
 
     container.innerHTML = `
         <svg class="progress-chart-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -7278,7 +7279,7 @@ function exportToPDF() {
     doc.setTextColor(138, 138, 170);
     doc.setFontSize(10);
     doc.text(
-        `Дата: ${now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+        `Дата: ${now.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}`,
         pageW - margin, 26,
         { align: 'right' }
     );
@@ -7365,7 +7366,7 @@ function exportToPDF() {
             doc.setFontSize(11);
             doc.setFont(fontName, 'normal');
             doc.text(
-                `📅 ${new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`,
+                `📅 ${new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' })}`,
                 margin, y
             );
 
@@ -7566,7 +7567,7 @@ function renderVolumeChart(days = 30) {
         if (i < 0 || i >= points.length) return '';
         const p = points[i];
         const date = new Date(data[i].date);
-        const label = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        const label = date.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
         return `<text class="chart-label" x="${p.x}" y="${height - 8}" text-anchor="middle">${label}</text>`;
     }).join('');
 
@@ -7695,7 +7696,7 @@ function renderStreakHeatmap(days = 30) {
         const x = col * (cellSize + gap);
         const y = row * (cellSize + gap);
         const date = new Date(c.date);
-        const label = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        const label = date.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
         
         return `<rect class="streak-cell" x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="4" fill="${colors[c.level]}">
             <title>${label}</title>
@@ -8232,7 +8233,7 @@ function renderShareCard() {
     if (shareCardState.showDate) {
         ctx.fillStyle = '#8892b0';
         ctx.font = `${13 * S}px Roboto, Arial, sans-serif`;
-        const dateStr = new Date(shareCardState.date).toLocaleDateString('ru-RU', {
+        const dateStr = new Date(shareCardState.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', {
             day: 'numeric', month: 'long', year: 'numeric'
         });
         ctx.fillText(dateStr, 40 * S, titleY + 62 * S);

@@ -6934,18 +6934,18 @@ function initFeedbackForm() {
 
         // Валидация
         if (!type) {
-            showToast('⚠️ Выберите тип предложения');
+            showToast('⚠️ ' + t('feedback.errorType'));
             return;
         }
         if (!message || message.length < 5) {
-            showToast('⚠️ Напишите подробнее (мин. 5 символов)');
+            showToast('⚠️ ' + t('feedback.errorShort'));
             return;
         }
 
         // Блокируем кнопку
         submitBtn.disabled = true;
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span data-svg="refresh-cw" data-svg-size="16"></span> Отправка...';
+        submitBtn.innerHTML = `<span data-svg="refresh-cw" data-svg-size="16"></span> ${t('feedback.sending')}`;
 
         // Сохраняем в localStorage (backup)
         const feedback = {
@@ -6991,7 +6991,7 @@ function initFeedbackForm() {
             console.log('📩 Заявка отправлена в Formspree');
             form.style.display = 'none';
             success.style.display = 'block';
-            showToast('✅ Спасибо! Предложение отправлено');
+            showToast('✅ ' + t('feedback.sent'));
 
             // Через 5 сек — вернуть форму
             setTimeout(() => {
@@ -7004,7 +7004,7 @@ function initFeedbackForm() {
 
         } catch (err) {
             console.error('Formspree error:', err);
-            showToast('⚠️ Не удалось отправить. Заявка сохранена локально.');
+            showToast('⚠️ ' + t('feedback.errorSave'));
             
             // Fallback — показать успех (сохранено в localStorage)
             form.style.display = 'none';

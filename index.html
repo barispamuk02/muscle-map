@@ -174,84 +174,87 @@
 <section class="feedback-section" id="feedbackSection">
     <div class="feedback-inner">
         <div class="feedback-header">
-            <div class="feedback-title"><span data-svg="message-circle-more" data-svg-size="18"></span> Есть идея или предложение?</div>
-            <div class="feedback-subtitle">
-                Предложи новое упражнение или улучшение сайта — мы рассмотрим!
-            </div>
-        </div>
-        
-        <form class="feedback-form" id="feedbackForm">
-            <div class="feedback-row">
-                <select class="feedback-select" id="feedbackType" required>
-                    <option value="">Что предложить?</option>
-                    <option value="exercise">Новое упражнение</option>
-<option value="muscle">Новая мышца</option>
-<option value="feature">Улучшение сайта</option>
-<option value="bug">Нашёл ошибку</option>
-<option value="other">Другое</option>
-                </select>
+            <div class="feedback-title">
+    <span data-svg="message-circle-more" data-svg-size="18"></span>
+    <span data-i18n="feedback.title">Есть идея или предложение?</span>
+</div>
+<div class="feedback-subtitle" data-i18n="feedback.subtitle">
+    Предложи новое упражнение или улучшение сайта — мы рассмотрим!
+</div>
+
+<select class="feedback-select" id="feedbackType" required>
+    <option value="" data-i18n="feedback.typePlaceholder">Что предложить?</option>
+    <option value="exercise" data-i18n="feedback.typeExercise">Новое упражнение</option>
+    <option value="muscle" data-i18n="feedback.typeMuscle">Новая мышца</option>
+    <option value="feature" data-i18n="feedback.typeFeature">Улучшение сайта</option>
+    <option value="bug" data-i18n="feedback.typeBug">Нашёл ошибку</option>
+    <option value="other" data-i18n="feedback.typeOther">Другое</option>
+</select>
                 
                 <input 
-                    type="text" 
-                    class="feedback-input" 
-                    id="feedbackName" 
-                    placeholder="Как вас зовут? (необязательно)"
-                    maxlength="50"
-                >
-            </div>
-            
-            <textarea 
-                class="feedback-textarea" 
-                id="feedbackMessage" 
-                placeholder="Опишите предложение подробнее..."
-                required
-                rows="4"
-                maxlength="1000"
-            ></textarea>
-            
-            <div class="feedback-row">
-                <input 
-                    type="email" 
-                    class="feedback-input" 
-                    id="feedbackEmail" 
-                    placeholder="Email для ответа (необязательно)"
-                    maxlength="100"
+    type="text" 
+    class="feedback-input" 
+    id="feedbackName" 
+    data-i18n-placeholder="feedback.namePlaceholder"
+    placeholder="Как вас зовут? (необязательно)"
+    maxlength="50"
+>
+</div>
+
+<textarea 
+    class="feedback-textarea" 
+    id="feedbackMessage" 
+    data-i18n-placeholder="feedback.messagePlaceholder"
+    placeholder="Опишите предложение подробнее..."
+    required
+    rows="4"
+    maxlength="1000"
+></textarea>
+
+<div class="feedback-row">
+    <input 
+        type="email" 
+        class="feedback-input" 
+        id="feedbackEmail" 
+        data-i18n-placeholder="feedback.emailPlaceholder"
+        placeholder="Email для ответа (необязательно)"
+        maxlength="100"
                 >
                 
                 <button type="submit" class="feedback-btn" id="feedbackSubmit">
-    <span data-svg="send-horizontal" data-svg-size="16"></span> Отправить
+    <span data-svg="send-horizontal" data-svg-size="16"></span> <span data-i18n="feedback.send">Отправить</span>
 </button>
             </div>
         </form>
         
         <div class="feedback-success" id="feedbackSuccess" style="display: none;">
             <div class="feedback-success-icon"><span data-svg="circle-check-big" data-svg-size="48"></span></div>
-            <div class="feedback-success-title">Спасибо за предложение!</div>
-            <div class="feedback-success-text">
-                Мы рассмотрим его и свяжемся, если нужно.
-            </div>
+            <div class="feedback-success-title" data-i18n="feedback.successTitle">Спасибо за предложение!</div>
+<div class="feedback-success-text" data-i18n="feedback.successText">
+    Мы рассмотрим его и свяжемся, если нужно.
+</div>
         </div>
     </div>
 </section>
 
     <footer class="footer">
-        <div class="footer-stats">
-    <span><span data-svg="biceps-flexed" data-svg-size="14"></span> 30 мышц</span>
-    <span>·</span>
-    <span><span data-svg="dumbbell" data-svg-size="14"></span> 1365 упражнений</span>
-    <span>·</span>
-    <span><span data-svg="message-circle-more" data-svg-size="14"></span> 365 цитат</span>
-    <span>·</span>
-    <span><span data-svg="dumbbell" data-svg-size="14"></span> 6 программ</span>
-</div>
-        <div class="footer-disclaimer">
-            <span data-svg="triangle-alert" data-svg-size="14"></span> <strong>Muscle Map</strong> — образовательный проект.
-            Перед началом тренировок или программы восстановления 
-            <strong>проконсультируйтесь с врачом</strong>. 
-            Мы не несём ответственности за травмы, полученные при самостоятельных занятиях.
-        </div>
-       <div class="footer-copy"><span data-svg="biceps-flexed" data-svg-size="14"></span> Muscle Map © 2026 — сделано с любовью к фитнесу</div>
-    </footer>
+    <div class="footer-stats">
+        <span><span data-svg="biceps-flexed" data-svg-size="14"></span> 30 <span data-i18n="footer.muscles">мышц</span></span>
+        <span>·</span>
+        <span><span data-svg="dumbbell" data-svg-size="14"></span> 1365 <span data-i18n="footer.exercises">упражнений</span></span>
+        <span>·</span>
+        <span><span data-svg="message-circle-more" data-svg-size="14"></span> 365 <span data-i18n="footer.quotes">цитат</span></span>
+        <span>·</span>
+        <span><span data-svg="dumbbell" data-svg-size="14"></span> 6 <span data-i18n="footer.programs">программ</span></span>
+    </div>
+    <div class="footer-disclaimer" data-i18n="footer.disclaimer">
+        <span data-svg="triangle-alert" data-svg-size="14"></span> <strong>Muscle Map</strong> — образовательный проект.
+        Перед началом тренировок или программы восстановления 
+        <strong>проконсультируйтесь с врачом</strong>. 
+        Мы не несём ответственности за травмы, полученные при самостоятельных занятиях.
+    </div>
+    <div class="footer-copy" data-i18n="footer.copy"><span data-svg="biceps-flexed" data-svg-size="14"></span> Muscle Map © 2026 — сделано с любовью к фитнесу</div>
+</footer>
 
     <div class="dashboard-modal" id="dashboardModal">
         <div class="dashboard-backdrop" id="dashboardBackdrop"></div>

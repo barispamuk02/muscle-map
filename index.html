@@ -329,10 +329,10 @@
             <button class="premium-close" id="premiumClose"><span data-svg="x" data-svg-size="18"></span></button>
                         <div class="premium-hero">
                 <div class="premium-hero-icon"><span data-svg="gem" data-svg-size="48"></span></div>
-                <h2 class="premium-hero-title">Muscle Map Премиум</h2>
-                <p class="premium-hero-subtitle">
-                    Открой все возможности для максимального прогресса
-                </p>
+                <h2 class="premium-hero-title" data-i18n="premium.title">Muscle Map Премиум</h2>
+<p class="premium-hero-subtitle" data-i18n="premium.subtitle">
+    Открой все возможности для максимального прогресса
+</p>
             </div>
 
             <div class="premium-features" id="premiumFeatures"></div>
@@ -341,25 +341,25 @@
 
             <div class="premium-cta">
                 <button class="btn-premium-cta" id="premiumCta">
-                    <span data-svg="rocket" data-svg-size="16"></span> Оформить Премиум
-                </button>
-                <p class="premium-cta-hint">
+    <span data-svg="rocket" data-svg-size="16"></span> <span data-i18n="premium.cta">Оформить Премиум</span>
+</button>
+<p class="premium-cta-hint" data-i18n="premium.hint">
     Оплата через Dodo Payments. Отмена в любой момент.
 </p>
             </div>
 
             <div class="premium-faq">
     <div class="premium-faq-item">
-        <div class="premium-faq-q"><span data-svg="credit-card" data-svg-size="14"></span> Как оплатить?</div>
-        <div class="premium-faq-a">Оплата через Dodo Payments (карта). Скоро откроем.</div>
+        <div class="premium-faq-q"><span data-svg="credit-card" data-svg-size="14"></span> <span data-i18n="premium.faq.pay">Как оплатить?</span></div>
+<div class="premium-faq-a" data-i18n="premium.faq.payA">Оплата через Dodo Payments (карта). Скоро откроем.</div>
     </div>
     <div class="premium-faq-item">
-        <div class="premium-faq-q"><span data-svg="circle-x" data-svg-size="14"></span> Как отменить?</div>
-        <div class="premium-faq-a">В Dodo Customer Portal — ссылка в письме после оплаты.</div>
+        <div class="premium-faq-q"><span data-svg="circle-x" data-svg-size="14"></span> <span data-i18n="premium.faq.cancel">Как отменить?</span></div>
+        <div class="premium-faq-a" data-i18n="premium.faq.cancelA">В Dodo Customer Portal — ссылка в письме после оплаты.</div>
     </div>
     <div class="premium-faq-item">
-        <div class="premium-faq-q"><span data-svg="smartphone" data-svg-size="14"></span> Работает на телефоне?</div>
-        <div class="premium-faq-a">Да, работает на всех устройствах.</div>
+       <div class="premium-faq-q"><span data-svg="smartphone" data-svg-size="14"></span> <span data-i18n="premium.faq.mobile">Работает на телефоне?</span></div>
+        <div class="premium-faq-a" data-i18n="premium.faq.mobileA">Да, работает на всех устройствах.</div>
     </div>
 </div>
         </div>
@@ -369,16 +369,15 @@
     <div class="replace-backdrop" id="replaceBackdrop"></div>
     <div class="replace-content">
         <button class="replace-close" id="replaceClose"><span data-svg="x" data-svg-size="18"></span></button>
-        <div class="replace-title">Заменить упражнение</div>
-        <div class="replace-source" id="replaceSource"></div>
-        <div class="replace-reason-title">Причина замены:</div>
-        <div class="replace-reasons">
-            <button class="replace-reason-btn" data-reason="busy">Оборудование занято</button>
-            <button class="replace-reason-btn" data-reason="home">Тренируюсь дома</button>
-            <button class="replace-reason-btn" data-reason="hard">Слишком сложно</button>
-        </div>
-        <div class="replace-equipment-toggle">
-            <button class="replace-equipment-btn" id="replaceEquipBtn">⚙️ Настроить оборудование</button>
+       <div class="replace-title" data-i18n="replace.title">Заменить упражнение</div>
+...
+<div class="replace-reason-title" data-i18n="replace.reason">Причина замены:</div>
+...
+<button class="replace-reason-btn" data-reason="busy" data-i18n="replace.busy">Оборудование занято</button>
+<button class="replace-reason-btn" data-reason="home" data-i18n="replace.home">Тренируюсь дома</button>
+<button class="replace-reason-btn" data-reason="hard" data-i18n="replace.hard">Слишком сложно</button>
+...
+<button class="replace-equipment-btn" id="replaceEquipBtn"><span>⚙️</span> <span data-i18n="replace.setupEquip">Настроить оборудование</span></button>
         </div>
         <div class="replace-equipment-panel" id="replaceEquipPanel" style="display:none;"></div>
         <div class="replace-results" id="replaceResults"></div>
@@ -389,46 +388,40 @@
     <div class="sharecard-backdrop" id="shareCardBackdrop"></div>
     <div class="sharecard-content">
         <button class="sharecard-close" id="shareCardClose"><span data-svg="x" data-svg-size="18"></span></button>
-        <div class="sharecard-title"><span data-svg="send-horizontal" data-svg-size="20"></span> Карточка тренировки</div>
+        <div class="sharecard-title">
+    <span data-svg="send-horizontal" data-svg-size="20"></span> <span data-i18n="card.title">Карточка тренировки</span>
+</div>
 
-        <!-- Режим -->
-        <div class="sharecard-mode-title">Режим:</div>
-        <div class="sharecard-mode">
-            <button class="sharecard-mode-btn" data-mode="plan">План</button>
-            <button class="sharecard-mode-btn active" data-mode="result">Результат</button>
-        </div>
+<div class="sharecard-mode-title" data-i18n="card.mode">Режим:</div>
+<div class="sharecard-mode">
+    <button class="sharecard-mode-btn" data-mode="plan" data-i18n="card.plan">План</button>
+    <button class="sharecard-mode-btn active" data-mode="result" data-i18n="card.result">Результат</button>
+</div>
 
-        <!-- Видимость -->
-        <div class="sharecard-options-title">Показывать в карточке:</div>
-        <div class="sharecard-options">
-            <label class="sharecard-option">
-                <input type="checkbox" id="scShowDate" checked>
-                <span>Дата тренировки</span>
-            </label>
-            <label class="sharecard-option">
-                <input type="checkbox" id="scShowWeight" checked>
-                <span>Веса</span>
-            </label>
-            <label class="sharecard-option">
-                <input type="checkbox" id="scShowReps" checked>
-                <span>Повторы</span>
-            </label>
-        </div>
+<div class="sharecard-options-title" data-i18n="card.show">Показывать в карточке:</div>
+<div class="sharecard-options">
+    <label class="sharecard-option">
+        <input type="checkbox" id="scShowDate" checked>
+        <span data-i18n="card.date">Дата тренировки</span>
+    </label>
+    <label class="sharecard-option">
+        <input type="checkbox" id="scShowWeight" checked>
+        <span data-i18n="card.weights">Веса</span>
+    </label>
+    <label class="sharecard-option">
+        <input type="checkbox" id="scShowReps" checked>
+        <span data-i18n="card.reps">Повторы</span>
+    </label>
+</div>
 
-        <!-- Превью -->
-        <div class="sharecard-preview-wrap">
-            <canvas id="shareCardCanvas" class="sharecard-canvas"></canvas>
-        </div>
-
-        <!-- Кнопки -->
-        <div class="sharecard-actions">
-            <button class="sharecard-btn sharecard-btn-download" id="shareCardDownload">
-                <span data-svg="download" data-svg-size="16"></span> Скачать PNG
-            </button>
-            <button class="sharecard-btn sharecard-btn-share" id="shareCardShare">
-                <span data-svg="send-horizontal" data-svg-size="16"></span> Поделиться
-            </button>
-        </div>
+<div class="sharecard-actions">
+    <button class="sharecard-btn sharecard-btn-download" id="shareCardDownload">
+        <span data-svg="download" data-svg-size="16"></span> <span data-i18n="card.download">Скачать PNG</span>
+    </button>
+    <button class="sharecard-btn sharecard-btn-share" id="shareCardShare">
+        <span data-svg="send-horizontal" data-svg-size="16"></span> <span data-i18n="card.share">Поделиться</span>
+    </button>
+</div>
     </div>
 </div>
 <script src="script.js"></script>

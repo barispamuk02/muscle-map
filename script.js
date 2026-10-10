@@ -5099,16 +5099,16 @@ function renderPrograms() {
         detailsHtml = `
             <div class="program-placeholder">
                 <div style="margin-bottom: 16px; opacity: 0.4;"><span data-svg="dumbbell" data-svg-size="60"></span></div>
-                <div style="font-size: 20px; color: #5a5a7a;">Выбери программу слева</div>
-                <div style="font-size: 14px; color: #3a3a5a; margin-top: 8px;">${Object.keys(programsDatabase).length} готовых планов</div>
+                <div style="font-size: 20px; color: #5a5a7a;">${t('programs.choose')}</div>
+                <div style="font-size: 14px; color: #3a3a5a; margin-top: 8px;">${Object.keys(programsDatabase).length} ${t('programs.count')}</div>
             </div>
         `;
     }
 
     programsContainer.innerHTML = `
         <div class="programs-header">
-            <div class="programs-title"><span data-svg="dumbbell" data-svg-size="18"></span> Программы тренировок</div>
-            <div class="programs-subtitle">Готовые планы под разные цели</div>
+            <div class="programs-title"><span data-svg="dumbbell" data-svg-size="18"></span> ${t('programs.title')}</div>
+            <div class="programs-subtitle">${t('programs.subtitle')}</div>
         </div>
         <div class="programs-grid">
             <aside class="programs-list">${programsList}</aside>

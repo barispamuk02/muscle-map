@@ -632,7 +632,26 @@ function setLang(lang) {
         } catch(e) {
             console.warn('renderInfo error:', e);
         }
+    }// ============================================
+// 🏋️ ПЕРЕВОД НАЗВАНИЙ УПРАЖНЕНИЙ В ПРОГРАММАХ
+// ============================================
+function getProgramExerciseName(ruName) {
+    // Если язык русский — возвращаем как есть
+    if (typeof currentLang === 'undefined' || currentLang === 'ru') {
+        return ruName;
     }
+    
+    // Ищем упражнение в базе по русскому названию
+    if (typeof exerciseDatabase !== 'undefined') {
+        const found = exerciseDatabase.find(e => e.name === ruName);
+        if (found && found.name_en) {
+            return found.name_en;
+        }
+    }
+    
+    // Fallback — оставляем как есть
+    return ruName;
+}
 }
 
 function applyTranslations() {

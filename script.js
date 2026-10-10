@@ -5064,7 +5064,7 @@ function renderPrograms() {
                 <div class="program-day-exercises">
                     ${day.exercises.map(ex => `
                         <div class="program-exercise">
-                            <div class="program-exercise-name">${ex.name}</div>
+                            <div class="program-exercise-name">${getProgramExerciseName(ex.name)}</div>
                             <div class="program-exercise-sets">${ex.sets}</div>
                             <div class="program-exercise-rest">⏱ ${formatRest(ex.rest)}</div>
                         </div>
@@ -8460,3 +8460,23 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+// ============================================
+// 🏋️ ПЕРЕВОД НАЗВАНИЙ УПРАЖНЕНИЙ В ПРОГРАММАХ
+// ============================================
+function getProgramExerciseName(ruName) {
+    // Если язык русский — возвращаем как есть
+    if (typeof currentLang === 'undefined' || currentLang === 'ru') {
+        return ruName;
+    }
+    
+    // Ищем упражнение в базе по русскому названию
+    if (typeof exerciseDatabase !== 'undefined') {
+        const found = exerciseDatabase.find(e => e.name === ruName);
+        if (found && found.name_en) {
+            return found.name_en;
+        }
+    }
+    
+    // Fallback — оставляем как есть
+    return ruName;
+}

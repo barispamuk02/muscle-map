@@ -4799,7 +4799,7 @@ let supplementsSearch = '';
 
 function renderSupplementsSection() {
     if (typeof supplementsData === 'undefined' || !supplementsData.length) {
-        return '<div class="supplements-empty">База добавок загружается...</div>';
+        return `<div class="supplements-empty">${t('supplements.loading')}</div>`;
     }
 
     // Фильтр
@@ -4818,39 +4818,39 @@ function renderSupplementsSection() {
 
     // Категории
     const categories = [
-        { id: 'all', label: 'Все' },
-        { id: 'protein', label: 'Белки' },
-        { id: 'creatine', label: 'Креатин' },
-        { id: 'amino', label: 'Аминокислоты' },
-        { id: 'pre_workout', label: 'Предтренировочные' },
-        { id: 'fat_burner', label: 'Жиросжигатели' },
-        { id: 'vitamins', label: 'Витамины' },
-        { id: 'joint', label: 'Суставы' },
-        { id: 'recovery', label: 'Восстановление' },
-        { id: 'hormone', label: 'Гормоны' }
+        { id: 'all', key: 'supplements.cat.all' },
+        { id: 'protein', key: 'supplements.cat.protein' },
+        { id: 'creatine', key: 'supplements.cat.creatine' },
+        { id: 'amino', key: 'supplements.cat.amino' },
+        { id: 'pre_workout', key: 'supplements.cat.pre_workout' },
+        { id: 'fat_burner', key: 'supplements.cat.fat_burner' },
+        { id: 'vitamins', key: 'supplements.cat.vitamins' },
+        { id: 'joint', key: 'supplements.cat.joint' },
+        { id: 'recovery', key: 'supplements.cat.recovery' },
+        { id: 'hormone', key: 'supplements.cat.hormone' }
     ];
 
     const catButtons = categories.map(c => `
         <button class="suppl-cat-btn ${supplementsFilter === c.id ? 'active' : ''}" data-cat="${c.id}">
-            ${c.label}
+            ${t(c.key)}
         </button>
     `).join('');
 
     const cards = filtered.length > 0
         ? filtered.map(renderSupplementCard).join('')
-        : '<div class="supplements-empty">Ничего не найдено</div>';
+        : `<div class="supplements-empty">${t('supplements.empty')}</div>`;
 
     return `
         <div class="supplements-section">
             <h3 class="supplements-title">
-                <span data-svg="dumbbell" data-svg-size="20"></span> Спортивные добавки
+                <span data-svg="dumbbell" data-svg-size="20"></span> ${t('supplements.title')}
             </h3>
             <p class="supplements-subtitle">
-                Что принимать, зачем, и чем заменить натуральными продуктами
+                ${t('supplements.subtitle')}
             </p>
 
             <div class="supplements-search">
-                <input type="text" id="supplSearch" placeholder="Поиск по добавкам..." value="${supplementsSearch}">
+                <input type="text" id="supplSearch" placeholder="${t('supplements.search')}" value="${supplementsSearch}">
             </div>
 
             <div class="supplements-categories">
@@ -4863,8 +4863,7 @@ function renderSupplementsSection() {
 
             <div class="supplements-disclaimer">
                 <span data-svg="triangle-alert" data-svg-size="16"></span>
-                <strong>Важно:</strong> добавки не заменяют полноценное питание и не являются лекарством.
-                Перед приёмом проконсультируйтесь с врачом.
+                <strong>${currentLang === 'ru' ? 'Важно:' : 'Important:'}</strong> ${t('supplements.disclaimer')}
             </div>
         </div>
     `;
@@ -4872,9 +4871,9 @@ function renderSupplementsSection() {
 
 function renderSupplementCard(s) {
     const stars = '⭐'.repeat(s.rating) + '☆'.repeat(5 - s.rating);
-    const popularBadge = s.popular ? '<span class="suppl-popular">Популярное</span>' : '';
+    const popularBadge = s.popular ? `<span class="suppl-popular">${t('supplements.popular')}</span>` : '';
     
-    const alternatives = s.naturalAlternatives.map(a => `
+    const alternatives = getSupplementAlternatives(s).map(a => `
         <li>
             <strong>${a.product}</strong> — <span>${a.amount}</span>
         </li>
@@ -4883,43 +4882,39 @@ function renderSupplementCard(s) {
     return `
         <div class="suppl-card" data-id="${s.id}">
             <div class="suppl-card-header">
-                <div class="suppl-card-title">${s.name}</div>
+                <div class="suppl-card-title">${getSupplementName(s)}</div>
                 ${popularBadge}
             </div>
             <div class="suppl-card-subtitle">${s.nameEn}</div>
-            <div class="suppl-card-desc">${s.shortDesc}</div>
+            <div class="suppl-card-desc">${getSupplementField(s, 'shortDesc')}</div>
             <div class="suppl-card-rating">${stars}</div>
 
-            <button class="suppl-card-toggle">Подробнее</button>
+            <button class="suppl-card-toggle">${t('supplements.more')}</button>
 
             <div class="suppl-card-details" style="display:none;">
                 <div class="suppl-block">
-                    <div class="suppl-block-title">Что это</div>
-                    <div class="suppl-block-text">${s.whatIs}</div>
+                    <div class="suppl-block-title">${t('supplements.whatIs')}</div>
+                    <div class="suppl-block-text">${getSupplementField(s, 'whatIs')}</div>
                 </div>
                 <div class="suppl-block">
-                    <div class="suppl-block-title">Эффект</div>
-                    <div class="suppl-block-text">${s.effect}</div>
+                    <div class="suppl-block-title">${t('supplements.effect')}</div>
+                    <div class="suppl-block-text">${getSupplementField(s, 'effect')}</div>
                 </div>
                 <div class="suppl-block">
-                    <div class="suppl-block-title">Дозировка и время</div>
-                    <div class="suppl-block-text"><strong>${s.dose}</strong> — ${s.timing}</div>
-                </div>
-                <div class="suppl-block">
-                    <div class="suppl-block-title">Цена</div>
-                    <div class="suppl-block-text">${s.price}</div>
+                    <div class="suppl-block-title">${t('supplements.doseTime')}</div>
+                    <div class="suppl-block-text"><strong>${getSupplementField(s, 'dose')}</strong> — ${getSupplementField(s, 'timing')}</div>
                 </div>
                 <div class="suppl-block suppl-block-natural">
-                    <div class="suppl-block-title">Чем заменить (продукты)</div>
+                    <div class="suppl-block-title">${t('supplements.replace')}</div>
                     <ul class="suppl-alternatives">${alternatives}</ul>
                 </div>
                 <div class="suppl-block suppl-block-warning">
-                    <div class="suppl-block-title">Предупреждения</div>
-                    <div class="suppl-block-text">${s.warnings}</div>
+                    <div class="suppl-block-title">${t('supplements.warnings')}</div>
+                    <div class="suppl-block-text">${getSupplementField(s, 'warnings')}</div>
                 </div>
                 <div class="suppl-block">
-                    <div class="suppl-block-title">Исследования</div>
-                    <div class="suppl-block-text">${s.research}</div>
+                    <div class="suppl-block-title">${t('supplements.research')}</div>
+                    <div class="suppl-block-text">${getSupplementField(s, 'research')}</div>
                 </div>
             </div>
         </div>

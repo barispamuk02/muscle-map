@@ -205,6 +205,19 @@ const translations = {
         'nutrition.supplLess': 'Свернуть',
         'nutrition.supplNotFood': 'Важно: добавки не заменяют полноценное питание и не являются лекарством. Перед приёмом проконсультируйтесь с врачом.',
 
+// ДОБАВКИ
+'supplements.popular': 'Популярное',
+'supplements.more': 'Подробнее',
+'supplements.whatIs': 'Что это',
+'supplements.effect': 'Эффект',
+'supplements.doseTime': 'Дозировка и время',
+'supplements.price': 'Цена',
+'supplements.replace': 'Чем заменить (продукты)',
+'supplements.warnings': 'Предупреждения',
+'supplements.research': 'Исследования',
+'supplements.title': 'Добавки',
+'supplements.search': 'Поиск добавки...',
+'supplements.allCategories': 'Все категории',
 
         // ПРОГРАММЫ
         'programs.title': 'Программы тренировок',
@@ -497,6 +510,20 @@ const translations = {
         'nutrition.supplLess': 'Collapse',
         'nutrition.supplNotFood': 'Important: supplements do not replace a balanced diet and are not medicine. Consult a doctor before use.',
 
+
+        // SUPPLEMENTS
+'supplements.popular': 'Popular',
+'supplements.more': 'Details',
+'supplements.whatIs': 'What it is',
+'supplements.effect': 'Effect',
+'supplements.doseTime': 'Dose & Timing',
+'supplements.price': 'Price',
+'supplements.replace': 'Natural alternatives (food)',
+'supplements.warnings': 'Warnings',
+'supplements.research': 'Research',
+'supplements.title': 'Supplements',
+'supplements.search': 'Search supplements...',
+'supplements.allCategories': 'All categories',
         // PROGRAMS
         'programs.title': 'Workout programs',
         'programs.subtitle': 'Ready-made plans for different goals',
@@ -709,7 +736,19 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
             console.warn('renderQuoteOfDay error:', e);
         }
     }
-
+    // 🍎 Перерисовать добавки (если открыты)
+    if (typeof supplementsData !== 'undefined' && typeof renderSupplementsSection === 'function') {
+        try {
+            const supplContainer = document.getElementById('supplementsContainer');
+            if (supplContainer) {
+                supplContainer.innerHTML = renderSupplementsSection();
+                // Перепривязать события (если есть bindSupplementsEvents)
+                if (typeof bindSupplementsEvents === 'function') bindSupplementsEvents();
+            }
+        } catch(e) {
+            console.warn('renderSupplementsSection error:', e);
+        }
+    }
 }
 
 // ============================================

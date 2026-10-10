@@ -7924,16 +7924,15 @@ function openReplaceModal(ex, source) {
     const modal = document.getElementById('replaceModal');
     if (!modal) return;
 
-    // Исходное упражнение
+        // Исходное упражнение
     const srcEl = document.getElementById('replaceSource');
     const name = translateExerciseName(ex);
     const equip = (typeof getEquipmentName === 'function') ? getEquipmentName(ex.equipment) : (equipmentNames[ex.equipment] || ex.equipment);
     srcEl.innerHTML = `
-        <div class="replace-source-label">Исходное:</div>
+        <div class="replace-source-label">${t('replace.source')}</div>
         <div class="replace-source-name">${name}</div>
         <div class="replace-source-equip">${equip}</div>
     `;
-
     // Сброс результатов
     document.getElementById('replaceResults').innerHTML = '';
     document.querySelectorAll('.replace-reason-btn').forEach(b => b.classList.remove('active'));

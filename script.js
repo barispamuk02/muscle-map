@@ -4369,8 +4369,8 @@ function renderRecoveryList() {
             <div class="recovery-item ${active}" data-id="${r.id}">
                 <span class="recovery-icon">${r.icon}</span>
                 <div class="recovery-item-info">
-                    <div class="recovery-item-name">${r.name}</div>
-                    <div class="recovery-item-subtitle">${r.subtitle}</div>
+                    <div class="recovery-item-name">${getRecoveryName(r)}</div>
+                    <div class="recovery-item-subtitle">${getRecoverySubtitle(r)}</div>
                 </div>
             </div>
         `;
@@ -4379,7 +4379,7 @@ function renderRecoveryList() {
 
     recoveryList.querySelectorAll('.recovery-item').forEach(el => {
         el.addEventListener('click', () => selectRecovery(el.dataset.id));
-    });
+    }); 
 }
 
 function selectRecovery(id) {
@@ -4395,23 +4395,26 @@ function renderRecoveryInfo(recovery) {
 
     let phasesHtml = '';
     recovery.phases.forEach((phase, idx) => {
-        const exercisesHtml = phase.exercises.map(ex => `
+        const exercisesHtml = phase.exercises.map((ex, exIdx) => {
+            const trEx = getRecoveryExercise(recovery, idx, exIdx);
+            return `
             <div class="recovery-exercise">
                 <div class="recovery-exercise-header">
-                    <div class="recovery-exercise-name">${ex.name}</div>
-                    <div class="recovery-exercise-duration">${ex.duration}</div>
+                    <div class="recovery-exercise-name">${trEx.name}</div>
+                    <div class="recovery-exercise-duration">${trEx.duration}</div>
                 </div>
-                <div class="recovery-exercise-description">${ex.description}</div>
+                <div class="recovery-exercise-description">${trEx.description}</div>
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         phasesHtml += `
             <div class="recovery-phase" data-phase="${idx}">
                 <div class="recovery-phase-header">
-                    <div class="recovery-phase-title">${phase.name}</div>
+                    <div class="recovery-phase-title">${getRecoveryPhaseName(recovery, idx)}</div>
                    <div class="recovery-phase-toggle"><span data-svg="chevrons-down" data-svg-size="16"></span></div>
                 </div>
-                <div class="recovery-phase-description">${phase.description}</div>
+                <div class="recovery-phase-description">${getRecoveryPhaseDescription(recovery, idx)}</div>
                 <div class="recovery-phase-exercises">${exercisesHtml}</div>
             </div>
         `;
@@ -4422,11 +4425,11 @@ function renderRecoveryInfo(recovery) {
             <div class="recovery-card-header">
                 <div class="recovery-card-icon">${recovery.icon}</div>
                 <div>
-                    <div class="recovery-card-title">${recovery.name}</div>
-                    <div class="recovery-card-subtitle">${recovery.subtitle}</div>
+                    <div class="recovery-card-title">${getRecoveryName(recovery)}</div>
+                    <div class="recovery-card-subtitle">${getRecoverySubtitle(recovery)}</div>
                 </div>
             </div>
-            <div class="recovery-warning-box">${recovery.warning}</div>
+            <div class="recovery-warning-box">${getRecoveryWarning(recovery)}</div>
             <div class="recovery-phases">${phasesHtml}</div>
         </div>
     `;
@@ -4451,7 +4454,6 @@ function renderRecoveryInfo(recovery) {
         firstPhase.querySelector('.recovery-phase-toggle').textContent = '▲';
     }
 }
-
 if (navMuscles) navMuscles.addEventListener('click', switchToMuscles);
 if (navRecovery) navRecovery.addEventListener('click', switchToRecovery);
 if (recoveryHeader) recoveryHeader.style.display = 'none';

@@ -696,6 +696,11 @@ function setLang(lang) {
             console.warn('renderNutrition error:', e);
         }
     }
+    // Перерисовать восстановление, если оно открыто
+if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof renderRecoveryInfo === 'function') {
+    renderRecoveryList();
+    renderRecoveryInfo(recoveryDatabase[currentRecoveryId]);
+}
 }
 
 // ============================================

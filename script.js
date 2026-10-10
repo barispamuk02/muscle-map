@@ -4863,7 +4863,7 @@ function renderSupplementsSection() {
 
             <div class="supplements-disclaimer">
                 <span data-svg="triangle-alert" data-svg-size="16"></span>
-                <strong>${currentLang === 'ru' ? 'Важно:' : 'Important:'}</strong> ${t('supplements.disclaimer')}
+                <strong>${t('supplements.important')}</strong> ${t('supplements.disclaimer')}
             </div>
         </div>
     `;

@@ -4680,18 +4680,21 @@ function renderNutrition() {
                 <div class="nutrition-field">
                     <label>${t('nutrition.activity')}</label>
                     <select id="nutActivity">
-                        ${activityLevels.map(a => `<option value="${a.id}" ${nutritionState.activity === a.id ? 'selected' : ''}>${a.name} — ${a.description}</option>`).join('')}
-                    </select>
+    ${activityLevels.map(a => `<option value="${a.id}" ${nutritionState.activity === a.id ? 'selected' : ''}>${getActivityName(a)} — ${getActivityDescription(a)}</option>`).join('')}
+</select>
                 </div>
                 <div class="nutrition-field">
                     <label>${t('nutrition.goal')}</label>
                     <div class="goal-grid">
-                        ${goals.map(g => `
-                            <button class="goal-btn ${nutritionState.goal === g.id ? 'active' : ''}" data-goal="${g.id}">
-                                <div class="goal-icon">${g.name.split(' ')[0]}</div>
-                                <div class="goal-name">${g.name.split(' ').slice(1).join(' ')}</div>
-                            </button>
-                        `).join('')}
+                        ${goals.map(g => {
+    const goalName = getGoalName(g);
+    return `
+        <button class="goal-btn ${nutritionState.goal === g.id ? 'active' : ''}" data-goal="${g.id}">
+            <div class="goal-icon">${goalName.split(' ')[0]}</div>
+            <div class="goal-name">${goalName.split(' ').slice(1).join(' ')}</div>
+        </button>
+    `;
+}).join('')}
                     </div>
                 </div>
             </div>
@@ -4729,16 +4732,16 @@ function renderNutrition() {
             </div>
         </div>
         <div class="nutrition-card nutrition-meal">
-            <h3 class="nutrition-card-title"><span data-svg="utensils" data-svg-size="16"></span> ${mealPlanExample.title}</h3>
-            <div class="meal-list">
-                ${mealPlanExample.meals.map(m => `
-                    <div class="meal-item">
-                        <div class="meal-time">${m.time}</div>
-                        <div class="meal-items">${m.items.map(i => `<div class="meal-item-name">• ${i}</div>`).join('')}</div>
-                        <div class="meal-kcal">${m.kcal} ${t('nutrition.kcalShort')}</div>
-                    </div>
-                `).join('')}
-            </div>
+            <h3 class="nutrition-card-title"><span data-svg="utensils" data-svg-size="16"></span> ${getMealTitle()}</h3>
+<div class="meal-list">
+    ${mealPlanExample.meals.map((m, idx) => `
+        <div class="meal-item">
+            <div class="meal-time">${getMealTime(idx)}</div>
+            <div class="meal-items">${getMealItems(idx).map(i => `<div class="meal-item-name">• ${i}</div>`).join('')}</div>
+            <div class="meal-kcal">${m.kcal} ${t('nutrition.kcalShort')}</div>
+        </div>
+    `).join('')}
+</div>
         </div>
         <div class="nutrition-card">
             <h3 class="nutrition-card-title"><span data-svg="salad" data-svg-size="16"></span> ${t('nutrition.examples')}</h3>
@@ -4990,7 +4993,7 @@ function renderFoodList(type) {
     const foods = foodExamples[type] || [];
     foodListEl.innerHTML = foods.map(f => `
         <div class="food-item">
-            <div class="food-name">${f.name}</div>
+                        <div class="food-name">${getFoodName(f, type)}</div>
             <div class="food-stats">
                 <span class="food-kcal">${f.kcal} ккал</span>
                 <span class="food-p">Б: ${f.p}г</span>

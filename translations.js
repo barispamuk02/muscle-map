@@ -77,6 +77,7 @@ const translations = {
         // ТРЕКЕР
         'tracker.title': 'Тренировка сегодня',
         'tracker.noSets': 'Пока нет записанных подходов',
+        'tracker.lastTime': 'В прошлый раз',
         'tracker.addFirst': 'Добавь первый подход ниже',
         'tracker.exercisePlaceholder': 'Упражнение (напр. Жим лёжа)',
         'tracker.weight': 'Вес (кг)',
@@ -337,6 +338,7 @@ const translations = {
         // TRACKER
         'tracker.title': 'Today\'s workout',
         'tracker.noSets': 'No sets recorded yet',
+        'tracker.lastTime': 'Last time',
         'tracker.addFirst': 'Add first set below',
         'tracker.exercisePlaceholder': 'Exercise (e.g. Bench press)',
         'tracker.weight': 'Weight (kg)',

@@ -4989,11 +4989,11 @@ function bindNutritionEvents() {
     const ageInput = document.getElementById('nutAge');
     const weightInput = document.getElementById('nutWeight');
     const heightInput = document.getElementById('nutHeight');
-    const nativeActivitySelect = document.getElementById('nutActivity');
+    const activitySelect = document.getElementById('nutActivity');
     if (ageInput) ageInput.addEventListener('change', (e) => { nutritionState.age = parseInt(e.target.value) || 30; renderNutrition(); });
     if (weightInput) weightInput.addEventListener('change', (e) => { nutritionState.weight = parseFloat(e.target.value) || 75; renderNutrition(); });
     if (heightInput) heightInput.addEventListener('change', (e) => { nutritionState.height = parseInt(e.target.value) || 180; renderNutrition(); });
-    if (nativeActivitySelect) nativeActivitySelect.addEventListener('change', (e) => { nutritionState.activity = e.target.value; renderNutrition(); });
+    if (activitySelect) activitySelect.addEventListener('change', (e) => { nutritionState.activity = e.target.value; renderNutrition(); });
     document.querySelectorAll('.food-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.food-tab').forEach(t => t.classList.remove('active'));
@@ -5004,10 +5004,10 @@ function bindNutritionEvents() {
     // 🔽 Custom select для активности
     const activityBtn = document.getElementById('nutActivityBtn');
     const activityList = document.getElementById('nutActivityList');
-    const customActivitySelect = document.getElementById('nutActivitySelect');
+    const activitySelect = document.getElementById('nutActivitySelect');
     const activityLabel = document.getElementById('nutActivityLabel');
 
-    if (activityBtn && activityList && customActivitySelect) {
+    if (activityBtn && activityList && activitySelect) {
         // Открыть/закрыть
         activityBtn.addEventListener('click', (e) => {
             e.stopPropagation();

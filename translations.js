@@ -632,7 +632,19 @@ function setLang(lang) {
         } catch(e) {
             console.warn('renderInfo error:', e);
         }
-    }// ============================================
+    }
+    
+    // 🏋️ Перерисовать программы (если открыт раздел)
+    if (typeof renderPrograms === 'function' && typeof programsContainer !== 'undefined' && programsContainer) {
+        try {
+            renderPrograms();
+        } catch(e) {
+            console.warn('renderPrograms error:', e);
+        }
+    }
+}
+
+// ============================================
 // 🏋️ ПЕРЕВОД НАЗВАНИЙ УПРАЖНЕНИЙ В ПРОГРАММАХ
 // ============================================
 function getProgramExerciseName(ruName) {
@@ -651,7 +663,6 @@ function getProgramExerciseName(ruName) {
     
     // Fallback — оставляем как есть
     return ruName;
-}
 }
 
 function applyTranslations() {

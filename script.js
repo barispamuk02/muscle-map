@@ -4658,53 +4658,71 @@ function renderNutrition() {
         <div class="nutrition-grid">
             <div class="nutrition-card">
                 <h3 class="nutrition-card-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('nutrition.yourData')}</h3>
+                
+                <!-- Gender -->
                 <div class="nutrition-field">
-    <label>${t('nutrition.activity')}</label>
-    <div class="custom-select" id="nutActivitySelect">
-        <button type="button" class="custom-select-btn" id="nutActivityBtn">
-            <span id="nutActivityLabel">
-                ${(() => {
-                    const current = activityLevels.find(a => a.id === nutritionState.activity);
-                    return current ? getActivityName(current) + ' — ' + getActivityDescription(current) : '';
-                })()}
-            </span>
-            <span class="custom-select-arrow" data-svg="chevrons-down" data-svg-size="14"></span>
-        </button>
-        <div class="custom-select-list" id="nutActivityList" style="display: none;">
-            ${activityLevels.map(a => `
-                <div class="custom-select-option ${nutritionState.activity === a.id ? 'selected' : ''}" data-value="${a.id}">
-                    <div class="custom-select-option-name">${getActivityName(a)}</div>
-                    <div class="custom-select-option-desc">${getActivityDescription(a)}</div>
+                    <label>${t('nutrition.gender')}</label>
+                    <div class="nutrition-toggle">
+                        <button class="toggle-btn ${nutritionState.gender === 'male' ? 'active' : ''}" data-gender="male"><span data-svg="users-round" data-svg-size="16"></span> ${t('nutrition.male')}</button>
+                        <button class="toggle-btn ${nutritionState.gender === 'female' ? 'active' : ''}" data-gender="female"><span data-svg="users-round" data-svg-size="16"></span> ${t('nutrition.female')}</button>
+                    </div>
                 </div>
-            `).join('')}
-        </div>
-    </div>
-</div>
-                </div>
+                
+                <!-- Age -->
                 <div class="nutrition-field">
                     <label>${t('nutrition.age')}</label>
                     <input type="number" id="nutAge" value="${nutritionState.age}" min="14" max="100" />
                 </div>
+                
+                <!-- Weight -->
                 <div class="nutrition-field">
                     <label>${t('nutrition.weight')}</label>
                     <input type="number" id="nutWeight" value="${nutritionState.weight}" min="30" max="300" step="0.5" />
                 </div>
+                
+                <!-- Height -->
                 <div class="nutrition-field">
                     <label>${t('nutrition.height')}</label>
                     <input type="number" id="nutHeight" value="${nutritionState.height}" min="120" max="250" />
                 </div>
-                                <div class="nutrition-field">
+                
+                <!-- Activity (custom-select) -->
+                <div class="nutrition-field">
+                    <label>${t('nutrition.activity')}</label>
+                    <div class="custom-select" id="nutActivitySelect">
+                        <button type="button" class="custom-select-btn" id="nutActivityBtn">
+                            <span id="nutActivityLabel">
+                                ${(() => {
+                                    const current = activityLevels.find(a => a.id === nutritionState.activity);
+                                    return current ? getActivityName(current) + ' — ' + getActivityDescription(current) : '';
+                                })()}
+                            </span>
+                            <span class="custom-select-arrow" data-svg="chevrons-down" data-svg-size="14"></span>
+                        </button>
+                        <div class="custom-select-list" id="nutActivityList" style="display: none;">
+                            ${activityLevels.map(a => `
+                                <div class="custom-select-option ${nutritionState.activity === a.id ? 'selected' : ''}" data-value="${a.id}">
+                                    <div class="custom-select-option-name">${getActivityName(a)}</div>
+                                    <div class="custom-select-option-desc">${getActivityDescription(a)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Goal -->
+                <div class="nutrition-field">
                     <label>${t('nutrition.goal')}</label>
                     <div class="goal-grid">
                         ${goals.map(g => {
-    const goalName = getGoalName(g);
-    return `
-        <button class="goal-btn ${nutritionState.goal === g.id ? 'active' : ''}" data-goal="${g.id}">
-            <div class="goal-icon">${goalName.split(' ')[0]}</div>
-            <div class="goal-name">${goalName.split(' ').slice(1).join(' ')}</div>
-        </button>
-    `;
-}).join('')}
+                            const goalName = getGoalName(g);
+                            return `
+                                <button class="goal-btn ${nutritionState.goal === g.id ? 'active' : ''}" data-goal="${g.id}">
+                                    <div class="goal-icon">${goalName.split(' ')[0]}</div>
+                                    <div class="goal-name">${goalName.split(' ').slice(1).join(' ')}</div>
+                                </button>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
             </div>
@@ -4743,15 +4761,15 @@ function renderNutrition() {
         </div>
         <div class="nutrition-card nutrition-meal">
             <h3 class="nutrition-card-title"><span data-svg="utensils" data-svg-size="16"></span> ${getMealTitle()}</h3>
-<div class="meal-list">
-    ${mealPlanExample.meals.map((m, idx) => `
-        <div class="meal-item">
-            <div class="meal-time">${getMealTime(idx)}</div>
-            <div class="meal-items">${getMealItems(idx).map(i => `<div class="meal-item-name">• ${i}</div>`).join('')}</div>
-            <div class="meal-kcal">${m.kcal} ${t('nutrition.kcalShort')}</div>
-        </div>
-    `).join('')}
-</div>
+            <div class="meal-list">
+                ${mealPlanExample.meals.map((m, idx) => `
+                    <div class="meal-item">
+                        <div class="meal-time">${getMealTime(idx)}</div>
+                        <div class="meal-items">${getMealItems(idx).map(i => `<div class="meal-item-name">• ${i}</div>`).join('')}</div>
+                        <div class="meal-kcal">${m.kcal} ${t('nutrition.kcalShort')}</div>
+                    </div>
+                `).join('')}
+            </div>
         </div>
         <div class="nutrition-card">
             <h3 class="nutrition-card-title"><span data-svg="salad" data-svg-size="16"></span> ${t('nutrition.examples')}</h3>

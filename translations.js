@@ -190,6 +190,8 @@ const translations = {
         'nutrition.goal': 'Цель:',
         'nutrition.yourNorm': 'Твоя норма',
         'nutrition.kcal': 'ккал / день',
+        'nutrition.kcalShort': 'ккал',
+        'nutrition.goalFactor': 'Коэффициент цели:',
         'nutrition.protein': 'Белки',
         'nutrition.fat': 'Жиры',
         'nutrition.carbs': 'Углеводы',
@@ -202,6 +204,7 @@ const translations = {
         'nutrition.supplMore': 'Подробнее',
         'nutrition.supplLess': 'Свернуть',
         'nutrition.supplNotFood': 'Важно: добавки не заменяют полноценное питание и не являются лекарством. Перед приёмом проконсультируйтесь с врачом.',
+
 
         // ПРОГРАММЫ
         'programs.title': 'Программы тренировок',
@@ -267,6 +270,8 @@ const translations = {
         'common.error': 'Ошибка',
         'common.loading': 'Загрузка...',
         'common.kg': 'кг',
+        'common.g': 'г'
+
     },
 
     en: {
@@ -457,6 +462,8 @@ const translations = {
         'nutrition.goal': 'Goal:',
         'nutrition.yourNorm': 'Your norm',
         'nutrition.kcal': 'kcal / day',
+        'nutrition.kcalShort': 'kcal',
+        'nutrition.goalFactor': 'Goal factor:',
         'nutrition.protein': 'Protein',
         'nutrition.fat': 'Fat',
         'nutrition.carbs': 'Carbs',
@@ -534,7 +541,7 @@ const translations = {
         'common.error': 'Error',
         'common.loading': 'Loading...',
         'common.kg': 'kg',
-           
+         'common.g': 'g',  
     }
 };
 // ============================================
@@ -640,6 +647,14 @@ function setLang(lang) {
             renderPrograms();
         } catch(e) {
             console.warn('renderPrograms error:', e);
+        }
+    }
+    // 🍎 Перерисовать питание (если открыто)
+    if (typeof nutritionContainer !== 'undefined' && nutritionContainer && nutritionContainer.querySelector('.nutrition-header')) {
+        try {
+            renderNutrition();
+        } catch(e) {
+            console.warn('renderNutrition error:', e);
         }
     }
 }

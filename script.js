@@ -4652,39 +4652,39 @@ function renderNutrition() {
 
     nutritionContainer.innerHTML = `
         <div class="nutrition-header">
-            <div class="nutrition-title"><span data-svg="apple" data-svg-size="18"></span> Калькулятор питания</div>
-            <div class="nutrition-subtitle">Рассчитай свою норму калорий и БЖУ под цель</div>
+            <div class="nutrition-title"><span data-svg="apple" data-svg-size="18"></span> ${t('nutrition.title')}</div>
+            <div class="nutrition-subtitle">${t('nutrition.subtitle')}</div>
         </div>
         <div class="nutrition-grid">
             <div class="nutrition-card">
-                <h3 class="nutrition-card-title"><span data-svg="clipboard-list" data-svg-size="16"></span> Твои данные</h3>
+                <h3 class="nutrition-card-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('nutrition.yourData')}</h3>
                 <div class="nutrition-field">
-                    <label>Пол:</label>
+                    <label>${t('nutrition.gender')}</label>
                     <div class="nutrition-toggle">
-                        <button class="toggle-btn ${nutritionState.gender === 'male' ? 'active' : ''}" data-gender="male"><span data-svg="users-round" data-svg-size="16"></span> Мужчина</button>
-                        <button class="toggle-btn ${nutritionState.gender === 'female' ? 'active' : ''}" data-gender="female"><span data-svg="users-round" data-svg-size="16"></span> Женщина</button>
+                        <button class="toggle-btn ${nutritionState.gender === 'male' ? 'active' : ''}" data-gender="male"><span data-svg="users-round" data-svg-size="16"></span> ${t('nutrition.male')}</button>
+                        <button class="toggle-btn ${nutritionState.gender === 'female' ? 'active' : ''}" data-gender="female"><span data-svg="users-round" data-svg-size="16"></span> ${t('nutrition.female')}</button>
                     </div>
                 </div>
                 <div class="nutrition-field">
-                    <label>Возраст (лет):</label>
+                    <label>${t('nutrition.age')}</label>
                     <input type="number" id="nutAge" value="${nutritionState.age}" min="14" max="100" />
                 </div>
                 <div class="nutrition-field">
-                    <label>Вес (кг):</label>
+                    <label>${t('nutrition.weight')}</label>
                     <input type="number" id="nutWeight" value="${nutritionState.weight}" min="30" max="300" step="0.5" />
                 </div>
                 <div class="nutrition-field">
-                    <label>Рост (см):</label>
+                    <label>${t('nutrition.height')}</label>
                     <input type="number" id="nutHeight" value="${nutritionState.height}" min="120" max="250" />
                 </div>
                 <div class="nutrition-field">
-                    <label>Активность:</label>
+                    <label>${t('nutrition.activity')}</label>
                     <select id="nutActivity">
                         ${activityLevels.map(a => `<option value="${a.id}" ${nutritionState.activity === a.id ? 'selected' : ''}>${a.name} — ${a.description}</option>`).join('')}
                     </select>
                 </div>
                 <div class="nutrition-field">
-                    <label>Цель:</label>
+                    <label>${t('nutrition.goal')}</label>
                     <div class="goal-grid">
                         ${goals.map(g => `
                             <button class="goal-btn ${nutritionState.goal === g.id ? 'active' : ''}" data-goal="${g.id}">
@@ -4696,35 +4696,35 @@ function renderNutrition() {
                 </div>
             </div>
             <div class="nutrition-card">
-                <h3 class="nutrition-card-title"><span data-svg="chart-column-increasing" data-svg-size="16"></span> Твоя норма</h3>
+                <h3 class="nutrition-card-title"><span data-svg="chart-column-increasing" data-svg-size="16"></span> ${t('nutrition.yourNorm')}</h3>
                 <div class="nutrition-main-stat">
                     <div class="nutrition-kcal">${calc.kcal}</div>
-                    <div class="nutrition-kcal-label">ккал / день</div>
+                    <div class="nutrition-kcal-label">${t('nutrition.kcal')}</div>
                 </div>
                 <div class="macros-grid">
                     <div class="macro-card protein">
                         <div class="macro-icon"><span data-svg="beef" data-svg-size="32"></span></div>
-                        <div class="macro-value">${calc.protein} г</div>
-                        <div class="macro-label">Белки</div>
+                        <div class="macro-value">${calc.protein} ${t('common.g')}</div>
+                        <div class="macro-label">${t('nutrition.protein')}</div>
                         <div class="macro-percent">${calc.proteinPercent}%</div>
                     </div>
                     <div class="macro-card fat">
                         <div class="macro-icon"><span data-svg="apple" data-svg-size="32"></span></div>
-                        <div class="macro-value">${calc.fat} г</div>
-                        <div class="macro-label">Жиры</div>
+                        <div class="macro-value">${calc.fat} ${t('common.g')}</div>
+                        <div class="macro-label">${t('nutrition.fat')}</div>
                         <div class="macro-percent">${calc.fatPercent}%</div>
                     </div>
                     <div class="macro-card carbs">
                         <div class="macro-icon"><span data-svg="wheat" data-svg-size="32"></span></div>
-                        <div class="macro-value">${calc.carbs} г</div>
-                        <div class="macro-label">Углеводы</div>
+                        <div class="macro-value">${calc.carbs} ${t('common.g')}</div>
+                        <div class="macro-label">${t('nutrition.carbs')}</div>
                         <div class="macro-percent">${calc.carbsPercent}%</div>
                     </div>
                 </div>
                 <div class="nutrition-details">
-                    <div class="detail-row"><span>BMR:</span><strong>${calc.bmr} ккал</strong></div>
-                    <div class="detail-row"><span>TDEE:</span><strong>${calc.tdee} ккал</strong></div>
-                    <div class="detail-row"><span>Коэффициент цели:</span><strong>×${calc.goalFactor}</strong></div>
+                    <div class="detail-row"><span>BMR:</span><strong>${calc.bmr} ${t('nutrition.kcalShort')}</strong></div>
+                    <div class="detail-row"><span>TDEE:</span><strong>${calc.tdee} ${t('nutrition.kcalShort')}</strong></div>
+                    <div class="detail-row"><span>${t('nutrition.goalFactor')}</span><strong>×${calc.goalFactor}</strong></div>
                 </div>
             </div>
         </div>
@@ -4735,21 +4735,21 @@ function renderNutrition() {
                     <div class="meal-item">
                         <div class="meal-time">${m.time}</div>
                         <div class="meal-items">${m.items.map(i => `<div class="meal-item-name">• ${i}</div>`).join('')}</div>
-                        <div class="meal-kcal">${m.kcal} ккал</div>
+                        <div class="meal-kcal">${m.kcal} ${t('nutrition.kcalShort')}</div>
                     </div>
                 `).join('')}
             </div>
         </div>
         <div class="nutrition-card">
-            <h3 class="nutrition-card-title"><span data-svg="salad" data-svg-size="16"></span> Примеры продуктов</h3>
+            <h3 class="nutrition-card-title"><span data-svg="salad" data-svg-size="16"></span> ${t('nutrition.examples')}</h3>
             <div class="food-tabs">
-                <button class="food-tab active" data-food="protein"><span data-svg="beef" data-svg-size="14"></span> Белки</button>
-                <button class="food-tab" data-food="fat"><span data-svg="apple" data-svg-size="14"></span> Жиры</button>
-                <button class="food-tab" data-food="carbs"><span data-svg="wheat" data-svg-size="14"></span> Углеводы</button>
+                <button class="food-tab active" data-food="protein"><span data-svg="beef" data-svg-size="14"></span> ${t('nutrition.protein')}</button>
+                <button class="food-tab" data-food="fat"><span data-svg="apple" data-svg-size="14"></span> ${t('nutrition.fat')}</button>
+                <button class="food-tab" data-food="carbs"><span data-svg="wheat" data-svg-size="14"></span> ${t('nutrition.carbs')}</button>
             </div>
             <div class="food-list" id="foodList"></div>
         </div>
-        <div class="nutrition-warning"><span data-svg="triangle-alert" data-svg-size="14"></span> Расчёт — ориентировочный. Для точного плана обратитесь к диетологу.</div>
+        <div class="nutrition-warning"><span data-svg="triangle-alert" data-svg-size="14"></span> ${t('nutrition.warning')}</div>
 
         ${renderSupplementsSection()}
     `;

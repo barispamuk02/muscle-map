@@ -776,6 +776,20 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
             console.warn('renderSupplementsSection error:', e);
         }
     }
+        // ⚠️ Перерисовать ошибки (если открыто упражнение с ошибками)
+    if (typeof currentExercise !== 'undefined' && currentExercise) {
+        try {
+            const mistakesContainer = document.querySelector('.exercise-mistakes');
+            if (mistakesContainer && typeof renderMistakes === 'function') {
+                const newHtml = renderMistakes(currentExercise);
+                if (newHtml) {
+                    mistakesContainer.outerHTML = newHtml;
+                }
+            }
+        } catch(e) {
+            console.warn('renderMistakes error:', e);
+        }
+    }
 }
 
 // ============================================

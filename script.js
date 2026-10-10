@@ -5164,7 +5164,7 @@ function renderPrograms() {
                 </div>
             </div>
         `).join('');
-        const tipsHtml = program.tips.map(tip => `<div class="program-tip">${tip}</div>`).join('');
+        const tipsHtml = getProgramTips(program).map(tip => `<div class="program-tip">${tip}</div>`).join('');
 
         detailsHtml = `
             <div class="program-details">

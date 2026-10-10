@@ -5490,7 +5490,7 @@ function renderWorkoutTracker() {
         <div class="tracker-exercise">
             <div class="tracker-exercise-header">
                 <div class="tracker-exercise-name">${translateByName(exName)}</div>
-                <div class="tracker-exercise-stat">${sets.length} подх. · макс ${maxWeight} кг</div>
+                <div class="tracker-exercise-stat">${sets.length} ${t('log.sets')} · макс ${maxWeight} кг</div>
             </div>
             ${lastHint}
             <div class="tracker-sets">${setsHtml}</div>
@@ -5666,7 +5666,7 @@ function renderWorkoutLog() {
     <div class="log-day">
         <div class="log-day-header">
             <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
-            <div class="log-day-stats">${totalSets} подх. · ${totalVolume} кг</div>
+            <div class="log-day-stats">${totalSets} ${t('log.sets')} · ${totalVolume} кг</div>
            <button class="btn-repeat-workout" data-date="${date}" title="${t('log.repeat')}">
     <span data-svg="refresh-cw" data-svg-size="14"></span> ${t('log.repeat')}
 </button>
@@ -5693,13 +5693,13 @@ function renderWorkoutLog() {
         <div class="log-premium-hint">
             <div class="log-premium-hint-text">
                 <span data-svg="gem" data-svg-size="14"></span> Ещё ${hiddenDays} ${hiddenDays === 1 ? 'день' : hiddenDays < 5 ? 'дня' : 'дней'} истории доступно в Премиуме
-                Открыть Премиум
+                ${t('premium.cta')}
             </button>
         </div>
     ` : ''}
         <div class="progress-chart-block">
             <div class="progress-chart-header">
-                <div class="progress-chart-title"><span data-svg="trending-up" data-svg-size="16"></span> Прогресс по упражнению</div>
+                <div class="progress-chart-title"><span data-svg="trending-up" data-svg-size="16"></span> ${t('dashboard.volume')}</div>
                 ${renderChartSelect(exerciseList)}
             </div>
             <div class="progress-chart-container" id="progressChart"></div>
@@ -5710,7 +5710,7 @@ function renderWorkoutLog() {
                     </div>
                      
                     <button class="chart-premium-hint-btn" onclick="openPremium()">
-                        Открыть Премиум
+                        ${t('premium.cta')}
                     </button>
                 </div>
             ` : ''}
@@ -7163,7 +7163,7 @@ function showPremiumLock(featureName, description = '') {
             ${description ? `<div class="premium-lock-desc">${description}</div>` : ''}
             <div class="premium-lock-actions">
                <button class="premium-lock-open" onclick="document.querySelector('.premium-lock').remove(); openPremium();">
-    <span data-svg="gem" data-svg-size="14"></span> Открыть Премиум
+    <span data-svg="gem" data-svg-size="14"></span> ${t('premium.cta')}
 </button>
                 <button class="premium-lock-close" onclick="document.querySelector('.premium-lock').remove();">
                     Позже
@@ -7376,7 +7376,7 @@ function exportToPDF() {
             doc.setFont(fontName, 'normal');
 
             doc.text(
-                `${totalSets} подх. · ${totalVolume} кг`,
+                `${totalSets} ${t('log.sets')} · ${totalVolume} кг`,
                 pageW - margin, y,
                 { align: 'right' }
             );
@@ -7388,7 +7388,7 @@ function exportToPDF() {
                 doc.setTextColor(180, 180, 200);
                 doc.setFontSize(9);
                 doc.text(`• ${translateByName(name)}`, margin + 3, y);
-                doc.text(`${sets.length} подх. · макс ${maxW} кг`, pageW - margin, y, { align: 'right' });
+                doc.text(`${sets.length} ${t('log.sets')} · макс ${maxW} кг`, pageW - margin, y, { align: 'right' });
                 y += 4;
             });
 

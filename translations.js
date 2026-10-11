@@ -327,8 +327,42 @@ const translations = {
         'common.error': 'Ошибка',
         'common.loading': 'Загрузка...',
         'common.kg': 'кг',
-        'common.g': 'г'
+        'common.g': 'г',
 
+        // PROGRESS / DASHBOARD (дополнение)
+        'progress.noDataForExercise': '😕 No data for this exercise',
+        'progress.oneWorkout': 'Пока одна тренировка',
+        'progress.addMore': 'Добавь ещё — и увидишь прогресс!',
+        'progress.noChartData': 'Пока нет данных для графика',
+        'progress.less': 'Меньше',
+        'progress.more': 'Больше',
+        'progress.noTopData': 'Пока нет данных',
+        
+        'stats.musclesStudied': 'Мышц изучено',
+        'stats.exercisesCount': 'Упражнений',
+        'stats.daysInRow': 'Дней подряд',
+        'stats.workouts': 'Тренировок',
+        'stats.inFavorites': 'В избранном',
+        'stats.totalExercises': 'Всего упражнений',
+        
+        'calendar.activeDay': 'Активный день',
+        'calendar.skipped': 'Пропущен',
+        'calendar.last30Days': 'За 30 дней',
+        'calendar.days': 'дней',
+        'calendar.total': 'Всего',
+        'calendar.today': 'сегодня',
+        'calendar.month.0': 'янв',
+        'calendar.month.1': 'фев',
+        'calendar.month.2': 'мар',
+        'calendar.month.3': 'апр',
+        'calendar.month.4': 'мая',
+        'calendar.month.5': 'июн',
+        'calendar.month.6': 'июл',
+        'calendar.month.7': 'авг',
+        'calendar.month.8': 'сен',
+        'calendar.month.9': 'окт',
+        'calendar.month.10': 'ноя',
+        'calendar.month.11': 'дек'
     },
 
     en: {
@@ -657,6 +691,41 @@ const translations = {
         'common.loading': 'Loading...',
         'common.kg': 'kg',
          'common.g': 'g',  
+
+          // PROGRESS / DASHBOARD (дополнение)
+        'progress.noDataForExercise': '😕 No data for this exercise',
+        'progress.oneWorkout': 'Only one workout so far',
+        'progress.addMore': 'Add more — and you will see progress!',
+        'progress.noChartData': 'No chart data yet',
+        'progress.less': 'Less',
+        'progress.more': 'More',
+        'progress.noTopData': 'No data yet',
+        
+        'stats.musclesStudied': 'Muscles studied',
+        'stats.exercisesCount': 'Exercises',
+        'stats.daysInRow': 'Days in a row',
+        'stats.workouts': 'Workouts',
+        'stats.inFavorites': 'In favorites',
+        'stats.totalExercises': 'Total exercises',
+        
+        'calendar.activeDay': 'Active day',
+        'calendar.skipped': 'Skipped',
+        'calendar.last30Days': 'Last 30 days',
+        'calendar.days': 'days',
+        'calendar.total': 'Total',
+        'calendar.today': 'today',
+        'calendar.month.0': 'Jan',
+        'calendar.month.1': 'Feb',
+        'calendar.month.2': 'Mar',
+        'calendar.month.3': 'Apr',
+        'calendar.month.4': 'May',
+        'calendar.month.5': 'Jun',
+        'calendar.month.6': 'Jul',
+        'calendar.month.7': 'Aug',
+        'calendar.month.8': 'Sep',
+        'calendar.month.9': 'Oct',
+        'calendar.month.10': 'Nov',
+        'calendar.month.11': 'Dec'
     }
 };
 // ============================================
@@ -827,6 +896,28 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
         } catch(e) {
             console.warn('renderChallenges error:', e);
         }
+    }
+     // 📊 Перерисовать Dashboard / Progress (если открыт)
+    if (typeof renderActivityCalendar === 'function' && document.getElementById('activityCalendar')) {
+        try {
+            renderActivityCalendar();
+        } catch(e) { console.warn('renderActivityCalendar error:', e); }
+    }
+    if (typeof renderVolumeChart === 'function' && document.getElementById('volumeChart')) {
+        try {
+            renderVolumeChart();
+        } catch(e) { console.warn('renderVolumeChart error:', e); }
+    }
+    if (typeof renderStreakHeatmap === 'function' && document.getElementById('streakHeatmap')) {
+        try {
+            renderStreakHeatmap();
+        } catch(e) { console.warn('renderStreakHeatmap error:', e); }
+    }
+    // Stats-карточки — если функция рендера есть
+    if (typeof renderDashboardStats === 'function') {
+        try {
+            renderDashboardStats();
+        } catch(e) { console.warn('renderDashboardStats error:', e); }
     }
 }
 

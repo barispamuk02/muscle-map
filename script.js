@@ -4138,11 +4138,11 @@ function openDashboard() {
     const streak = getStreakData().days;
     const favorites = getFavorites().length;
 
-    dashboardStats.innerHTML = `
-        <div class="stat-card"><div class="stat-value">${viewedMuscles}/${totalMuscles}</div><div class="stat-label">Мышц изучено</div></div>
-        <div class="stat-card"><div class="stat-value">${completedExercises}</div><div class="stat-label">Упражнений</div></div>
-        <div class="stat-card"><div class="stat-value">${streak}</div><div class="stat-label">Дней подряд</div></div>
-        <div class="stat-card"><div class="stat-value">${favorites}</div><div class="stat-label">В избранном</div></div>
+        dashboardStats.innerHTML = `
+        <div class="stat-card"><div class="stat-value">${viewedMuscles}/${totalMuscles}</div><div class="stat-label">${t('stats.musclesStudied')}</div></div>
+        <div class="stat-card"><div class="stat-value">${completedExercises}</div><div class="stat-label">${t('stats.exercisesCount')}</div></div>
+        <div class="stat-card"><div class="stat-value">${streak}</div><div class="stat-label">${t('stats.daysInRow')}</div></div>
+        <div class="stat-card"><div class="stat-value">${favorites}</div><div class="stat-label">${t('stats.inFavorites')}</div></div>
     `;
 
     const achievements = achievementsDefinitions.filter(a => a.check());
@@ -4482,10 +4482,15 @@ function renderActivityCalendar() {
         });
     }
 
-    const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+    const months = [
+    t('calendar.month.0'), t('calendar.month.1'), t('calendar.month.2'),
+    t('calendar.month.3'), t('calendar.month.4'), t('calendar.month.5'),
+    t('calendar.month.6'), t('calendar.month.7'), t('calendar.month.8'),
+    t('calendar.month.9'), t('calendar.month.10'), t('calendar.month.11')
+];
 
     calendarEl.innerHTML = days.map(d => {
-        const title = `${d.dayNum} ${months[d.month]}${d.active ? ' — ✅' : ''}${d.isToday ? ' — сегодня' : ''}`;
+        const title = `${d.dayNum} ${months[d.month]}${d.active ? ' — ✅' : ''}${d.isToday ? ` — ${t('calendar.today')}` : ''}`;
         const classes = ['calendar-day'];
         if (d.active) classes.push('active');
         if (d.isToday) classes.push('today');
@@ -4495,18 +4500,22 @@ function renderActivityCalendar() {
     const activeCount = days.filter(d => d.active).length;
     const totalDays = getStudyDays().length;
 
+    // Удаляем старую легенду (чтобы не дублировалась при повторных вызовах)
+    const oldLegend = calendarEl.parentElement.querySelector('.calendar-legend');
+    if (oldLegend) oldLegend.remove();
+
     calendarEl.insertAdjacentHTML('afterend', `
         <div class="calendar-legend">
             <div class="calendar-legend-item">
                 <span class="calendar-legend-dot active"></span>
-                Активный день
+                ${t('calendar.activeDay')}
             </div>
             <div class="calendar-legend-item">
                 <span class="calendar-legend-dot"></span>
-                Пропущен
+                ${t('calendar.skipped')}
             </div>
             <div class="calendar-legend-summary">
-                За 30 дней: <strong>${activeCount} дней</strong> · Всего: <strong>${totalDays}</strong>
+                ${t('calendar.last30Days')}: <strong>${activeCount} ${t('calendar.days')}</strong> · ${t('calendar.total')}: <strong>${totalDays}</strong>
             </div>
         </div>
     `);
@@ -6419,15 +6428,15 @@ function renderProgressChart(exerciseName) {
     dataPoints.sort((a, b) => a.date.localeCompare(b.date));
 
     if (dataPoints.length === 0) {
-        container.innerHTML = `<div class="progress-chart-empty">😕 Нет данных для этого упражнения</div>`;
-        return;
-    }
+    container.innerHTML = `<div class="progress-chart-empty">${t('progress.noDataForExercise')}</div>`;
+    return;
+}
 
-    if (dataPoints.length === 1) {
+   if (dataPoints.length === 1) {
     container.innerHTML = `
         <div class="progress-chart-empty">
-            <span data-svg="chart-column-increasing" data-svg-size="20"></span> Пока одна тренировка<br>
-            <span style="font-size: 11px; color: #4a4a6a;">Добавь ещё — и увидишь прогресс!</span>
+            <span data-svg="chart-column-increasing" data-svg-size="20"></span> ${t('progress.oneWorkout')}<br>
+            <span style="font-size: 11px; color: #4a4a6a;">${t('progress.addMore')}</span>
         </div>
     `;
     return;
@@ -7401,14 +7410,14 @@ function exportToPDF() {
     const totalWorkouts = Object.keys(workoutLog).length;
 
     // Карточки статистики
-    const stats = [
-        { label: 'Мышц изучено', value: `${viewedMuscles}/${totalMuscles}`, color: [111, 179, 255] },
-        { label: 'Упражнений', value: completedExercises, color: [255, 107, 107] },
-        { label: 'Дней подряд', value: streak, color: [0, 184, 148] },
-        { label: 'Тренировок', value: totalWorkouts, color: [255, 217, 61] },
-        { label: 'В избранном', value: favorites, color: [253, 121, 168] },
-        { label: 'Всего упражнений', value: '1365', color: [162, 155, 254] }
-    ];
+   const stats = [
+    { label: t('stats.musclesStudied'), value: `${viewedMuscles}/${totalMuscles}`, color: [111, 179, 255] },
+    { label: t('stats.exercisesCount'), value: completedExercises, color: [255, 107, 107] },
+    { label: t('stats.daysInRow'), value: streak, color: [0, 184, 148] },
+    { label: t('stats.workouts'), value: totalWorkouts, color: [255, 217, 61] },
+    { label: t('stats.inFavorites'), value: favorites, color: [253, 121, 168] },
+    { label: t('stats.totalExercises'), value: '1365', color: [162, 155, 254] }
+];
 
     const cardW = (pageW - margin * 2 - 10) / 3;
     const cardH = 22;
@@ -7617,9 +7626,9 @@ function renderVolumeChart(days = 30) {
     const dates = Object.keys(log).sort().slice(-days);
 
     if (dates.length === 0) {
-        container.innerHTML = '<div class="analytics-empty">Пока нет данных для графика</div>';
-        return;
-    }
+    container.innerHTML = `<div class="analytics-empty">${t('progress.noChartData')}</div>`;
+    return;
+}
 
     const data = dates.map(date => {
         const dayData = log[date];
@@ -7695,10 +7704,10 @@ function renderTopExercises() {
     if (!container) return;
 
     const log = getWorkoutLog();
-    if (Object.keys(log).length === 0) {
-        container.innerHTML = '<div class="analytics-empty">Пока нет данных</div>';
-        return;
-    }
+if (Object.keys(log).length === 0) {
+    container.innerHTML = `<div class="analytics-empty">${t('progress.noTopData')}</div>`;
+    return;
+}
 
     const exerciseVolume = {};
     Object.values(log).forEach(dayData => {
@@ -7802,12 +7811,12 @@ function renderStreakHeatmap(days = 30) {
     }).join('');
 
     const legend = `
-        <div style="display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 10px; color: #6a6a8a; justify-content: center;">
-            <span>Меньше</span>
-            ${colors.map(c => `<div style="width: 12px; height: 12px; border-radius: 3px; background: ${c};"></div>`).join('')}
-            <span>Больше</span>
-        </div>
-    `;
+    <div style="display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 10px; color: #6a6a8a; justify-content: center;">
+        <span>${t('progress.less')}</span>
+        ${colors.map(c => `<div style="width: 12px; height: 12px; border-radius: 3px; background: ${c};"></div>`).join('')}
+        <span>${t('progress.more')}</span>
+    </div>
+`;
 
     container.innerHTML = `
         <div style="display: flex; justify-content: center;">

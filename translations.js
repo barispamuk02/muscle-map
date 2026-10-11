@@ -967,6 +967,13 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
             renderDashboardStats();
         } catch(e) { console.warn('renderDashboardStats error:', e); }
     }
+        // 💎 Перерисовать Premium (если открыт)
+    if (typeof renderPremiumPlans === 'function') {
+        try { renderPremiumPlans(); } catch(e) { console.warn('premium plans error:', e); }
+    }
+    if (typeof renderPremiumFeatures === 'function') {
+        try { renderPremiumFeatures(); } catch(e) { console.warn('premium features error:', e); }
+    }
 }
 
 // ============================================

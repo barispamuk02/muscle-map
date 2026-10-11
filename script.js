@@ -6642,21 +6642,25 @@ function renderPremium() {
     </div>
 `).join('');
 
-    premiumPlansEl.innerHTML = premiumPlans.map(p => `
-        <div class="premium-plan ${p.popular ? 'popular' : ''}">
-            ${p.badge ? `<div class="premium-plan-badge">${p.badge}</div>` : ''}
-            <div class="premium-plan-name">${p.name}</div>
-            <div class="premium-plan-price">
-                <span class="premium-plan-amount">${p.currency || '$'}${p.price}</span>
-                <span class="premium-plan-period">${p.period}</span>
-            </div>
-            <div class="premium-plan-desc">${p.description}</div>
-            ${p.savings ? `<div class="premium-plan-savings">${p.savings}</div>` : ''}
-            <div class="premium-plan-features">
-                ${p.features.map(feat => `<div class="premium-plan-feature">${feat}</div>`).join('')}
-            </div>
+    premiumPlansEl.innerHTML = premiumPlans.map(p => {
+    const features = (typeof currentLang !== 'undefined' && currentLang === 'en' && p.featuresEn) 
+        ? p.featuresEn 
+        : p.features;
+    return `
+    <div class="premium-plan ${p.popular ? 'popular' : ''}">
+        ${p.badge ? `<div class="premium-plan-badge">${getPremiumField(p, 'badge')}</div>` : ''}
+        <div class="premium-plan-name">${getPremiumField(p, 'name')}</div>
+        <div class="premium-plan-price">
+            <span class="premium-plan-amount">${p.currency || '$'}${p.price}</span>
+            <span class="premium-plan-period">${getPremiumField(p, 'period')}</span>
         </div>
-    `).join('');
+        <div class="premium-plan-desc">${getPremiumField(p, 'description')}</div>
+        ${p.savings ? `<div class="premium-plan-savings">${getPremiumField(p, 'savings')}</div>` : ''}
+        <div class="premium-plan-features">
+            ${features.map(feat => `<div class="premium-plan-feature">${feat}</div>`).join('')}
+        </div>
+    </div>
+`}).join('');
 }
 
 function activatePremium() {

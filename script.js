@@ -3810,7 +3810,7 @@ function renderExerciseCard(ex) {
                 : '💪'}
                     </div>
                     <div class="exercise-info">
-                        <div class="exercise-name">${ex.name}</div>
+                        <div class="exercise-name">${translateExerciseName(ex)}</div>
                         <div class="exercise-equipment">${equipment}</div>
                     </div>
                     <div class="exercise-toggle"><span data-svg="chevrons-down" data-svg-size="16"></span></div>

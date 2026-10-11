@@ -442,10 +442,10 @@ function getExercisesForMuscle(muscleId) {
         const custom = customExercises[muscleId];
         const all = [];
 
-        if (custom.primary) {
-            custom.primary.forEach(ex => {
+                if (custom.primary) {
+            custom.primary.forEach((ex, idx) => {
                 all.push({
-                    id: 'custom_' + muscleId + '_' + all.length,
+                    id: 'custom_' + muscleId + '_primary_' + idx,
                     name: ex.name,
                     name_en: '',
                     equipment: 'custom',
@@ -453,14 +453,16 @@ function getExercisesForMuscle(muscleId) {
                     sets: ex.sets || '',
                     gif: ex.gif || '',
                     muscleId: muscleId,
-                    isCustom: true
+                    isCustom: true,
+                    customIdx: idx,
+                    customGroup: 'primary'
                 });
             });
         }
         if (custom.secondary) {
-            custom.secondary.forEach(ex => {
+            custom.secondary.forEach((ex, idx) => {
                 all.push({
-                    id: 'custom_' + muscleId + '_' + all.length,
+                    id: 'custom_' + muscleId + '_secondary_' + idx,
                     name: ex.name,
                     name_en: '',
                     equipment: 'custom',
@@ -468,7 +470,9 @@ function getExercisesForMuscle(muscleId) {
                     sets: ex.sets || '',
                     gif: ex.gif || '',
                     muscleId: muscleId,
-                    isCustom: true
+                    isCustom: true,
+                    customIdx: idx,
+                    customGroup: 'secondary'
                 });
             });
         }
@@ -3795,10 +3799,12 @@ function capitalize(s) {
 // КАРТОЧКА УПРАЖНЕНИЯ
 // ============================================
 function renderExerciseCard(ex) {
+    // 🌍 Универсальное имя (custom / обычное)
+    const displayName = getExerciseNameUniversal(ex);
+    
     if (ex.isCustom) {
         const equipment = (typeof getEquipmentName === 'function') ? getEquipmentName(ex.equipment) : (equipmentNames[ex.equipment] || 'Своё тело');
         const gifPath = ex.gif || '';
-        const displayName = ex.name;    // ← для custom — name уже русский
         const done = isCompleted(ex.id);
 
         return `
@@ -3810,7 +3816,7 @@ function renderExerciseCard(ex) {
                 : '💪'}
                     </div>
                     <div class="exercise-info">
-                        <div class="exercise-name">${translateExerciseName(ex)}</div>
+                        <div class="exercise-name">${displayName}</div>
                         <div class="exercise-equipment">${equipment}</div>
                     </div>
                     <div class="exercise-toggle"><span data-svg="chevrons-down" data-svg-size="16"></span></div>
@@ -3826,13 +3832,12 @@ function renderExerciseCard(ex) {
                                  onerror="this.parentElement.style.display='none';">
                         </div>
                     ` : ''}
-                                        <div class="exercise-instructions">
+                    <div class="exercise-instructions">
                         <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> ${t('exercises.description')}:</div>
-                       
-                        <p>${ex.description || 'Описание недоступно'}</p>
-                        ${ex.sets ? `<p><strong>Подходы:</strong> ${ex.sets}</p>` : ''}
+                        <p>${getExerciseDescriptionUniversal(ex) || t('exercises.noDescription')}</p>
+                        ${ex.sets ? `<p><strong>${t('exercises.sets')}:</strong> ${ex.sets}</p>` : ''}
                     </div>
-                                <div class="exercise-actions">
+                    <div class="exercise-actions">
     <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
         ${done 
             ? `<span data-svg="circle-check-big" data-svg-size="16"></span> ${t('exercises.done')}` 
@@ -3844,13 +3849,13 @@ function renderExerciseCard(ex) {
         `;
     }
 
+    // 🏋️ Обычное упражнение
     const equipment = (typeof getEquipmentName === 'function') ? getEquipmentName(ex.equipment) : (equipmentNames[ex.equipment] || ex.equipment);
     const imagePath = ex.image || '';
     const gifPath = ex.gif || '';
-    const displayName = translateExerciseName(ex);
     const done = isCompleted(ex.id);
 
-        return `
+    return `
         <div class="exercise-card ${done ? 'completed' : ''}" data-ex-id="${ex.id}" data-ex-name-en="${ex.name_en || ''}">
             <div class="exercise-header">
                 <div class="exercise-image">
@@ -3868,7 +3873,7 @@ function renderExerciseCard(ex) {
                         <img src="${gifPath}" alt="${displayName}" loading="lazy" data-gif="${gifPath}" data-name="${displayName}" onerror="this.parentElement.style.display='none';">
                     </div>
                 ` : ''}
-                                <div class="exercise-instructions">
+                <div class="exercise-instructions">
                     <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> ${t('exercises.instructions')}:</div>
                    ${getInstructionSteps(ex).length > 0
     ? `<ol>${getInstructionSteps(ex).map(step => `<li>${step}</li>`).join('')}</ol>`
@@ -3878,7 +3883,7 @@ function renderExerciseCard(ex) {
                 ${renderSynergists(ex)}
                 <div class="exercise-attribution">${ex.attribution || ''}</div>
                 <div class="exercise-actions">
-                                        <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
+                    <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
     ${done 
         ? `<span data-svg="circle-check-big" data-svg-size="16"></span> ${t('exercises.done')}` 
         : `<span data-svg="check" data-svg-size="16"></span> ${t('exercises.markDone')}`}

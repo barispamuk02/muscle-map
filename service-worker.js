@@ -1,8 +1,8 @@
 // ============================================
 // 🔧 SERVICE WORKER — КЕШ ДЛЯ ОФЛАЙН-РЕЖИМА
 // ============================================
-const CACHE_NAME = 'muscle-map-v139';
-const RUNTIME_CACHE = 'muscle-map-runtime-v139';
+const CACHE_NAME = 'muscle-map-v140';
+const RUNTIME_CACHE = 'muscle-map-runtime-v140';
 
 // Файлы, которые кешируем сразу при установке
 const PRECACHE_URLS = [
@@ -43,6 +43,7 @@ const PRECACHE_URLS = [
     './instructions-translations.js',
     './sitemap.xml',
     './robots.txt',
+    './custom-exercises-translations.js',
 
     // ============================================
     // 🖼️ PWA-ИКОНКИ

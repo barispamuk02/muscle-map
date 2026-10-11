@@ -79,6 +79,7 @@ const translations = {
         'exercises.moreCount': 'Ещё',
         'exercises.premiumUnlock': 'Премиум откроет всю базу упражнений',
         'exercise.noInstructions': 'Инструкция недоступна',
+        'exercises.noDescription': 'Описание недоступно',
 
 
         // СИНЕРГИСТЫ И ОШИБКИ
@@ -460,6 +461,7 @@ const translations = {
         'exercises.moreCount': 'More',
         'exercises.premiumUnlock': 'Premium unlocks the entire exercise base',
         'exercise.noInstructions': 'Instructions not available',
+        'exercises.noDescription': 'Description not available',
      
 
         // SYNERGISTS & MISTAKES

@@ -9028,8 +9028,9 @@ const mistakesTranslations = {
 
 function getMistakesTranslation(nameEn) {
     if (typeof currentLang === 'undefined' || currentLang === 'ru') return null;
-    // Прямой доступ без .en
-    return mistakesTranslations[nameEn] || null;
+    if (typeof mistakesTranslations === 'undefined') return null;
+    if (!mistakesTranslations.en) return null;
+    return mistakesTranslations.en[nameEn] || null;
 }
 
 function getMistakes(nameEn) {

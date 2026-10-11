@@ -4605,12 +4605,12 @@ setTimeout(() => {
         exportPdfBtn.addEventListener('click', () => {
             // Проверка Премиума
             if (!isPremium()) {
-                showPremiumLock(
-                    'Экспорт в PDF',
-                    'Скачивай красивые отчёты о прогрессе: статистика, график, тренировки, достижения. Доступно только в Премиуме.'
-                );
-                return;
-            }
+    showPremiumLock(
+        t('premium.pdfLockTitle'),
+        t('premium.pdfLockDesc')
+    );
+    return;
+}
             exportToPDF();
         });
     }
@@ -5381,12 +5381,12 @@ function getLastValues(exName) {
     if (!workout.exercises[exerciseName]) {
         const currentCount = Object.keys(workout.exercises).length;
         if (currentCount >= limit) {
-            showPremiumLock(
-                'Дневник без ограничений',
-                `Бесплатно можно записать до 3 упражнений в день. Откройте Премиум, чтобы записывать без лимита.`
-            );
-            return workout;
-        }
+    showPremiumLock(
+        t('premium.logLimitTitle'),
+        t('premium.logLimitDesc').replace('{limit}', limit)
+    );
+    return workout;
+}
     }
 
     if (!workout.exercises[exerciseName]) workout.exercises[exerciseName] = [];
@@ -5507,12 +5507,14 @@ function repeatWorkout(date) {
     const isPrem = isPremium();
     const limit = isPrem ? Infinity : 3;
     if (exerciseNames.length > limit) {
-        showPremiumLock(
-            'Повтор тренировки без ограничений',
-            `В этой тренировке ${exerciseNames.length} упражнений. Бесплатно можно до ${limit}. Откройте Премиум.`
-        );
-        return;
-    }
+    showPremiumLock(
+        t('premium.repeatLimitTitle'),
+        t('premium.repeatLimitDesc')
+            .replace('{count}', exerciseNames.length)
+            .replace('{limit}', limit)
+    );
+    return;
+}
 
     // ✅ Создаём новую тренировку — пустые массивы (юзер сам отметит)
     const newWorkout = {
@@ -5847,9 +5849,9 @@ if (clearLogBtn) {
             if (!isPrem && selectedIndex >= 3) {
                 e.target.value = exerciseList[0];
                 showPremiumLock(
-                    'Расширенный график прогресса',
-                    `Бесплатно доступно 3 упражнения. У вас их ${exerciseList.length}. Откройте Премиум, чтобы видеть все.`
-                );
+    t('premium.lockTitle'),
+    `${t('premium.lockDesc1')} ${exerciseList.length}. ${t('premium.lockDesc2')}`
+);
                 return;
             }
 
@@ -6626,19 +6628,19 @@ function renderPremium() {
     }
 
     premiumFeaturesEl.innerHTML = premiumFeatures.map(f => `
-        <div class="premium-feature">
-            <div class="premium-feature-icon">${f.icon}</div>
-            <div class="premium-feature-content">
-                <div class="premium-feature-title">${f.title}</div>
-                <div class="premium-feature-desc">${f.description}</div>
-                <div class="premium-feature-compare">
-                    <span class="premium-compare-free">Бесплатно: ${f.free}</span>
-                    <span class="premium-compare-arrow">→</span>
-                    <span class="premium-compare-premium">Премиум: ${f.premium}</span>
-                </div>
+    <div class="premium-feature">
+        <div class="premium-feature-icon">${f.icon}</div>
+        <div class="premium-feature-content">
+            <div class="premium-feature-title">${getPremiumField(f, 'title')}</div>
+            <div class="premium-feature-desc">${getPremiumField(f, 'description')}</div>
+            <div class="premium-feature-compare">
+                <span class="premium-compare-free">${t('premium.free')}: ${getPremiumField(f, 'free')}</span>
+                <span class="premium-compare-arrow">→</span>
+                <span class="premium-compare-premium">${t('premium.premium')}: ${getPremiumField(f, 'premium')}</span>
             </div>
         </div>
-    `).join('');
+    </div>
+`).join('');
 
     premiumPlansEl.innerHTML = premiumPlans.map(p => `
         <div class="premium-plan ${p.popular ? 'popular' : ''}">
@@ -7265,7 +7267,7 @@ function showPremiumLock(featureName, description = '') {
         <div class="premium-lock-backdrop"></div>
         <div class="premium-lock-content">
             <div class="premium-lock-icon"><span data-svg="gem" data-svg-size="48"></span></div>
-            <div class="premium-lock-title">Функция Премиум</div>
+           <div class="premium-lock-title">${t('premium.featureTitle')}</div>
             <div class="premium-lock-feature">${featureName}</div>
             ${description ? `<div class="premium-lock-desc">${description}</div>` : ''}
             <div class="premium-lock-actions">
@@ -7273,8 +7275,8 @@ function showPremiumLock(featureName, description = '') {
     <span data-svg="gem" data-svg-size="14"></span> ${t('premium.cta')}
 </button>
                 <button class="premium-lock-close" onclick="document.querySelector('.premium-lock').remove();">
-                    Позже
-                </button>
+    ${t('premium.later')}
+</button>
             </div>
         </div>
     `;
@@ -7328,12 +7330,12 @@ if (programsViewEl) {
 function exportToPDF() {
     // 🔒 Проверка Премиума
     if (!isPremium()) {
-        showPremiumLock(
-            'Экспорт в PDF',
-            'Скачивай красивые отчёты о прогрессе: статистика, график, тренировки, достижения. Доступно только в Премиуме.'
-        );
-        return;
-    }
+    showPremiumLock(
+        t('premium.pdfLockTitle'),
+        t('premium.pdfLockDesc')
+    );
+    return;
+}
 
     // Проверка библиотеки
     if (typeof window.jspdf === 'undefined') {

@@ -262,6 +262,20 @@ const translations = {
         'premium.faq.cancelA': 'В Dodo Customer Portal — ссылка в письме после оплаты.',
         'premium.faq.mobile': 'Работает на телефоне?',
         'premium.faq.mobileA': 'Да, работает на всех устройствах.',
+        'premium.free': 'Бесплатно',
+        'premium.premium': 'Премиум',
+        'premium.lockTitle': 'Расширенный график прогресса',
+        'premium.lockDesc1': 'Бесплатно доступно 3 упражнения. У вас их',
+        'premium.lockDesc2': '. Откройте Премиум, чтобы видеть все.',
+        'premium.lockDesc': 'Бесплатно доступно 3 упражнения. У вас их {n}. Откройте Премиум, чтобы видеть все.',
+        'premium.pdfLockTitle': 'Экспорт в PDF',
+        'premium.pdfLockDesc': 'Скачивай красивые отчёты о прогрессе: статистика, график, тренировки, достижения. Доступно только в Премиуме.',
+        'premium.logLimitTitle': 'Безлимитная запись',
+        'premium.logLimitDesc': 'Вы можете записывать до {limit} упражнений в день бесплатно. Откройте Премиум для безлимитной записи.',
+        'premium.repeatLimitTitle': 'Безлимитные повторы тренировки',
+        'premium.repeatLimitDesc': 'Эта тренировка содержит {count} упражнений. Вы можете выполнить до {limit} упражнений бесплатно. Откройте Премиум для доступа ко всем.',
+        'premium.featureTitle': 'Функция Премиум',
+        'premium.later': 'Позже',
 
         // ПРОГРЕСС
         'dashboard.title': 'Твой прогресс',
@@ -630,6 +644,20 @@ const translations = {
         'premium.faq.cancelA': 'In Dodo Customer Portal — link in email after payment.',
         'premium.faq.mobile': 'Works on mobile?',
         'premium.faq.mobileA': 'Yes, works on all devices.',
+        'premium.free': 'Free',
+        'premium.premium': 'Premium',
+        'premium.lockTitle': 'Extended Progress Chart',
+        'premium.lockDesc1': 'Only 3 exercises available for free. You have',
+        'premium.lockDesc2': 'exercises. Unlock all with Premium.',
+        'premium.lockDesc': 'Only 3 exercises available for free. You have {n}. Unlock all with Premium.',
+        'premium.pdfLockTitle': 'PDF export',
+         'premium.pdfLockDesc': 'Download beautiful progress reports: stats, chart, workouts, achievements. Available only in Premium.',
+         'premium.logLimitTitle': 'Unlimited Logging',
+         'premium.logLimitDesc': 'You can log up to {limit} exercises per day for free. Unlock unlimited logging with Premium.',
+         'premium.repeatLimitTitle': 'Unlimited Workout Repetitions',
+         'premium.repeatLimitDesc': 'This workout contains {count} exercises. You can do up to {limit} exercises for free. Unlock all with Premium.',
+         'premium.featureTitle': 'Premium Feature',
+         'premium.later': 'Later',
 
         // DASHBOARD
         'dashboard.title': 'Your progress',
@@ -890,6 +918,17 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
             console.warn('renderMistakes error:', e);
         }
     }
+    // 💎 Перерисовать Premium-модалку (если открыта)
+    if (typeof renderPremiumModal === 'function' && document.getElementById('premiumModal')) {
+        try {
+            const modal = document.getElementById('premiumModal');
+            if (modal && modal.style.display !== 'none') {
+                // Функция должна обновить HTML
+                renderPremiumModal();
+            }
+        } catch(e) { console.warn('premium modal error:', e); }
+    }
+
         // 📚 Перерисовать инструкции (если открыто упражнение)
     if (typeof currentExercise !== 'undefined' && currentExercise && typeof renderInfo === 'function') {
         try {

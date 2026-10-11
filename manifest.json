@@ -1,23 +1,23 @@
 {
-  "id": "/muscle-map/",
+  "id": "https://muscle-map.app/",
   "name": "Muscle Map — Калькулятор мышц",
- "short_name": "Muscle Map",
+  "short_name": "Muscle Map",
   "description": "Выбери мышцу → узнай упражнения. 30 мышц, 1295 упражнений, восстановление, питание и программы тренировок.",
-  "start_url": "/muscle-map/",
-  "scope": "/muscle-map/",
+  "start_url": "https://muscle-map.app/",
+  "scope": "https://muscle-map.app/",
   "display": "standalone",
-"display_override": ["standalone", "minimal-ui"],
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0a0a12",
   "theme_color": "#0a0a12",
   "lang": "ru",
   "dir": "ltr",
   "categories": [
-  "health",
-  "fitness",
-  "sports"
-],
-"prefer_related_applications": false,
+    "health",
+    "fitness",
+    "sports"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -43,14 +43,14 @@
       "name": "Мышцы",
       "short_name": "Мышцы",
       "description": "Открыть раздел Мышцы",
-      "url": "/muscle-map/?view=muscles",
+      "url": "https://muscle-map.app/?view=muscles",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Программы",
       "short_name": "Программы",
       "description": "Открыть программы тренировок",
-      "url": "/muscle-map/?view=programs",
+      "url": "https://muscle-map.app/?view=programs",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

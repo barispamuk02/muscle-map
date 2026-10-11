@@ -4147,7 +4147,7 @@ function openDashboard() {
 
     const achievements = achievementsDefinitions.filter(a => a.check());
     if (achievements.length === 0) {
-        dashboardAchievements.innerHTML = '<div class="achievement-badge locked"><span data-svg="rocket" data-svg-size="16"></span> Начни тренироваться!</div>';
+        dashboardAchievements.innerHTML = `<div class="achievement-badge locked"><span data-svg="rocket" data-svg-size="16"></span> ${t('dashboard.startTraining')}</div>`;;
     } else {
        dashboardAchievements.innerHTML = achievements.map(a => `<div class="achievement-badge"><span data-svg="${a.svg}" data-svg-size="16"></span> ${a.text}</div>`).join('');
     }
@@ -4162,7 +4162,7 @@ function openDashboard() {
     });
 
     if (entries.length === 0) {
-        dashboardHistory.innerHTML = '<div style="color:#4a4a6a;font-size:12px;text-align:center;padding:10px;">Пока ничего не выполнено</div>';
+        dashboardHistory.innerHTML = `<div style="color:#4a4a6a;font-size:12px;text-align:center;padding:10px;">${t('dashboard.nothingDone')}</div>`;
     } else {
         dashboardHistory.innerHTML = entries.join('');
     }

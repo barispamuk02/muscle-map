@@ -276,6 +276,8 @@ const translations = {
         'dashboard.download': 'Скачать прогресс',
         'dashboard.upload': 'Загрузить прогресс',
         'dashboard.pdf': 'Скачать PDF',
+        'dashboard.startTraining': 'Начни тренироваться!',
+        'dashboard.nothingDone': 'Пока ничего не выполнено',
 
         // ФОРМА
         'feedback.title': 'Есть идея или предложение?',
@@ -640,6 +642,8 @@ const translations = {
         'dashboard.download': 'Download progress',
         'dashboard.upload': 'Upload progress',
         'dashboard.pdf': 'Download PDF',
+        'dashboard.startTraining': 'Start training!',
+        'dashboard.nothingDone': 'Nothing done yet',
 
         // FEEDBACK FORM
         'feedback.title': 'Have an idea or suggestion?',

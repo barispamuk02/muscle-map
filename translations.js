@@ -68,6 +68,7 @@ const translations = {
         'exercises.replace': 'Заменить',
         'exercises.moreCount': 'Ещё',
         'exercises.premiumUnlock': 'Премиум откроет всю базу упражнений',
+        'exercise.noInstructions': 'Инструкция недоступна',
 
 
         // СИНЕРГИСТЫ И ОШИБКИ
@@ -386,6 +387,7 @@ const translations = {
         'exercises.replace': 'Replace',
         'exercises.moreCount': 'More',
         'exercises.premiumUnlock': 'Premium unlocks the entire exercise base',
+        'exercise.noInstructions': 'Instructions not available',
      
 
         // SYNERGISTS & MISTAKES
@@ -788,6 +790,14 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
             }
         } catch(e) {
             console.warn('renderMistakes error:', e);
+        }
+    }
+        // 📚 Перерисовать инструкции (если открыто упражнение)
+    if (typeof currentExercise !== 'undefined' && currentExercise && typeof renderInfo === 'function') {
+        try {
+            renderInfo(currentExercise);
+        } catch(e) {
+            console.warn('renderInfo error:', e);
         }
     }
 }

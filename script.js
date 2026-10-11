@@ -3870,9 +3870,9 @@ function renderExerciseCard(ex) {
                 ` : ''}
                                 <div class="exercise-instructions">
                     <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> ${t('exercises.instructions')}:</div>
-                    ${ex.instruction_steps_ru && ex.instruction_steps_ru.length > 0
-            ? `<ol>${ex.instruction_steps_ru.map(step => `<li>${step}</li>`).join('')}</ol>`
-            : `<p>${ex.instructions_ru || 'Инструкция недоступна'}</p>`}
+                   ${getInstructionSteps(ex).length > 0
+    ? `<ol>${getInstructionSteps(ex).map(step => `<li>${step}</li>`).join('')}</ol>`
+    : `<p>${getInstructionsText(ex) || t('exercise.noInstructions')}</p>`}
                 </div>
                 ${renderMistakes(ex)} 
                 ${renderSynergists(ex)}

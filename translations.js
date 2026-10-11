@@ -945,6 +945,24 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
             console.warn('renderChallenges error:', e);
         }
     }
+        // 🏆 Перерисовать достижения (если Dashboard открыт)
+    if (typeof openDashboard === 'function' && document.getElementById('dashboardModal')?.style.display !== 'none') {
+        try { 
+            // Вызови только перерисовку достижений — или всю dashboard
+            const achievements = achievementsDefinitions.filter(a => a.check());
+            if (dashboardAchievements) {
+                if (achievements.length === 0) {
+                    dashboardAchievements.innerHTML = `<div class="achievement-badge locked"><span data-svg="rocket" data-svg-size="16"></span> ${t('dashboard.startTraining')}</div>`;
+                } else {
+                    dashboardAchievements.innerHTML = achievements.map(a => {
+                        const text = (currentLang === 'en' && a.textEn) ? a.textEn : a.text;
+                        return `<div class="achievement-badge"><span data-svg="${a.svg}" data-svg-size="16"></span> ${text}</div>`;
+                    }).join('');
+                }
+            }
+        } catch(e) { console.warn('achievements error:', e); }
+    }
+    
      // 📊 Перерисовать Dashboard / Progress (если открыт)
     if (typeof renderActivityCalendar === 'function' && document.getElementById('activityCalendar')) {
         try {

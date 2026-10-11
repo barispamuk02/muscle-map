@@ -823,6 +823,16 @@ function getEquipmentName(equipmentKey) {
 // ============================================
 // ФУНКЦИИ
 // ============================================
+
+// 🌐 Поддержка ?lang=en из URL (для hreflang)
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get('lang');
+    if (langParam === 'en' || langParam === 'ru') {
+        localStorage.setItem('muscleMap_lang', langParam);
+    }
+})();
+
 let currentLang = localStorage.getItem('muscleMap_lang') || 'ru';
 
 function t(key) {
@@ -962,7 +972,7 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
             }
         } catch(e) { console.warn('achievements error:', e); }
     }
-    
+
      // 📊 Перерисовать Dashboard / Progress (если открыт)
     if (typeof renderActivityCalendar === 'function' && document.getElementById('activityCalendar')) {
         try {

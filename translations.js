@@ -32,6 +32,16 @@ const translations = {
         // ЧЕЛЛЕНДЖИ
         'challenges.title': 'Челленджи',
         'challenges.hint': 'Выполняй упражнения → прогресс растёт',
+        'challenge.streak7.name': '7 дней подряд',
+        'challenge.streak7.desc': 'Заходи 7 дней подряд',
+        'challenge.exercises50.name': '50 упражнений',
+        'challenge.exercises50.desc': 'Выполни 50 упражнений',
+        'challenge.plank30.name': '30 дней планки',
+        'challenge.plank30.desc': 'Отмечай упражнения каждый день',
+        'challenge.muscles20.name': 'Изучить 20 мышц',
+        'challenge.muscles20.desc': 'Открой 20 из 30 мышц',
+        'challenge.weekend.name': 'Тренировка недели',
+        'challenge.weekend.desc': 'Сделай 10 упражнений за 7 дней',
 
         // ПОИСК
         'search.placeholder': 'Найти мышцу...',
@@ -351,6 +361,16 @@ const translations = {
         // CHALLENGES
         'challenges.title': 'Challenges',
         'challenges.hint': 'Do exercises → progress grows',
+        'challenge.streak7.name': '7 days in a row',
+        'challenge.streak7.desc': 'Check in 7 days in a row',
+        'challenge.exercises50.name': '50 exercises',
+        'challenge.exercises50.desc': 'Complete 50 exercises',
+        'challenge.plank30.name': '30 days of plank',
+        'challenge.plank30.desc': 'Mark exercises every day',
+        'challenge.muscles20.name': 'Study 20 muscles',
+        'challenge.muscles20.desc': 'Open 20 of 30 muscles',
+        'challenge.weekend.name': 'Workout of the week',
+        'challenge.weekend.desc': 'Do 10 exercises in 7 days',
 
         // SEARCH
         'search.placeholder': 'Find a muscle...',
@@ -798,6 +818,14 @@ if (typeof currentRecoveryId !== 'undefined' && currentRecoveryId && typeof rend
             renderInfo(currentExercise);
         } catch(e) {
             console.warn('renderInfo error:', e);
+        }
+    }
+    // 🏆 Перерисовать челленджи
+    if (typeof renderChallenges === 'function') {
+        try {
+            renderChallenges();
+        } catch(e) {
+            console.warn('renderChallenges error:', e);
         }
     }
 }

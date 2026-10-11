@@ -132,11 +132,11 @@ const achievementsDefinitions = [
 // ЧЕЛЛЕНДЖИ
 // ============================================
 const challenges = [
-    { id: 'streak7', svg: 'flame', name: '7 дней подряд', description: 'Заходи 7 дней подряд', target: 7, getProgress: () => getStreakData().days },
-    { id: 'exercises50', svg: 'dumbbell', name: '50 упражнений', description: 'Выполни 50 упражнений', target: 50, getProgress: () => Object.keys(getCompleted()).length },
-    { id: 'plank30', svg: 'trophy', name: '30 дней планки', description: 'Отмечай упражнения каждый день', target: 30, getProgress: () => getStudyDays().length },
-    { id: 'muscles20', svg: 'crosshair', name: 'Изучить 20 мышц', description: 'Открой 20 из 30 мышц', target: 20, getProgress: () => getViewedMusclesCount() },
-    { id: 'weekend', svg: 'circle-check-big', name: 'Тренировка недели', description: 'Сделай 10 упражнений за 7 дней', target: 10, getProgress: () => {
+    { id: 'streak7', svg: 'flame', nameKey: 'challenge.streak7.name', descKey: 'challenge.streak7.desc', target: 7, getProgress: () => getStreakData().days },
+    { id: 'exercises50', svg: 'dumbbell', nameKey: 'challenge.exercises50.name', descKey: 'challenge.exercises50.desc', target: 50, getProgress: () => Object.keys(getCompleted()).length },
+    { id: 'plank30', svg: 'trophy', nameKey: 'challenge.plank30.name', descKey: 'challenge.plank30.desc', target: 30, getProgress: () => getStudyDays().length },
+    { id: 'muscles20', svg: 'crosshair', nameKey: 'challenge.muscles20.name', descKey: 'challenge.muscles20.desc', target: 20, getProgress: () => getViewedMusclesCount() },
+    { id: 'weekend', svg: 'circle-check-big', nameKey: 'challenge.weekend.name', descKey: 'challenge.weekend.desc', target: 10, getProgress: () => {
         const week = Date.now() - 7 * 24 * 60 * 60 * 1000;
         return Object.values(getCompleted()).filter(t => t >= week).length;
     }},
@@ -4113,12 +4113,12 @@ function renderChallenges() {
         return `
             <div class="challenge-card ${completed ? 'completed' : ''}">
                 <div class="challenge-emoji">${icon(ch.svg, 32)}</div>
-                <div class="challenge-name">${ch.name}</div>
+                <div class="challenge-name">${t(ch.nameKey)}</div>
                 <div class="challenge-progress">
                     <div class="challenge-progress-bar" style="width: ${percent}%"></div>
                 </div>
                 <div class="challenge-counter">
-                    <span>${ch.description}</span>
+                    <span>${t(ch.descKey)}</span>
                     <span class="${completed ? 'done' : ''}">${progress}/${ch.target}</span>
                 </div>
             </div>

@@ -288,7 +288,7 @@ function showAchievementToast(achievement) {
 // СБРОС
 // ============================================
 function resetProgress() {
-    if (!confirm('⚠️ Сбросить ВЕСЬ прогресс?')) return;
+    if (!confirm(t('dashboard.resetAllConfirm'))) return;
     localStorage.removeItem(STORAGE_KEYS.favorites);
     localStorage.removeItem(STORAGE_KEYS.completed);
     localStorage.removeItem(STORAGE_KEYS.streak);
@@ -297,11 +297,11 @@ function resetProgress() {
     Object.keys(muscleDatabase).forEach(id => {
         localStorage.removeItem(STORAGE_KEYS.views + id);
     });
-    showToast('🔄 Прогресс сброшен');
-    closeDashboard();
-    renderList(Object.values(muscleDatabase));
-    renderChallenges();
-    if (currentMuscleId) renderInfo(muscleDatabase[currentMuscleId]);
+    showToast(t('dashboard.resetAllDone'));
+closeDashboard();
+renderList(Object.values(muscleDatabase));
+renderChallenges();
+if (currentMuscleId) renderInfo(muscleDatabase[currentMuscleId]);
 }
 
 // ============================================
@@ -4171,7 +4171,7 @@ function openDashboard() {
     if (!resetBlock) {
         resetBlock = document.createElement('div');
         resetBlock.className = 'dashboard-reset';
-        resetBlock.innerHTML = `<button class="btn-reset-progress" id="resetProgressBtn"><span data-svg="refresh-cw" data-svg-size="14"></span> Сбросить весь прогресс</button>`;
+       resetBlock.innerHTML = `<button class="btn-reset-progress" id="resetProgressBtn"><span data-svg="refresh-cw" data-svg-size="14"></span> ${t('dashboard.resetAll')}</button>`;
         dashboardModal.querySelector('.dashboard-content').appendChild(resetBlock);
         resetBlock.querySelector('#resetProgressBtn').addEventListener('click', resetProgress);
     }

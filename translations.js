@@ -278,7 +278,9 @@ const translations = {
         'dashboard.pdf': 'Скачать PDF',
         'dashboard.startTraining': 'Начни тренироваться!',
         'dashboard.nothingDone': 'Пока ничего не выполнено',
-
+         'dashboard.resetAll': 'Сбросить весь прогресс',
+        'dashboard.resetAllConfirm': 'Удалить ВСЕ данные прогресса? Это действие необратимо!',
+        'dashboard.resetAllDone': 'Прогресс сброшен',
         // ФОРМА
         'feedback.title': 'Есть идея или предложение?',
         'feedback.subtitle': 'Предложи новое упражнение или улучшение сайта — мы рассмотрим!',
@@ -644,7 +646,10 @@ const translations = {
         'dashboard.pdf': 'Download PDF',
         'dashboard.startTraining': 'Start training!',
         'dashboard.nothingDone': 'Nothing done yet',
-
+        'dashboard.resetAll': 'Reset all progress',
+        'dashboard.resetAllConfirm': 'Delete ALL progress data? This action cannot be undone!',
+        'dashboard.resetAllDone': 'Progress reset',
+       
         // FEEDBACK FORM
         'feedback.title': 'Have an idea or suggestion?',
         'feedback.subtitle': 'Suggest a new exercise or site improvement — we\'ll review it!',

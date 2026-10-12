@@ -478,3 +478,45 @@ function getExerciseDescriptionUniversal(ex) {
     }
     return ex.description || '';
 }
+
+
+// ============================================
+// SETS TRANSLATIONS (27 вариантов)
+// ============================================
+
+const setsTranslations = {
+    
+  "3 × 12-15": "3 × 12-15",
+  "3 × 12-15 на сторону": "3 × 12-15 per side",
+  "5 минут": "5 min",
+  "3 × 10": "3 × 10",
+  "3 × 10-15": "3 × 10-15",
+  "3 × 20-30 сек": "3 × 20-30 sec",
+  "3 × 20-30 сек на сторону": "3 × 20-30 sec per side",
+  "4 × 8-10": "4 × 8-10",
+  "3 × 15 на сторону": "3 × 15 per side",
+  "3 × 30-60 сек": "3 × 30-60 sec",
+  "3 × 20": "3 × 20",
+  "3 × 12 на сторону": "3 × 12 per side",
+  "5 × 15 сек": "5 × 15 sec",
+  "3 × 45-60 сек": "3 × 45-60 sec",
+  "3 × 15": "3 × 15",
+  "3 × 12": "3 × 12",
+  "3 × 10 на руку": "3 × 10 per arm",
+  "4 × 10": "4 × 10",
+  "3 × 10-12": "3 × 10-12",
+  "4 × 12-15": "4 × 12-15",
+  "4 × 10-12": "4 × 10-12",
+  "4 × 15": "4 × 15",
+  "3 × 12 в каждую сторону": "3 × 12 each side",
+  "3 × 30 сек": "3 × 30 sec",
+  "2 × 20 сек": "2 × 20 sec",
+  "3 × 10 сек": "3 × 10 sec",
+  "3 × 15 шагов": "3 × 15 steps"
+};
+
+function translateSets(sets) {
+    if (typeof currentLang === 'undefined' || currentLang === 'ru') return sets;
+    if (typeof setsTranslations === 'undefined') return sets;
+    return setsTranslations[sets] || sets;
+}

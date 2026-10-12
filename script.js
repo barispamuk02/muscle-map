@@ -3835,7 +3835,7 @@ function renderExerciseCard(ex) {
                     <div class="exercise-instructions">
                         <div class="instructions-title"><span data-svg="clipboard-list" data-svg-size="14"></span> ${t('exercises.description')}:</div>
                         <p>${getExerciseDescriptionUniversal(ex) || t('exercises.noDescription')}</p>
-                        ${ex.sets ? `<p><strong>${t('exercises.sets')}:</strong> ${ex.sets}</p>` : ''}
+                        ${ex.sets ? `<p><strong>${t('exercises.sets')}:</strong> ${ex.isCustom ? translateSets(ex.sets) : ex.sets}</p>` : ''}
                     </div>
                     <div class="exercise-actions">
     <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">

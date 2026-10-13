@@ -6658,7 +6658,7 @@ function renderPremium() {
         : p.features;
     return `
     <div class="premium-plan ${p.popular ? 'popular' : ''}">
-        ${p.badge ? `<div class="premium-plan-badge">${getPremiumField(p, 'badge')}</div>` : ''}
+       ${p.badge ? `<div class="premium-plan-badge">${icon(getPremiumField(p, 'badge'), 14)} Premium</div>` : ''}
         <div class="premium-plan-name">${getPremiumField(p, 'name')}</div>
         <div class="premium-plan-price">
             <span class="premium-plan-amount">${p.currency || '$'}${p.price}</span>

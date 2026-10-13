@@ -3920,23 +3920,17 @@ function renderExercisesSection(muscle) {
     // 📄 Пагинация и Премиум-лимиты
         const PAGE_SIZE = 20;
 
-    let visible;
-    let showPremiumBanner = false;
+        let visible;
+    let showPremiumBanner = false;   // Больше не показываем баннер — каталог открыт
     let showMoreButton = false;
     let counterText = '';
 
-    if (isPrem) {
-        // 🎯 Премиум: пагинация по 20
-        const page = parseInt(document.querySelector('.exercises-list')?.dataset.page || '1');
-        const end = page * PAGE_SIZE;
-        visible = filtered.slice(0, end);
-        showMoreButton = filtered.length > end;
-                counterText = `${t('exercises.counter')} ${Math.min(end, filtered.length)} ${t('exercises.of')} ${filtered.length}`;
-    } else {
-        // 🎯 Бесплатно: только 4
-        visible = filtered.slice(0, FREE_LIMIT);
-        showPremiumBanner = filtered.length > FREE_LIMIT;
-    }
+    // 🎯 Каталог открыт для всех — пагинация по 20 (для производительности)
+    const page = parseInt(document.querySelector('.exercises-list')?.dataset.page || '1');
+    const end = page * PAGE_SIZE;
+    visible = filtered.slice(0, end);
+    showMoreButton = filtered.length > end;
+    counterText = `${t('exercises.counter')} ${Math.min(end, filtered.length)} ${t('exercises.of')} ${filtered.length}`;
 
     const buttons = `
     <div class="equipment-filter">
@@ -3949,18 +3943,7 @@ function renderExercisesSection(muscle) {
         ? visible.map(renderExerciseCard).join('')
         : `<div class="no-exercises"><span data-svg="frown" data-svg-size="32"></span> ${t('exercises.none')}</div>`;
 
-        // 🎯 Плашка Премиума (только для бесплатных)
-        const premiumBanner = showPremiumBanner
-        ? `<div class="premium-exercises-banner">
-              <div class="premium-exercises-icon"><span data-svg="gem" data-svg-size="32"></span></div>
-               <div class="premium-exercises-text">
-                   <strong>${t('exercises.moreCount')} ${filtered.length - FREE_LIMIT}</strong>
-                   <span>💎 ${t('exercises.premiumUnlock')}</span>
-               </div>
-               <button class="premium-exercises-btn" id="premiumExBtn">${t('premium.cta')}</button>
-           </div>`
-        : '';
-
+        
     // 🎯 Кнопка «Показать ещё» (только для Премиума)
         const moreBtn = showMoreButton
         ? `<button class="btn-show-more" id="btnShowMore"><span data-svg="plus" data-svg-size="16"></span> ${t('exercises.showMore')} ${Math.min(PAGE_SIZE, filtered.length - visible.length)}</button>`

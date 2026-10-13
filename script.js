@@ -25,7 +25,16 @@ const quoteCopyBtn = document.getElementById('quoteCopyBtn');
 // ============================================
 // 🎨 SVG-ИКОНКИ (Lucide)
 // ============================================
+// ============================================
+// 🌍 ГЛОБАЛЬНЫЕ ЛИМИТЫ FREE-ВЕРСИИ
+// ============================================
+
+const FREE_LIMIT = 6;          // Упражнений на мышцу / в тренировке
+const FREE_LOG_DAYS = 30;      // Дней дневника
+
+
 const svgIconCache = {};
+
 
 /**
  * Возвращает HTML с SVG-иконкой
@@ -3909,8 +3918,7 @@ function renderExercisesSection(muscle) {
     const isPrem = isPremium();
 
     // 📄 Пагинация и Премиум-лимиты
-    const FREE_LIMIT = 6;
-    const PAGE_SIZE = 20;
+        const PAGE_SIZE = 20;
 
     let visible;
     let showPremiumBanner = false;

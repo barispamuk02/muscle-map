@@ -3953,7 +3953,8 @@ function renderExercisesSection(muscle) {
     const counter = counterText
         ? `<div class="exercises-counter">${counterText}</div>`
         : '';
-
+// 🎯 Плашка Премиума отключена (каталог открыт для всех)
+const premiumBanner = '';
         return `
         <div class="exercises-block">
             <h3><span data-svg="dumbbell" data-svg-size="18"></span> ${t('exercises.title')}</h3>

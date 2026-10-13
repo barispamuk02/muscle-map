@@ -6639,7 +6639,7 @@ function renderPremium() {
 
     premiumFeaturesEl.innerHTML = premiumFeatures.map(f => `
     <div class="premium-feature">
-        <div class="premium-feature-icon">${f.icon}</div>
+        <div class="premium-feature-icon">${icon(f.icon, 24)}</div>
         <div class="premium-feature-content">
             <div class="premium-feature-title">${getPremiumField(f, 'title')}</div>
             <div class="premium-feature-desc">${getPremiumField(f, 'description')}</div>

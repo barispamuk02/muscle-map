@@ -5750,13 +5750,11 @@ function renderWorkoutLog() {
     const container = document.getElementById('workoutLog');
     if (!container) return;
     const log = getWorkoutLog();
-    // 🔒 Бесплатно — 3 последних дня, Премиум — все
+        // 📖 Вся история для всех — без лимита
     const isPrem = isPremium();
-    const daysLimit = isPrem ? Infinity : 30;  // ← 30 дней бесплатно
     const allDates = Object.keys(log).sort((a, b) => b.localeCompare(a));
-    const dates = allDates.slice(0, daysLimit === Infinity ? allDates.length : daysLimit);
-    const hiddenDays = allDates.length - dates.length;
-
+    const dates = allDates;
+    
     if (dates.length === 0) {
         container.innerHTML = `<div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('log.title')}</div><div class="log-empty">${t('log.empty')}</div>`;
         return;
@@ -5798,15 +5796,7 @@ function renderWorkoutLog() {
     container.innerHTML = `
     <div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('log.title')} <span class="log-count">...
     
-    ${hiddenDays > 0 ? `
-        <div class="log-premium-hint">
-            <div class="log-premium-hint-text">
-                <span data-svg="gem" data-svg-size="14"></span> Ещё ${hiddenDays} ${hiddenDays === 1 ? 'день' : hiddenDays < 5 ? 'дня' : 'дней'} истории доступно в Премиуме
-                ${t('premium.cta')}
-            </button>
-        </div>
-    ` : ''}
-        <div class="progress-chart-block">
+            <div class="progress-chart-block">
             <div class="progress-chart-header">
                 <div class="progress-chart-title"><span data-svg="trending-up" data-svg-size="16"></span> ${t('log.chartTitle')}</div>
                 ${renderChartSelect(exerciseList)}

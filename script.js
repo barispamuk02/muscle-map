@@ -5726,18 +5726,16 @@ document.addEventListener('click', (e) => {
 // ============================================
 function renderChartSelect(exerciseList) {
     const isPrem = isPremium();
-    const limit = isPrem ? exerciseList.length : 6;
+    const limit = isPrem ? exerciseList.length : FREE_LIMIT;
 
     let html = '<select class="progress-chart-select" id="progressChartSelect">';
 
-    // Доступные упражнения
     exerciseList.slice(0, limit).forEach((ex) => {
         html += `<option value="${ex}">${ex}</option>`;
     });
 
-    // Заблокированные (только для бесплатных)
-    if (!isPrem && exerciseList.length > 6) {
-        exerciseList.slice(6).forEach(ex => {
+    if (!isPrem && exerciseList.length > FREE_LIMIT) {
+        exerciseList.slice(FREE_LIMIT).forEach(ex => {
             html += `<option value="${ex}" disabled>${ex}</option>`;
         });
     }

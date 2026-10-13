@@ -134,6 +134,7 @@ const translations = {
         'log.min': 'Мин:',
 'log.growth': 'Рост:',
 'log.chartTitle': 'Прогресс по упражнению',
+'log.exercises': 'упражнений',
 
         // СРАВНЕНИЕ
         'compare.title': 'Сравнить тренировки',
@@ -277,6 +278,7 @@ const translations = {
         'premium.repeatLimitDesc': 'Эта тренировка содержит {count} упражнений. Вы можете выполнить до {limit} упражнений бесплатно. Откройте Премиум для доступа ко всем.',
         'premium.featureTitle': 'Функция Премиум',
         'premium.later': 'Позже',
+        'premium.moreInPremium': 'Ещё {n} упражнений доступно в Премиуме',
 
         // ПРОГРЕСС
         'dashboard.title': 'Твой прогресс',
@@ -516,6 +518,7 @@ const translations = {
         'log.min': 'Min:',
 'log.growth': 'Growth:',
 'log.chartTitle': 'Progress by exercise',
+'log.exercises': 'exercises',
 
         // COMPARE
         'compare.title': 'Compare workouts',
@@ -660,6 +663,7 @@ const translations = {
          'premium.repeatLimitDesc': 'This workout contains {count} exercises. You can do up to {limit} exercises for free. Unlock all with Premium.',
          'premium.featureTitle': 'Premium Feature',
          'premium.later': 'Later',
+         'premium.moreInPremium': '{n} more exercises available in Premium',
 
         // DASHBOARD
         'dashboard.title': 'Your progress',

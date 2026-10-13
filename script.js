@@ -3909,7 +3909,7 @@ function renderExercisesSection(muscle) {
     const isPrem = isPremium();
 
     // 📄 Пагинация и Премиум-лимиты
-    const FREE_LIMIT = 4;
+    const FREE_LIMIT = 6;
     const PAGE_SIZE = 20;
 
     let visible;
@@ -5734,7 +5734,7 @@ document.addEventListener('click', (e) => {
 // ============================================
 function renderChartSelect(exerciseList) {
     const isPrem = isPremium();
-    const limit = isPrem ? exerciseList.length : 3;
+    const limit = isPrem ? exerciseList.length : 6;
 
     let html = '<select class="progress-chart-select" id="progressChartSelect">';
 
@@ -5744,8 +5744,8 @@ function renderChartSelect(exerciseList) {
     });
 
     // Заблокированные (только для бесплатных)
-    if (!isPrem && exerciseList.length > 3) {
-        exerciseList.slice(3).forEach(ex => {
+    if (!isPrem && exerciseList.length > 6) {
+        exerciseList.slice(6).forEach(ex => {
             html += `<option value="${ex}" disabled>${ex}</option>`;
         });
     }
@@ -5820,17 +5820,16 @@ function renderWorkoutLog() {
                 ${renderChartSelect(exerciseList)}
             </div>
             <div class="progress-chart-container" id="progressChart"></div>
-            ${!isPremium() && exerciseList.length > 3 ? `
-                <div class="chart-premium-hint">
-                    <div class="chart-premium-hint-text">
-                        <span data-svg="gem" data-svg-size="14"></span> Ещё ${exerciseList.length - 3} ${exerciseList.length - 3 === 1 ? 'упражнение' : 'упражнений'} доступно в Премиуме
-                    </div>
-                     
-                    <button class="chart-premium-hint-btn" onclick="openPremium()">
-                        ${t('premium.cta')}
-                    </button>
-                </div>
-            ` : ''}
+            ${!isPremium() && exerciseList.length > FREE_LIMIT ? `
+    <div class="chart-premium-hint">
+        <div class="chart-premium-hint-text">
+            <span data-svg="gem" data-svg-size="14"></span> ${t('premium.moreInPremium').replace('{n}', exerciseList.length - FREE_LIMIT)}
+        </div>
+        <button class="chart-premium-hint-btn" onclick="openPremium()">
+            ${t('premium.cta')}
+        </button>
+    </div>
+` : ''}
         </div>
         ${renderComparisonBlock()} 
         <div class="log-entries">${entriesHtml}</div>
@@ -5856,7 +5855,7 @@ if (clearLogBtn) {
             const isPrem = isPremium();
 
             // Проверка Премиума
-            if (!isPrem && selectedIndex >= 3) {
+            if (!isPrem && selectedIndex >= FREE_LIMIT) {
                 e.target.value = exerciseList[0];
                 showPremiumLock(
     t('premium.lockTitle'),
@@ -7505,8 +7504,8 @@ function exportToPDF() {
             );
             y += 5;
 
-            // Упражнения (макс 3)
-            exercises.slice(0, 3).forEach(([name, sets]) => {
+                        // Упражнения
+exercises.slice(0, FREE_LIMIT).forEach(([name, sets]) => {
                 const maxW = Math.max(...sets.map(s => s.weight || 0));
                 doc.setTextColor(180, 180, 200);
                 doc.setFontSize(9);
@@ -7515,13 +7514,13 @@ function exportToPDF() {
                 y += 4;
             });
 
-            if (exercises.length > 3) {
-                doc.setTextColor(138, 138, 170);
-                doc.setFontSize(8);
-                doc.setFont(fontName, 'normal');
-                doc.text(`...и ещё ${exercises.length - 3} упражнений`, margin + 3, y);
-                y += 4;
-            }
+            if (exercises.length > FREE_LIMIT) {
+    doc.setTextColor(138, 138, 170);
+    doc.setFontSize(8);
+    doc.setFont(fontName, 'normal');
+    doc.text(`...и ещё ${exercises.length - FREE_LIMIT} ${t('log.exercises')}`, margin + 3, y);
+    y += 4;
+}
 
             y += 3;
         });

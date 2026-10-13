@@ -8394,7 +8394,7 @@ function renderShareCard() {
         y += ROW_H;
     });
 
-    // Footer
+        // Footer
     const footerY = H - 50 * S;
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.beginPath();
@@ -8402,14 +8402,17 @@ function renderShareCard() {
     ctx.lineTo(W - 40 * S, footerY - 10 * S);
     ctx.stroke();
 
-    ctx.fillStyle = '#6fb3ff';
-    ctx.font = `${12 * S}px Roboto, Arial, sans-serif`;
-    ctx.fillText('muscle-map', 40 * S, footerY + 4 * S);
+    // 🎯 Free: показываем логотип. Premium: без логотипа.
+    if (!isPremium()) {
+        ctx.fillStyle = '#6fb3ff';
+        ctx.font = `${12 * S}px Roboto, Arial, sans-serif`;
+        ctx.fillText('muscle-map.app', 40 * S, footerY + 4 * S);
 
-    ctx.fillStyle = '#5a5a7a';
-    ctx.textAlign = 'right';
-    ctx.fillText('Сделано в Muscle Map', W - 40 * S, footerY + 4 * S);
-    ctx.textAlign = 'left';
+        ctx.fillStyle = '#5a5a7a';
+        ctx.textAlign = 'right';
+        ctx.fillText('Сделано в Muscle Map', W - 40 * S, footerY + 4 * S);
+        ctx.textAlign = 'left';
+    }
 }
 
 function downloadShareCard() {

@@ -5374,7 +5374,7 @@ function saveCurrentWorkout(workout) {
 function addSetToExercise(exerciseName, weight, reps) {
     const workout = getCurrentWorkout();
     const isPrem = isPremium();
-    const limit = isPrem ? Infinity : 3;   // ← 5 упражнений бесплатно
+    const limit = isPrem ? Infinity : 6;   // ← 6 упражнений бесплатно
 // 🔍 Найти последние значения упражнения (из истории)
 function getLastValues(exName) {
     const log = getWorkoutLog();
@@ -5515,8 +5515,8 @@ function repeatWorkout(date) {
 
     // 🔒 Проверка лимита упражнений (для бесплатных)
     const isPrem = isPremium();
-    const limit = isPrem ? Infinity : 3;
-    if (exerciseNames.length > limit) {
+    const limit = isPrem ? Infinity : 6;
+if (exerciseNames.length > limit) {
     showPremiumLock(
         t('premium.repeatLimitTitle'),
         t('premium.repeatLimitDesc')
@@ -5760,7 +5760,7 @@ function renderWorkoutLog() {
     const log = getWorkoutLog();
     // 🔒 Бесплатно — 3 последних дня, Премиум — все
     const isPrem = isPremium();
-    const daysLimit = isPrem ? Infinity : 3;   // ← 3 дня бесплатно
+    const daysLimit = isPrem ? Infinity : 30;  // ← 30 дней бесплатно
     const allDates = Object.keys(log).sort((a, b) => b.localeCompare(a));
     const dates = allDates.slice(0, daysLimit === Infinity ? allDates.length : daysLimit);
     const hiddenDays = allDates.length - dates.length;

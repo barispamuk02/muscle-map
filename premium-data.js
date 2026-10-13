@@ -4,51 +4,73 @@
 
 const premiumFeatures = [
     {
-        icon: '📈',
+        icon: 'circle-check-big',
+        title: 'Все 1295 упражнений',
+        titleEn: 'All 1295 exercises',
+        description: 'Полный доступ ко всей базе. Бесплатно — по 3 упражнения на каждую мышцу.',
+        descriptionEn: 'Full access to the entire database. Free — 3 exercises per muscle.',
+        free: '3 на мышцу',
+        freeEn: '3 per muscle',
+        premium: '1295',
+        premiumEn: '1295'
+    },
+    {
+        icon: 'crosshair',
+        title: 'Все программы тренировок',
+        titleEn: 'All workout programs',
+        description: '6 готовых программ под разные цели. Бесплатно — 1 программа.',
+        descriptionEn: '6 ready-made programs for different goals. Free — 1 program.',
+        free: '1',
+        freeEn: '1',
+        premium: '6',
+        premiumEn: '6'
+    },
+    {
+        icon: 'trending-up',
         title: 'Расширенный график прогресса',
         titleEn: 'Advanced progress chart',
-        description: 'Отслеживай рост веса по ВСЕМ упражнениям без ограничений. Бесплатно — только 3 упражнения.',
-        descriptionEn: 'Track weight growth across ALL exercises without limits. Free — only 3 exercises.',
+        description: 'Отслеживай рост веса по ВСЕМ упражнениям без ограничений.',
+        descriptionEn: 'Track weight growth across ALL exercises without limits.',
         free: '3 упражнения',
         freeEn: '3 exercises',
         premium: 'Без ограничений',
         premiumEn: 'Unlimited'
     },
     {
-        icon: '🎯',
-        title: 'Персональные программы',
-        titleEn: 'Personal programs',
-        description: 'Готовые программы под твою цель, уровень и доступное оборудование.',
-        descriptionEn: 'Ready-made programs for your goal, level, and available equipment.',
-        free: '—',
-        freeEn: '—',
-        premium: '6+ программ',
-        premiumEn: '6+ programs'
+        icon: 'refresh-cw',
+        title: 'Замена упражнений без лимита',
+        titleEn: 'Unlimited exercise replacements',
+        description: 'Меняй упражнения под оборудование и условия без ограничений. Бесплатно — 3 раза в день.',
+        descriptionEn: 'Replace exercises for equipment and conditions without limits. Free — 3 per day.',
+        free: '3 / день',
+        freeEn: '3 / day',
+        premium: 'Без ограничений',
+        premiumEn: 'Unlimited'
     },
     {
-        icon: '📊',
+        icon: 'chart-column-increasing',
         title: 'Экспорт в PDF',
         titleEn: 'PDF export',
-        description: 'Сохрани свой прогресс, программы и достижения в красивом PDF.',
-        descriptionEn: 'Save your progress, programs, and achievements in a beautiful PDF.',
+        description: 'Сохрани свой прогресс, программы и достижения в PDF.',
+        descriptionEn: 'Save your progress, programs, and achievements in PDF.',
         free: '—',
         freeEn: '—',
         premium: '✅',
         premiumEn: '✅'
     },
     {
-        icon: '🎬',
-        title: 'HD-видео упражнений',
-        titleEn: 'HD exercise videos',
-        description: 'Качественные видео-демонстрации техники выполнения каждого упражнения.',
-        descriptionEn: 'High-quality video demonstrations of each exercise technique.',
-        free: 'GIF 180p',
-        freeEn: 'GIF 180p',
-        premium: 'Скоро',
-        premiumEn: 'Coming soon'
+        icon: 'image',
+        title: 'Карточка тренировки PNG',
+        titleEn: 'Workout card PNG',
+        description: 'Делись своими тренировками без ограничений. Бесплатно — 1 карточка в неделю.',
+        descriptionEn: 'Share your workouts without limits. Free — 1 card per week.',
+        free: '1 / неделю',
+        freeEn: '1 / week',
+        premium: 'Без ограничений',
+        premiumEn: 'Unlimited'
     },
     {
-        icon: '🏆',
+        icon: 'trophy',
         title: 'Расширенная аналитика',
         titleEn: 'Advanced analytics',
         description: 'Подробная статистика: объём, интенсивность, тренды по неделям и месяцам.',
@@ -57,39 +79,6 @@ const premiumFeatures = [
         freeEn: 'Basic',
         premium: 'Полная',
         premiumEn: 'Full'
-    },
-    {
-        icon: '🚫',
-        title: 'Без рекламы',
-        titleEn: 'No ads',
-        description: 'Никаких баннеров и всплывающих окон — только тренировки.',
-        descriptionEn: 'No banners or pop-ups — just workouts.',
-        free: 'Реклама',
-        freeEn: 'Ads',
-        premium: 'Без рекламы',
-        premiumEn: 'No ads'
-    },
-    {
-        icon: '💾',
-        title: 'Облачное сохранение',
-        titleEn: 'Cloud sync',
-        description: 'Твой прогресс в облаке — доступен с любого устройства.',
-        descriptionEn: 'Your progress in the cloud — accessible from any device.',
-        free: '—',
-        freeEn: '—',
-        premium: 'Скоро',
-        premiumEn: 'Coming soon'
-    },
-    {
-        icon: '💬',
-        title: 'Приоритетная поддержка',
-        titleEn: 'Priority support',
-        description: 'Ответим на вопросы в течение 24 часов.',
-        descriptionEn: 'We respond to your questions within 24 hours.',
-        free: '—',
-        freeEn: '—',
-        premium: 'Скоро',
-        premiumEn: 'Coming soon'
     }
 ];
 
@@ -107,19 +96,25 @@ const premiumPlans = [
         features: [
             '✅ Все 1295 упражнений без ограничений',
             '✅ Все 30 групп мышц',
+            '✅ Все 6 программ тренировок',
             '✅ Расширенный график прогресса',
             '✅ Экспорт прогресса в PDF',
+            '✅ Карточка тренировки PNG без ограничений',
+            '✅ Замена упражнений без лимита',
             '✅ Отмена в любой момент'
         ],
         featuresEn: [
             '✅ All 1295 exercises unlocked',
             '✅ All 30 muscle groups',
+            '✅ All 6 workout programs',
             '✅ Advanced progress chart',
             '✅ Progress export to PDF',
+            '✅ Unlimited workout card PNG',
+            '✅ Unlimited exercise replacements',
             '✅ Cancel anytime'
         ],
-        badge: '💎 Premium',
-        badgeEn: '💎 Premium',
+        badge: 'gem',
+        badgeEn: 'gem',
         popular: true,
         savings: null
     }
@@ -134,7 +129,7 @@ function getPremiumField(obj, field) {
         return obj[field];
     }
     const enField = field + 'En';
-    return obj[enField] || obj[field]; // fallback на RU
+    return obj[enField] || obj[field];
 }
 
 console.log('✅ Премиум-данные загружены!');

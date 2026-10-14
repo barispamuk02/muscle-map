@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const OUTPUT_DIR = path.join(ROOT, 'seo');
+const OUTPUT_DIR = path.join(ROOT);
 
 // Загрузка данных
 function loadData() {
@@ -266,6 +266,10 @@ function generateExercisePage(ex, exerciseNameRU) {
 // Главная функция
 function main() {
     console.log('🚀 SEO-генератор запущен...');
+    console.log('📁 __dirname:', __dirname);
+console.log('📁 ROOT:', ROOT);
+console.log('📁 OUTPUT_DIR:', OUTPUT_DIR);
+console.log('📁 OUTPUT_DIR resolved:', path.resolve(OUTPUT_DIR));
 
     const { muscleDatabase, exerciseDatabase, muscleTranslations, exerciseNameRU, customExercises } = loadData();
 

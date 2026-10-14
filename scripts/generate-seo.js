@@ -55,9 +55,8 @@ function renderPage({ title, description, canonical, hreflangRu, hreflangEn, con
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
     <link rel="canonical" href="${canonical}">
-    <link rel="alternate" hreflang="ru" href="${hreflangRu}">
-    <link rel="alternate" hreflang="en" href="${hreflangEn}">
-    <link rel="alternate" hreflang="x-default" href="${hreflangRu}">
+   <link rel="alternate" hreflang="ru" href="${hreflangRu}">
+<link rel="alternate" hreflang="x-default" href="${hreflangRu}">
     
     <!-- Open Graph -->
     <meta property="og:title" content="${escapeHtml(title)}">
@@ -191,11 +190,21 @@ function generateMusclePage(muscleId, muscle, translation, exercises, exerciseNa
         }
     }
 
-    const exerciseLinks = exerciseList.slice(0, 30).map(e => {
-        const slug = slugify(e.name_en || e.id || e.name);
-        const ruExName = exerciseNameRU[e.name_en?.toLowerCase()] || e.name;
-        return `<a href="../../exercises/${slug}/" class="exercise-link">${escapeHtml(ruExName)}</a>`;
+    // Собираем slug'и всех сгенерированных упражнений
+const exerciseLinks = exerciseList.map(e => {
+    const slug = slugify(e.name_en || e.id || e.name);
+    const ruExName = exerciseNameRU[e.name_en?.toLowerCase()] || e.name;
+    return `<a href="../../exercises/${slug}/" class="exercise-link">${escapeHtml(ruExName)}</a>`;
+}).join('');
+
+// Если упражнений нет в каталоге (только custom) — показываем их без ссылок
+const customOnlyLinks = exerciseList
+    .filter(e => e.isCustom)
+    .map(e => {
+        return `<div class="exercise-link" style="opacity: 0.6; cursor: default;">${escapeHtml(e.name)}</div>`;
     }).join('');
+
+const allLinks = exerciseLinks + customOnlyLinks;
 
     const content = `
         <h1>${escapeHtml(ruName)}</h1>
@@ -208,7 +217,7 @@ function generateMusclePage(muscleId, muscle, translation, exercises, exerciseNa
         </div>
 
         <h2>Упражнения для ${escapeHtml(ruName)}</h2>
-        ${exerciseLinks || '<p>Упражнения загружаются...</p>'}
+        ${allLinks || '<p>Упражнения загружаются...</p>'}
 
         <a href="https://muscle-map.app/?muscle=${muscleId}" class="cta">Открыть в Muscle Map →</a>
     `;
@@ -296,7 +305,7 @@ console.log('📁 OUTPUT_DIR resolved:', path.resolve(OUTPUT_DIR));
 
     // Генерируем страницы упражнений (первые 30 для теста)
     let exerciseCount = 0;
-    exerciseDatabase.slice(0, 30).forEach(ex => {
+    exerciseDatabase.forEach(ex => {
         const slug = slugify(ex.name_en || ex.id);
         const dir = path.join(OUTPUT_DIR, 'exercises', slug);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -312,7 +321,7 @@ console.log('📁 OUTPUT_DIR resolved:', path.resolve(OUTPUT_DIR));
     Object.keys(muscleDatabase).forEach(id => {
         urls.push(`https://muscle-map.app/muscles/${id}/`);
     });
-    exerciseDatabase.slice(0, 30).forEach(ex => {
+    exerciseDatabase.forEach(ex => {
         const slug = slugify(ex.name_en || ex.id);
         urls.push(`https://muscle-map.app/exercises/${slug}/`);
     });

@@ -7929,18 +7929,18 @@ function renderMuscleSynergists(muscle) {
     }).join('');
     
     return `
-        <div class="muscle-synergists-block">
-            <div class="muscle-synergists-title">
-                <span data-svg="crosshair" data-svg-size="16"></span>
-                Мышцы в работе
-            </div>
-            <div class="muscle-synergists-subtitle">
-                С этой мышцей также работают:
-            </div>
-            <div class="muscle-synergists-list">
-                ${html}
-            </div>
-        </div>
+       <div class="muscle-synergists-block">
+    <div class="muscle-synergists-title">
+        <span data-svg="crosshair" data-svg-size="16"></span>
+        ${t('synergists.title')}
+    </div>
+    <div class="muscle-synergists-subtitle">
+        ${t('synergists.subtitle')}
+    </div>
+    <div class="muscle-synergists-list">
+        ${html}
+    </div>
+</div>
     `;
 }
 

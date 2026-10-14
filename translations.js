@@ -84,6 +84,7 @@ const translations = {
 
         // СИНЕРГИСТЫ И ОШИБКИ
         'synergists.title': 'Мышцы в работе',
+        'synergists.subtitle': 'С этой мышцей также работают:',
         'mistakes.title': 'Частые ошибки',
         'anatomy.title': 'Анатомия',
 
@@ -468,6 +469,7 @@ const translations = {
 
         // SYNERGISTS & MISTAKES
         'synergists.title': 'Muscles involved',
+        'synergists.subtitle': 'Muscles that also work with this one:',
         'mistakes.title': 'Common mistakes',
         'anatomy.title': 'Anatomy',
 

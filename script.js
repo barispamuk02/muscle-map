@@ -6564,15 +6564,39 @@ function initDodo() {
     return true;
 }
 
-function openDodoCheckout() {
+async function openDodoCheckout() {
     const userId = getUserId();
-    const url = `https://checkout.dodopayments.com/buy/pdt_0Np4y6YIQmNuBOeULNSot?quantity=1&metadata[user_id]=${encodeURIComponent(userId)}`;
-    console.log('🛒 Открываю Dodo checkout для', userId);
-    window.open(url, '_blank');
+    console.log('🛒 Создаю Dodo checkout для', userId);
     
-    // Проверяем через 3 и 10 сек после возврата
-    setTimeout(syncPremiumFromBackend, 3000);
-    setTimeout(syncPremiumFromBackend, 10000);
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/checkout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId })
+        });
+        
+        if (!res.ok) {
+            console.error('Checkout error:', await res.text());
+            showToast('⚠️ Не удалось создать checkout');
+            return;
+        }
+        
+        const data = await res.json();
+        
+        if (data.checkout_url) {
+            console.log('✅ Checkout URL:', data.checkout_url);
+            window.open(data.checkout_url, '_blank');
+            
+            setTimeout(syncPremiumFromBackend, 3000);
+            setTimeout(syncPremiumFromBackend, 10000);
+            setTimeout(syncPremiumFromBackend, 30000);
+        } else {
+            showToast('⚠️ Checkout URL не получен');
+        }
+    } catch (e) {
+        console.error('❌ Checkout error:', e);
+        showToast('⚠️ Ошибка соединения');
+    }
 }
 // ============================================
 // 📄 ПАГИНАЦИЯ УПРАЖНЕНИЙ + ПРЕМИУМ-ПЛАШКА

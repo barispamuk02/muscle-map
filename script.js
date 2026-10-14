@@ -5380,25 +5380,30 @@ function getLastValues(exName) {
     return [];
 }
     // 🔒 Проверка лимита упражнений
-    if (!workout.exercises[exerciseName]) {
-        const currentCount = Object.keys(workout.exercises).length;
-        if (currentCount >= limit) {
-    showPremiumLock(
-        t('premium.logLimitTitle'),
-        t('premium.logLimitDesc').replace('{limit}', limit)
-    );
-    return workout;
-}
+if (!workout.exercises[exerciseName]) {
+    const currentCount = Object.keys(workout.exercises).length;
+    if (currentCount >= limit) {
+        showPremiumLock(
+            t('premium.logLimitTitle'),
+            t('premium.logLimitDesc').replace('{limit}', limit)
+        );
+        return workout;
     }
+}
 
-    if (!workout.exercises[exerciseName]) workout.exercises[exerciseName] = [];
-    workout.exercises[exerciseName].push({
-        weight: parseFloat(weight) || 0,
-        reps: parseInt(reps) || 0,
-        time: Date.now()
-    });
-    saveCurrentWorkout(workout);
-    return workout;
+// 📊 Тренировка началась (первый подход)
+if (Object.keys(workout.exercises).length === 0) {
+    trackEvent('workout_started');
+}
+
+if (!workout.exercises[exerciseName]) workout.exercises[exerciseName] = [];
+workout.exercises[exerciseName].push({
+    weight: parseFloat(weight) || 0,
+    reps: parseInt(reps) || 0,
+    time: Date.now()
+});
+saveCurrentWorkout(workout);
+return workout;
 }
 
 function removeSetFromExercise(exerciseName, index) {
@@ -5442,6 +5447,9 @@ function saveWorkoutToLog() {
         showToast('⚠️ Нет упражнений');
         return false;
     }
+     // 📊 Тренировка сохранена
+    trackEvent('workout_saved');
+
     const log = getWorkoutLog();
     const date = workout.date;
     if (log[date]) {
@@ -6620,9 +6628,12 @@ document.addEventListener('click', (e) => {
         }
     }
 
-    // Кнопка «Оформить Премиум» в плашке упражнений
+    
+// Кнопка «Оформить Премиум» в плашке упражнений
 if (e.target.closest('#premiumExBtn')) {
     e.preventDefault();
+    // 📊 Событие Метрики
+    trackEvent('premium_opened', { source: 'exercises_banner' });
     openDodoCheckout();
 }
 });
@@ -7170,6 +7181,17 @@ function getUserId() {
     }
     return userId;
 }
+// 📊 Аналитика событий (Яндекс.Метрика)
+function trackEvent(eventName, params = {}) {
+    try {
+        if (typeof ym === 'function') {
+            ym(113204551, 'reachGoal', eventName, params);
+            console.log('📊 Event:', eventName, params);
+        }
+    } catch (e) {
+        // silently fail
+    }
+}
 // Проверка — премиум ли пользователь
 function isPremium() {
     try {
@@ -7240,7 +7262,11 @@ async function syncPremiumFromBackend() {
             updatePremiumUI();
             if (typeof updatePremiumButtons === 'function') updatePremiumButtons();
             showToast('💎 Премиум активирован!');
-        } else if (!backendPremium && localPremium) {
+           
+            // 📊 Событие Метрики — успешная оплата
+            trackEvent('payment_success');
+        }     
+        else if (!backendPremium && localPremium) {
             console.log('❌ Backend: Premium не активен — сбрасываю');
             localStorage.removeItem(PREMIUM_KEY);
             updatePremiumUI();
@@ -8021,7 +8047,9 @@ document.addEventListener('click', (e) => {
     if (btn) {
         e.preventDefault();
         const date = btn.dataset.date;
-        if (date && typeof repeatWorkout === 'function') {
+        if (date) {
+            // 📊 Событие Метрики
+            trackEvent('workout_repeated', { date });
             repeatWorkout(date);
         }
     }
@@ -8561,6 +8589,9 @@ document.addEventListener('click', (e) => {
 
     // Если карточка ЗАКРЫВАЕТСЯ — не подсвечиваем
     if (isCurrentlyOpen) return;
+
+    // 📊 Событие Метрики — просмотр упражнения
+    trackEvent('exercise_viewed', { id: card.dataset.exId });
 
     // Если ОТКРЫВАЕТСЯ — подсвечиваем через задержку
     if (card.dataset.exNameEn) {

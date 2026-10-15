@@ -5767,15 +5767,7 @@ function bindTrackerEvents() {
         if (el) el.addEventListener('keypress', (e) => { if (e.key === 'Enter') addBtn?.click(); });
     });
 }
-// Обработчик кнопки «Повторить тренировку»
-document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-repeat-workout');
-    if (btn) {
-        e.preventDefault();
-        const date = btn.dataset.date;
-        if (date) repeatWorkout(date);
-    }
-});
+
 // ============================================
 // 📈 СЕЛЕКТОР ГРАФИКА (с ограничением Премиума)
 // ============================================
@@ -5847,7 +5839,7 @@ function renderWorkoutLog() {
     const exerciseList = Array.from(allExercises).sort();
 
     container.innerHTML = `
-    <div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('log.title')} <span class="log-count">...
+    <div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('log.title')} <span class="log-count">${dates.length}</span></div>
     
             <div class="progress-chart-block">
             <div class="progress-chart-header">
@@ -8088,19 +8080,7 @@ function renderMistakes(ex) {
 }
 
 window.renderMistakes = renderMistakes;
-// Обработчик кнопки «Повторить тренировку»
-document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-repeat-workout');
-    if (btn) {
-        e.preventDefault();
-        const date = btn.dataset.date;
-        if (date) {
-            // 📊 Событие Метрики
-            trackEvent('workout_repeated', { date });
-            repeatWorkout(date);
-        }
-    }
-});
+
 // ============================================
 // 🔄 МОДАЛКА ЗАМЕНЫ — логика
 // ============================================

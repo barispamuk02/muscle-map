@@ -38,6 +38,7 @@
     <link rel="manifest" href="manifest.json">
    <title>Muscle Map — Калькулятор мышц / Muscle Calculator</title>
     <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="my-workout.css">
         <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -82,6 +83,7 @@
         </div>
         <div class="header-actions">
            <button class="btn-nav active" id="navMuscles" data-i18n="nav.muscles"><span data-svg="biceps-flexed" data-svg-size="18"></span> Мышцы</button>
+<button class="btn-nav" id="navMyWorkout" data-i18n="nav.myWorkout"><span data-svg="dumbbell" data-svg-size="18"></span> Моя тренировка</button>
 <button class="btn-nav" id="navRecovery" data-i18n="nav.recovery"><span data-svg="heart-plus" data-svg-size="18"></span> Восстановление</button>
 <button class="btn-nav" id="navNutrition" data-i18n="nav.nutrition"><span data-svg="apple" data-svg-size="18"></span> Питание</button>
 <button class="btn-nav" id="navPrograms" data-i18n="nav.programs"><span data-svg="calendar-days" data-svg-size="18"></span> Программы</button>
@@ -200,6 +202,26 @@
 
         <div class="view-programs" id="viewPrograms" style="display: none;">
             <div class="programs-container" id="programsContainer"></div>
+        </div>
+
+        <div class="view-my-workout" id="viewMyWorkout" style="display: none;">
+            <section class="my-workout-overview" aria-labelledby="myWorkoutTitle">
+                <div class="my-workout-title-row">
+                    <h2 id="myWorkoutTitle" data-i18n="myWorkout.title">Моя тренировка</h2>
+                    <span id="myWorkoutDate" class="my-workout-date"></span>
+                </div>
+                <p class="my-workout-subtitle" data-i18n="myWorkout.subtitle">Твоя текущая тренировка и история в одном месте.</p>
+                <div class="my-workout-stats">
+                    <div class="my-workout-stat"><strong id="myWorkoutExerciseCount">0</strong><span data-i18n="myWorkout.exercises">Упражнений в плане</span></div>
+                    <div class="my-workout-stat"><strong id="myWorkoutSetCount">0</strong><span data-i18n="myWorkout.sets">Записано подходов</span></div>
+                    <div class="my-workout-stat"><strong id="myWorkoutLastDate">—</strong><span data-i18n="myWorkout.last">Последняя тренировка</span></div>
+                </div>
+                <div class="my-workout-actions">
+                    <button id="myWorkoutRepeatLast" type="button" data-i18n="myWorkout.repeat">Повторить последнюю</button>
+                    <button id="myWorkoutGoPrograms" type="button" data-i18n="myWorkout.programs">Выбрать программу</button>
+                </div>
+            </section>
+            <div id="myWorkoutHost"></div>
         </div>
 
     </main>
@@ -487,5 +509,6 @@
     </div>
 </div>
 <script src="script.js"></script>
+<script src="my-workout.js"></script>
 </body>
 </html>

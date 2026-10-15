@@ -7,6 +7,28 @@
     // PostHog's official bootstrap format preserves queued calls until the SDK loads.
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split('.');2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement('script')).type='text/javascript',p.crossOrigin='anonymous',p.async=!0,p.src=s.api_host.replace('.i.posthog.com','-assets.i.posthog.com')+'/static/array.js',(r=t.getElementsByTagName('script')[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a='posthog',u.people=u.people||[],u.toString=function(t){var e='posthog';return'posthog'!==a&&(e+='.'+a),t||(e+=' (stub)'),e},u.people.toString=function(){return u.toString(1)+'.people (stub)'},o='capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId'.split(' '),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
 
+    // Only a strict whitelist of anonymous navigation/intent events is collected.
+    // Never inspect inputs, diary content, IDs, email, or checkout payloads.
+    document.addEventListener('click', function (event) {
+        var target = event.target && event.target.closest && event.target.closest('[data-mm-target], #premiumBtn, #premiumCta, #navMuscles, #navMyWorkout, #navRecovery, #navNutrition, #navPrograms');
+        if (!target) return;
+        var id = target.getAttribute('data-mm-target') || target.id;
+        var sections = {
+            navMuscles: 'muscles',
+            navMyWorkout: 'my_workout',
+            navPrograms: 'programs',
+            navRecovery: 'recovery',
+            navNutrition: 'nutrition'
+        };
+        if (Object.prototype.hasOwnProperty.call(sections, id)) {
+            window.posthog.capture('section_opened', { section: sections[id] });
+        } else if (id === 'premiumBtn') {
+            window.posthog.capture('premium_entry_clicked');
+        } else if (id === 'premiumCta') {
+            window.posthog.capture('premium_checkout_clicked', {}, { send_instantly: true });
+        }
+    });
+
     window.posthog.init('phc_oLfcGvjb6awPy5UAPhtrRZ59Pzq5TSweXjARSzsMGxJG', {
         api_host: 'https://eu.i.posthog.com',
         ui_host: 'https://eu.posthog.com',

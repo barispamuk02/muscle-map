@@ -6868,7 +6868,13 @@ async function openDodoCheckout() {
         if (data.checkout_url) {
             trackEvent('checkout_started');
             console.log('✅ Checkout URL:', data.checkout_url);
-            window.open(data.checkout_url, '_blank');
+            // После async fetch браузер может блокировать новую вкладку (особенно на телефоне).
+            // В таком случае открываем платежную страницу в текущей вкладке.
+            const checkoutWindow = window.open(data.checkout_url, '_blank');
+            if (!checkoutWindow) {
+                window.location.assign(data.checkout_url);
+                return;
+            }
             
             setTimeout(syncPremiumFromBackend, 3000);
             setTimeout(syncPremiumFromBackend, 10000);

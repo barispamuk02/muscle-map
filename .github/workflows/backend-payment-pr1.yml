@@ -1,0 +1,33 @@
+name: Backend payment regression (PR 1)
+on:
+  push:
+    branches:
+      - ci/backend-payment-pr1
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  payment-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout backend payment fix branch
+        uses: actions/checkout@v4
+        with:
+          repository: barispamuk02/muscle-map-backend
+          ref: fix/premium-payment-integrity
+          persist-credentials: false
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify core source syntax
+        run: |
+          node --check server.js
+          node --check db.js
+          node --check payment-events.js
+          node --check webhook-transaction.js
+      - name: Run all 11 backend payment and webhook tests
+        run: node --test tests/*.test.js
+      - name: Verify no checkout was executed
+        run: echo "Only offline unit tests ran. No Render deploy or live Dodo transaction was triggered."

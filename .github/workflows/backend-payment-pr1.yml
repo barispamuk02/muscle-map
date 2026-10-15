@@ -9,25 +9,79 @@ permissions:
 jobs:
   payment-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: muscle_map_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d muscle_map_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
-      - name: Checkout backend payment fix branch
+      - name: Checkout backend PR code
         uses: actions/checkout@v4
         with:
           repository: barispamuk02/muscle-map-backend
           ref: fix/premium-payment-integrity
           persist-credentials: false
-      - name: Node.js 22
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify core source syntax
+      - name: Install backend dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check JavaScript syntax
         run: |
           node --check server.js
           node --check db.js
           node --check payment-events.js
           node --check webhook-transaction.js
-      - name: Run all 11 backend payment and webhook tests
+      - name: Run offline payment unit tests
         run: node --test tests/*.test.js
-      - name: Verify no checkout was executed
-        run: echo "Only offline unit tests ran. No Render deploy or live Dodo transaction was triggered."
+      - name: Run real Postgres transaction integration
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/muscle_map_ci?sslmode=disable
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { initDb, getPremiumStatus, setPremium, getUserByDodoCustomer, expirePremiumIfElapsed, withWebhookTransaction } from './db.js';
+          import { processDodoEvent } from './payment-events.js';
+          const deps = { withWebhookTransaction, setPremium, getUserByDodoCustomer, expirePremiumIfElapsed };
+          await initDb();
+          const userId = 'u_ci_payment_integrity';
+          const customerId = 'cus_ci_payment_integrity';
+          const date = new Date(Date.now() + 30 * 86400000);
+          const event = {
+            type: 'payment.succeeded',
+            data: { metadata: { user_id: userId }, customer: { customer_id: customerId }, next_billing_date: date.toISOString() }
+          };
+          const paid = await processDodoEvent(event, 'evt_ci_first', deps);
+          assert.equal(paid.skipped, false);
+          let status = await getPremiumStatus(userId);
+          assert.equal(status.premium, true);
+          assert.equal(status.expiresAt, date.toISOString());
+          const duplicate = await processDodoEvent(event, 'evt_ci_first', deps);
+          assert.equal(duplicate.skipped, true);
+          const cancelled = await processDodoEvent({type:'subscription.cancelled', data:{customer:{customer_id:customerId}}}, 'evt_ci_cancel', deps);
+          assert.equal(cancelled.skipped, false);
+          assert.equal((await getPremiumStatus(userId)).premium, true);
+          const earlyExpire = await processDodoEvent({type:'subscription.expired', data:{customer:{customer_id:customerId}}}, 'evt_ci_expired_early', deps);
+          assert.equal(earlyExpire.skipped, false);
+          assert.equal((await getPremiumStatus(userId)).premium, true);
+          await assert.rejects(() => processDodoEvent({type:'payment.succeeded',data:{}},'evt_ci_invalid',deps), /cannot be matched/);
+          const errorIgnored = await processDodoEvent({type:'payment.succeeded', data:{metadata:{user_id:userId},next_billing_date:date.toISOString()}}, 'evt_ci_invalid', deps);
+          assert.equal(errorIgnored.skipped, false);
+          const result = await getPremiumStatus(userId);
+          assert.equal(result.premium, true);
+          console.log('REAL_POSTGRES_TRANSACTION_OK');
+          process.exit(0);
+          NODE
+      - name: Scope verification
+        run: echo "No Neon credentials, Dodo API calls, or production deployments used."

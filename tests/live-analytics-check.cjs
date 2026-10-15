@@ -5,7 +5,12 @@ const assert = require('node:assert/strict');
 (async () => {
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   try {
-    const context = await browser.newContext({ serviceWorkers: 'block' });
+    const context = await browser.newContext({ serviceWorkers: 'block', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36' });
+    // Synthetic QA only: production SDK correctly ignores automation by default.
+    await context.addInitScript(() => {
+      Object.defineProperty(navigator, 'webdriver', { configurable: true, get: () => undefined });
+      Object.defineProperty(navigator, 'userAgentData', { configurable: true, get: () => ({ brands: [ {brand:'Google Chrome',version:'125'}, {brand:'Chromium',version:'125'} ], mobile:false, platform:'Windows' }) });
+    });
     const page = await context.newPage();
     const requests = [];
     const errors = [];
@@ -32,7 +37,7 @@ const assert = require('node:assert/strict');
     const diagnostic = await page.evaluate(() => {
       const p = window.posthog;
       const sent = p.capture('mm_analytics_smoke_check', { source: 'ci_qa', synthetic_test: true }, {send_instantly:true});
-      return {optedOut:typeof p.has_opted_out_capturing === 'function' ? p.has_opted_out_capturing() : null, distinctId:!!p.get_distinct_id(), initialized: !!p.__loaded, sentType:typeof sent, disabled: !!p.config.opt_out_capturing_by_default, persistence:p.config.persistence, blocked:navigator.globalPrivacyControl === true || navigator.doNotTrack === '1'};
+      return {optedOut:typeof p.has_opted_out_capturing === 'function' ? p.has_opted_out_capturing() : null, distinctId:!!p.get_distinct_id(), initialized: !!p.__loaded, sentType:typeof sent, disabled: !!p.config.opt_out_capturing_by_default, persistence:p.config.persistence, blocked:navigator.globalPrivacyControl === true || navigator.doNotTrack === '1', isBot:typeof p._is_bot === 'function' ? p._is_bot() : null};
     });
     await page.waitForTimeout(14000);
     console.log('POSTHOG_DIAGNOSTIC', JSON.stringify({diagnostic, network:network.slice(-18),posts:requests.length,errors:errors.slice(-5)}));

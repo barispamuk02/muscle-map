@@ -81,6 +81,9 @@
   /* Put product value and anatomy ahead of vanity statistics. */
   .quote-section, .stats-section, .challenges-section { display: none !important; }
   body.mm-home .mm-mobile-hero {
+    /* Keep text above the fixed body::before background layer. */
+    position: relative;
+    z-index: 15;
     display: block;
     padding: 20px 18px 9px;
     background: radial-gradient(ellipse at 95% 0%, rgba(55,113,210,.14), transparent 72%);
@@ -164,8 +167,8 @@
   body.mm-home.mm-english #viewMuscles > .body-view::after { content: 'Tap a muscle to explore exercises'; }
   body.mm-home #viewMuscles .body-wrapper { width: 100%; gap: 9px; }
   body.mm-home #viewMuscles .body-image-container {
-    width: min(70vw, 252px) !important;
-    max-width: min(70vw, 252px) !important;
+    width: min(62vw, 222px) !important;
+    max-width: min(62vw, 222px) !important;
     flex: 0 0 auto;
   }
   body.mm-home #viewMuscles .view-toggle-btn { min-height: 42px; border-radius: 12px; }

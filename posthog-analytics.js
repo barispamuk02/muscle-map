@@ -1,7 +1,7 @@
 /* Muscle Map: privacy-limited product analytics. No input, diary, or payment data is collected. */
 (function () {
     'use strict';
-    if (!/^(www\\.)?muscle-map\\.app$/.test(window.location.hostname)) return;
+    if (window.location.hostname !== 'muscle-map.app' && window.location.hostname !== 'www.muscle-map.app') return;
     if (navigator.globalPrivacyControl === true || navigator.doNotTrack === '1') return;
 
     // PostHog's official bootstrap format preserves queued calls until the SDK loads.

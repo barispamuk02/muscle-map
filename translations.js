@@ -10,6 +10,14 @@ const translations = {
         'nav.recovery': 'Восстановление',
         'nav.nutrition': 'Питание',
         'nav.programs': 'Программы',
+        'nav.myWorkout': 'Моя тренировка',
+        'myWorkout.title': 'Моя тренировка',
+        'myWorkout.subtitle': 'Твоя текущая тренировка и история в одном месте.',
+        'myWorkout.exercises': 'Упражнений в плане',
+        'myWorkout.sets': 'Записано подходов',
+        'myWorkout.last': 'Последняя тренировка',
+        'myWorkout.repeat': 'Повторить последнюю',
+        'myWorkout.programs': 'Выбрать программу',
         'nav.premium': 'Премиум',
         'nav.share': 'Поделиться',
         'nav.random': 'Случайная',
@@ -349,6 +357,7 @@ const translations = {
         'common.error': 'Ошибка',
         'common.loading': 'Загрузка...',
         'common.kg': 'кг',
+        'common.times': 'раз',
         'common.g': 'г',
 
         // PROGRESS / DASHBOARD (дополнение)
@@ -395,6 +404,14 @@ const translations = {
         'nav.recovery': 'Recovery',
         'nav.nutrition': 'Nutrition',
         'nav.programs': 'Programs',
+        'nav.myWorkout': 'My Workout',
+        'myWorkout.title': 'My Workout',
+        'myWorkout.subtitle': 'Your current workout and history in one place.',
+        'myWorkout.exercises': 'Exercises in plan',
+        'myWorkout.sets': 'Sets logged',
+        'myWorkout.last': 'Last workout',
+        'myWorkout.repeat': 'Repeat last workout',
+        'myWorkout.programs': 'Choose a program',
         'nav.premium': 'Premium',
         'nav.share': 'Share',
         'nav.random': 'Random',
@@ -735,7 +752,9 @@ const translations = {
         'common.error': 'Error',
         'common.loading': 'Loading...',
         'common.kg': 'kg',
-         'common.g': 'g',  
+        'common.times': 'reps',
+        'common.g': 'g',
+
 
           // PROGRESS / DASHBOARD (дополнение)
         'progress.noDataForExercise': '😕 No data for this exercise',

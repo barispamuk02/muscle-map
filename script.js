@@ -207,10 +207,12 @@ function getStreakData() {
 }
 
 function updateStreak() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalWorkoutDate();
     const streak = getStreakData();
     if (streak.lastDate === today) return;
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = getLocalWorkoutDate(yesterdayDate);
     if (streak.lastDate === yesterday) streak.days += 1;
     else streak.days = 1;
     streak.lastDate = today;
@@ -223,7 +225,7 @@ function getStudyDays() {
 }
 
 function addStudyDay() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalWorkoutDate();
     const days = getStudyDays();
     if (!days.includes(today)) {
         days.push(today);
@@ -4308,9 +4310,56 @@ if (shareBtn) shareBtn.addEventListener('click', shareProject);
     if (dashboardClose) dashboardClose.addEventListener('click', closeDashboard);
     if (dashboardBackdrop) dashboardBackdrop.addEventListener('click', closeDashboard);
 
-    document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && dashboardModal.classList.contains('show')) closeDashboard();
     });
+
+    // 🌐 Обработка URL-параметров (?exercise=..., ?muscle=...)
+    setTimeout(handleUrlParams, 800);
+}
+
+// 🌐 Обработчик URL-параметров для SEO-страниц
+function handleUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const exerciseId = urlParams.get('exercise');
+    const muscleId = urlParams.get('muscle');
+
+    // Открыть мышцу по параметру
+    if (muscleId && typeof muscleDatabase !== 'undefined' && muscleDatabase[muscleId]) {
+        console.log('🌐 URL param: muscle =', muscleId);
+        if (typeof selectMuscle === 'function') {
+            selectMuscle(muscleId);
+        }
+    }
+
+    // Открыть упражнение по параметру
+    if (exerciseId && typeof exerciseDatabase !== 'undefined') {
+        const ex = exerciseDatabase.find(e => e.id === exerciseId);
+        if (ex) {
+            console.log('🌐 URL param: exercise =', exerciseId);
+
+            // Сначала открыть мышцу
+            if (ex.muscleId && typeof selectMuscle === 'function') {
+                selectMuscle(ex.muscleId);
+            }
+
+            // Потом раскрыть карточку упражнения
+            setTimeout(() => {
+                const card = document.querySelector(`[data-ex-id="${exerciseId}"]`);
+                if (card) {
+                    // Раскрыть детали
+                    const details = card.querySelector('.exercise-details');
+                    if (details && details.style.display !== 'block') {
+                        details.style.display = 'block';
+                        const toggle = card.querySelector('.exercise-toggle');
+                        if (toggle) toggle.classList.add('open');
+                    }
+                    // Скролл к карточке
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 500);
+        }
+    }
 }
 
 init();
@@ -4474,7 +4523,7 @@ function renderActivityCalendar() {
     for (let i = 29; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
+        const dateStr = getLocalWorkoutDate(d);
         days.push({
             date: dateStr,
             dayNum: d.getDate(),
@@ -4536,7 +4585,11 @@ function exportProgress() {
             streak: getStreakData(),
             studyDays: getStudyDays(),
             achievements: getUnlockedAchievements(),
-            views: {}
+            views: {},
+            workoutLog: getWorkoutLog(),
+            currentWorkout: getCurrentWorkout()
+
+
         }
     };
 
@@ -4549,7 +4602,7 @@ function exportProgress() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const dateStr = new Date().toISOString().split('T')[0];
+    const dateStr = getLocalWorkoutDate();
     a.download = `muscle-map-progress-${dateStr}.json`;
     document.body.appendChild(a);
     a.click();
@@ -4569,6 +4622,57 @@ function importProgress(event) {
             const data = JSON.parse(e.target.result);
             if (!data.muscleMap) throw new Error('Неверный формат');
 
+            const backup = data.muscleMap;
+
+            const hasWorkoutLog =
+                Object.prototype.hasOwnProperty.call(backup, 'workoutLog');
+
+            const hasCurrentWorkout =
+                Object.prototype.hasOwnProperty.call(backup, 'currentWorkout');
+
+            if (hasWorkoutLog || hasCurrentWorkout) {
+                const validLog = !hasWorkoutLog || (
+                    backup.workoutLog &&
+                    typeof backup.workoutLog === 'object' &&
+                    !Array.isArray(backup.workoutLog) &&
+                    Object.values(backup.workoutLog).every(day =>
+                        day && typeof day === 'object' &&
+                        !Array.isArray(day) &&
+                        Object.values(day).every(Array.isArray)
+                    )
+                );
+
+                const validCurrent = !hasCurrentWorkout || (
+                    backup.currentWorkout &&
+                    typeof backup.currentWorkout.date === 'string' &&
+                    backup.currentWorkout.exercises &&
+                    typeof backup.currentWorkout.exercises === 'object' &&
+                    !Array.isArray(backup.currentWorkout.exercises) &&
+                    Object.values(backup.currentWorkout.exercises).every(Array.isArray)
+                );
+
+                if (!validLog || !validCurrent) {
+                    throw new Error('Неверный формат тренировок');
+                }
+
+                if (!confirm(
+                    'Импорт заменит текущие данные тренировок данными из резервной копии. Продолжить?'
+                )) return;
+
+                if (hasWorkoutLog) {
+                    localStorage.setItem(
+                        TRACKER_KEYS.workoutLog,
+                        JSON.stringify(backup.workoutLog)
+                    );
+                }
+
+                if (hasCurrentWorkout) {
+                    localStorage.setItem(
+                        TRACKER_KEYS.currentWorkout,
+                        JSON.stringify(backup.currentWorkout)
+                    );
+                }
+            }
             if (data.muscleMap.favorites) localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(data.muscleMap.favorites));
             if (data.muscleMap.completed) localStorage.setItem(STORAGE_KEYS.completed, JSON.stringify(data.muscleMap.completed));
             if (data.muscleMap.streak) localStorage.setItem(STORAGE_KEYS.streak, JSON.stringify(data.muscleMap.streak));
@@ -5348,15 +5452,47 @@ function findAlternatives(ex, reason, userEquip) {
         error: candidates.length === 0 ? 'no-results' : null
     };
 }
+function getLocalWorkoutDate(date = new Date()) {
+    const now = date;
+
+    return [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0')
+    ].join('-');
+}
+
+function parseLocalWorkoutDate(dateString) {
+    return new Date(`${dateString}T12:00:00`);
+}
+
 function getCurrentWorkout() {
+    const today = getLocalWorkoutDate();
+    let workout;
+
     try {
-        return JSON.parse(localStorage.getItem(TRACKER_KEYS.currentWorkout)) || {
-            date: new Date().toISOString().split('T')[0],
-            exercises: {}
-        };
+        workout = JSON.parse(
+            localStorage.getItem(TRACKER_KEYS.currentWorkout)
+        );
     } catch {
-        return { date: new Date().toISOString().split('T')[0], exercises: {} };
+        workout = null;
     }
+
+    if (!workout || !workout.exercises ||
+        typeof workout.exercises !== 'object' ||
+        Array.isArray(workout.exercises)) {
+        return { date: today, exercises: {} };
+    }
+
+    // Обновляем дату только у пустой тренировки.
+    if (Object.keys(workout.exercises).length === 0 &&
+        workout.date !== today) {
+
+        workout.date = today;
+        saveCurrentWorkout(workout);
+    }
+
+    return workout;
 }
 
 function saveCurrentWorkout(workout) {
@@ -5442,9 +5578,27 @@ function getExerciseNameById(id) {
 }
 
 function saveWorkoutToLog() {
-    const workout = getCurrentWorkout();
-    if (Object.keys(workout.exercises).length === 0) {
-        showToast('⚠️ Нет упражнений');
+const workout = getCurrentWorkout();
+
+const totalSets = Object.values(workout.exercises || {})
+    .reduce((sum, sets) =>
+        sum + (Array.isArray(sets) ? sets.length : 0), 0);
+
+if (totalSets === 0) {
+    showToast(
+        currentLang === 'en'
+            ? '⚠️ Add at least one set before saving'
+            : '⚠️ Добавьте хотя бы один подход'
+    );
+    return false;
+}
+
+    // Подтверждение перед переносом тренировки в дневник
+    const message = currentLang === 'en'
+        ? `Save ${totalSets} sets to your diary?\n\nThe current workout will be cleared after saving.`
+        : `Сохранить ${totalSets} подходов в дневник?\n\nПосле сохранения текущая тренировка будет очищена.`;
+
+    if (!confirm(message)) {
         return false;
     }
      // 📊 Тренировка сохранена
@@ -5461,7 +5615,7 @@ function saveWorkoutToLog() {
         log[date] = workout.exercises;
     }
     localStorage.setItem(TRACKER_KEYS.workoutLog, JSON.stringify(log));
-    saveCurrentWorkout({ date: new Date().toISOString().split('T')[0], exercises: {} });
+    saveCurrentWorkout({ date: getLocalWorkoutDate(), exercises: {} });
     showToast('✅ Тренировка сохранена!');
     return true;
 }
@@ -5504,7 +5658,7 @@ function repeatWorkout(date) {
     if (Object.keys(current.exercises).length > 0) {
         const ok = confirm(
             'В текущей тренировке уже есть записанные подходы.\n\n' +
-            t('log.repeatConfirm') + ' ' + new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US') + '?\n' +
+            t('log.repeatConfirm') + ' ' + parseLocalWorkoutDate(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US') + '?\n' +
             'Текущая тренировка будет заменена.'
         );
         if (!ok) {
@@ -5528,7 +5682,7 @@ if (exerciseNames.length > limit) {
 
     // ✅ Создаём новую тренировку — пустые массивы (юзер сам отметит)
     const newWorkout = {
-        date: new Date().toISOString().split('T')[0],
+        date: getLocalWorkoutDate(),
         exercises: {}
     };
     
@@ -5557,6 +5711,23 @@ if (exerciseNames.length > limit) {
     }
     showToast(msg);
 }
+
+/* Повтор тренировки из дневника */
+document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.btn-repeat-workout');
+    if (!btn) return;
+
+    event.preventDefault();
+
+    const date = btn.dataset.date;
+    if (!date) return;
+
+    trackEvent('workout_repeated', { date });
+    repeatWorkout(date);
+
+    window.MuscleMapMyWorkout?.refresh();
+});
+
 function getWorkoutVolume(exercises) {
     let total = 0;
     Object.values(exercises).forEach(sets => {
@@ -5605,15 +5776,27 @@ function renderWorkoutTracker() {
         ? `<div class="tracker-last-hint">${t('tracker.lastTime')}: ${lastValues.slice(0, 3).map(v => `${v.weight}×${v.reps}`).join(' · ')}</div>`
         : '';
 
-    return `
-        <div class="tracker-exercise">
-            <div class="tracker-exercise-header">
-                <div class="tracker-exercise-name">${translateByName(exName)}</div>
-                <div class="tracker-exercise-stat">${sets.length} ${pluralizeSets(sets.length)} · ${t('log.max')} ${maxWeight} ${t('common.kg')}</div>
-            ${lastHint}
-            <div class="tracker-sets">${setsHtml}</div>
+   
+return `
+    <div class="tracker-exercise">
+        <div class="tracker-exercise-header">
+            <button type="button"
+                    class="tracker-exercise-name tracker-exercise-select"
+                    data-ex="${encodeURIComponent(exName)}">
+                ${translateByName(exName)}
+            </button>
+            <div class="tracker-exercise-stat">
+                ${sets.length} ${pluralizeSets(sets.length)} ·
+                ${t('log.max')} ${maxWeight} ${t('common.kg')}
+            </div>
         </div>
-    `;
+
+        ${lastHint}
+
+        <div class="tracker-sets">${setsHtml}</div>
+    </div>
+`;
+
 }).join('');
     }
 
@@ -5622,7 +5805,7 @@ function renderWorkoutTracker() {
             <div class="tracker-header">
                 <div>
                     <div class="tracker-title"><span data-svg="dumbbell" data-svg-size="18"></span> ${t('tracker.title')}</div>
-                    <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(workout.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                    <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${parseLocalWorkoutDate(workout.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                 </div>
                 <div class="tracker-stat">
     <div class="tracker-stat-value">${totalSets}</div>
@@ -5640,11 +5823,28 @@ function renderWorkoutTracker() {
                 <datalist id="trackerExList">
                     ${getAllExerciseNames().map(n => `<option value="${n}">`).join('')}
                 </datalist>
-                <div class="tracker-add-row">
-                   <input type="number" id="trackerWeight" placeholder="${t('tracker.weight')}" min="0" step="0.5">
-                    <input type="number" id="trackerReps" placeholder="${t('tracker.reps')}" min="1" max="100">
-                   <button class="btn-tracker-add" id="trackerAddBtn"><span data-svg="plus" data-svg-size="14"></span> ${t('tracker.add')}</button>
-            </div>
+                
+<div class="tracker-add-row">
+    <input type="number"
+           id="trackerWeight"
+           placeholder="${t('tracker.weight')}"
+           min="0"
+           step="0.5"
+           inputmode="decimal">
+
+    <input type="number"
+           id="trackerReps"
+           placeholder="${t('tracker.reps')}"
+           min="1"
+           max="100"
+           inputmode="numeric">
+
+    <button class="btn-tracker-add" id="trackerAddBtn">
+        <span data-svg="plus" data-svg-size="14"></span>
+        ${t('tracker.add')}
+    </button>
+</div>
+
             <div class="tracker-actions">
                 <button class="btn-tracker-save" id="trackerSaveBtn"><span data-svg="save" data-svg-size="14"></span> ${t('tracker.save')}</button>
                <button class="btn-tracker-clear" id="trackerClearBtn"><span data-svg="trash" data-svg-size="14"></span> ${t('tracker.clear')}</button>
@@ -5681,9 +5881,77 @@ function getAllExerciseNames() {
     return Array.from(names).sort();
 }
 function bindTrackerEvents() {
+    
+document.querySelectorAll('.tracker-exercise-select').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const name = decodeURIComponent(btn.dataset.ex || '');
+            const nameInput = document.getElementById('trackerExName');
+            const weightInput = document.getElementById('trackerWeight');
+            const repsInput = document.getElementById('trackerReps');
+
+            if (!name || !nameInput || !weightInput || !repsInput) return;
+
+            nameInput.value = name;
+
+            // Сначала берём последний подход текущей тренировки
+            const currentSets = getCurrentWorkout().exercises[name] || [];
+
+            // Если текущих подходов нет, берём предыдущую тренировку
+            const historySets = getLastValues(name);
+            const source = currentSets.length
+                ? currentSets[currentSets.length - 1]
+                : historySets[historySets.length - 1];
+
+            weightInput.value = source?.weight ?? '';
+            repsInput.value = source?.reps ?? '';
+
+            weightInput.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            weightInput.focus({ preventScroll: true });
+        });
+    });
+
     const addBtn = document.getElementById('trackerAddBtn');
     const saveBtn = document.getElementById('trackerSaveBtn');
     const clearBtn = document.getElementById('trackerClearBtn');
+    
+    // Быстрое изменение веса
+    const weightInput = document.getElementById('trackerWeight');
+    const addRow = addBtn?.closest('.tracker-add-row');
+
+    if (weightInput && addRow &&
+        addRow.closest('.view-my-workout') &&
+        !addRow.querySelector('.tracker-weight-adjust')) {
+
+        const controls = document.createElement('div');
+        controls.className = 'tracker-weight-adjust';
+
+        controls.innerHTML = `
+            <button type="button" data-steps="-5">
+                −2,5 кг
+            </button>
+            <button type="button" data-steps="5">
+                +2,5 кг
+            </button>
+        `;
+
+        addRow.insertBefore(controls, addBtn);
+
+        controls.addEventListener('click', (event) => {
+            const btn = event.target.closest('button[data-steps]');
+            if (!btn) return;
+
+            const steps = Number(btn.dataset.steps);
+
+            if (steps > 0) {
+                weightInput.stepUp(steps);
+            } else {
+                weightInput.stepDown(-steps);
+            }
+        });
+    }
 
     if (addBtn) {
         addBtn.addEventListener('click', () => {
@@ -5693,16 +5961,27 @@ function bindTrackerEvents() {
             if (!name) { showToast('⚠️ Введите название'); return; }
             if (!weight && weight !== '0') { showToast('⚠️ Введите вес'); return; }
             if (!reps) { showToast('⚠️ ' + t('tracker.repsError')); return; }
-            addSetToExercise(name, weight, reps);
-            showToast('✅ Подход добавлен!');
-            renderWorkoutTracker();
+            
+addSetToExercise(name, weight, reps);
+showToast('✅ Подход добавлен!');
+renderWorkoutTracker();
+
+// Восстанавливаем поля после обновления формы
+const nameField = document.getElementById('trackerExName');
+const weightField = document.getElementById('trackerWeight');
+const repsField = document.getElementById('trackerReps');
+
+if (nameField) nameField.value = name;
+if (weightField) weightField.value = weight;
+if (repsField) repsField.value = reps;
+;
         });
     }
     if (saveBtn) saveBtn.addEventListener('click', () => { if (saveWorkoutToLog()) renderWorkoutTracker(); });
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             if (!confirm('Очистить текущую тренировку?')) return;
-            saveCurrentWorkout({ date: new Date().toISOString().split('T')[0], exercises: {} });
+            saveCurrentWorkout({ date: getLocalWorkoutDate(), exercises: {} });
             showToast('🗑️ Очищено');
             renderWorkoutTracker();
         });
@@ -5720,15 +5999,7 @@ function bindTrackerEvents() {
         if (el) el.addEventListener('keypress', (e) => { if (e.key === 'Enter') addBtn?.click(); });
     });
 }
-// Обработчик кнопки «Повторить тренировку»
-document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-repeat-workout');
-    if (btn) {
-        e.preventDefault();
-        const date = btn.dataset.date;
-        if (date) repeatWorkout(date);
-    }
-});
+
 // ============================================
 // 📈 СЕЛЕКТОР ГРАФИКА (с ограничением Премиума)
 // ============================================
@@ -5772,13 +6043,15 @@ function renderWorkoutLog() {
         const totalVolume = getWorkoutVolume(dayData);
         const totalSets = exercises.reduce((sum, [, sets]) => sum + sets.length, 0);
         const exHtml = exercises.map(([name, sets]) => {
-            const maxW = Math.max(...sets.map(s => s.weight || 0));
-            return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} ${t('log.sets')} · ${t('log.max')} <strong>${maxW} кг</strong></div></div>`;
+            const maxW = sets.length
+    ? Math.max(...sets.map(s => s.weight || 0)) + ' кг'
+    : '—';
+            return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} ${t('log.sets')} · ${t('log.max')} <strong>${maxW}</strong></div></div>`;
         }).join('');
        return `
     <div class="log-day">
         <div class="log-day-header">
-            <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
+            <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${parseLocalWorkoutDate(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
             <div class="log-day-stats">${totalSets} ${t('log.sets')} · ${totalVolume} кг</div>
            <button class="btn-repeat-workout" data-date="${date}" title="${t('log.repeat')}">
     <span data-svg="refresh-cw" data-svg-size="14"></span> ${t('log.repeat')}
@@ -5800,7 +6073,7 @@ function renderWorkoutLog() {
     const exerciseList = Array.from(allExercises).sort();
 
     container.innerHTML = `
-    <div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('log.title')} <span class="log-count">...
+    <div class="log-title"><span data-svg="clipboard-list" data-svg-size="16"></span> ${t('log.title')} <span class="log-count">${dates.length}</span></div>
     
             <div class="progress-chart-block">
             <div class="progress-chart-header">
@@ -5894,11 +6167,11 @@ function renderComparisonBlock() {
 </div>
             <div class="comparison-selects">
                 <select id="compareFrom">
-                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
+                    ${dates.map(d => `<option value="${d}">${parseLocalWorkoutDate(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
                 </select>
                 <span class="comparison-arrow">→</span>
                 <select id="compareTo">
-                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
+                    ${dates.map(d => `<option value="${d}">${parseLocalWorkoutDate(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
                 </select>
             </div>
             <div id="comparisonResult" class="comparison-result"></div>
@@ -6261,19 +6534,19 @@ function getWaterData() {
 
 function getTodayWater() {
     const data = getWaterData();
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalWorkoutDate();
     return data[today] || 0;
 }
 
 function setTodayWater(amount) {
     const data = getWaterData();
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalWorkoutDate();
     data[today] = Math.max(0, amount);
     
     // Очистка старше 30 дней
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 30);
-    const cutoffStr = cutoff.toISOString().split('T')[0];
+    const cutoffStr = getLocalWorkoutDate(cutoff);
     Object.keys(data).forEach(d => {
         if (d < cutoffStr) delete data[d];
     });
@@ -6476,14 +6749,14 @@ function renderProgressChart(exerciseName) {
     const dots = points.map(p => `
         <circle cx="${p.x}" cy="${p.y}" r="4" 
                 fill="#00b894" stroke="#0a0a12" stroke-width="2">
-            <title>${new Date(p.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' })} — ${p.weight} кг</title>
+            <title>${parseLocalWorkoutDate(p.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' })} — ${p.weight} кг</title>
         </circle>
         <text x="${p.x}" y="${p.y - 10}" 
               fill="#00b894" font-size="10" font-weight="600" text-anchor="middle">${p.weight}</text>
     `).join('');
 
-    const firstDate = new Date(points[0].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
-    const lastDate = new Date(points[points.length - 1].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
+    const firstDate = parseLocalWorkoutDate(points[0].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
+    const lastDate = parseLocalWorkoutDate(points[points.length - 1].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
 
     container.innerHTML = `
         <svg class="progress-chart-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -7518,7 +7791,7 @@ function exportToPDF() {
             doc.setFontSize(11);
             doc.setFont(fontName, 'normal');
             doc.text(
-                `📅 ${new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' })}`,
+                `📅 ${parseLocalWorkoutDate(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' })}`,
                 margin, y
             );
 
@@ -7536,11 +7809,15 @@ function exportToPDF() {
 
                         // Упражнения
 exercises.slice(0, FREE_LIMIT).forEach(([name, sets]) => {
-                const maxW = Math.max(...sets.map(s => s.weight || 0));
+const maxW = sets.length
+    ? `${Math.max(...sets.map(s => s.weight || 0))} кг`
+    : '—';
+
                 doc.setTextColor(180, 180, 200);
                 doc.setFontSize(9);
                 doc.text(`• ${translateByName(name)}`, margin + 3, y);
-                doc.text(`${sets.length} ${t('log.sets')} · макс ${maxW} кг`, pageW - margin, y, { align: 'right' });
+                doc.text(`${sets.length} ${t('log.sets')} · макс ${maxW}`, pageW - margin, y, { align: 'right' });
+
                 y += 4;
             });
 
@@ -7613,7 +7890,7 @@ exercises.slice(0, FREE_LIMIT).forEach(([name, sets]) => {
     );
 
     // ========== СОХРАНЕНИЕ ==========
-    const dateStr = now.toISOString().split('T')[0];
+    const dateStr = getLocalWorkoutDate(now);
     doc.save(`muscle-map-progress-${dateStr}.pdf`);
 
     showToast('📄 PDF скачан!');
@@ -7718,7 +7995,7 @@ function renderVolumeChart(days = 30) {
     const xLabels = [0, Math.floor(data.length / 2), data.length - 1].map(i => {
         if (i < 0 || i >= points.length) return '';
         const p = points[i];
-        const date = new Date(data[i].date);
+        const date = parseLocalWorkoutDate(data[i].date);
         const label = date.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
         return `<text class="chart-label" x="${p.x}" y="${height - 8}" text-anchor="middle">${label}</text>`;
     }).join('');
@@ -7807,7 +8084,7 @@ function renderStreakHeatmap(days = 30) {
     for (let i = days - 1; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = getLocalWorkoutDate(date);
         const dayData = log[dateStr];
         
         let level = 0;
@@ -7847,7 +8124,7 @@ function renderStreakHeatmap(days = 30) {
         const row = i % rows;
         const x = col * (cellSize + gap);
         const y = row * (cellSize + gap);
-        const date = new Date(c.date);
+        const date = parseLocalWorkoutDate(c.date);
         const label = date.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
         
         return `<rect class="streak-cell" x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="4" fill="${colors[c.level]}">
@@ -8041,19 +8318,7 @@ function renderMistakes(ex) {
 }
 
 window.renderMistakes = renderMistakes;
-// Обработчик кнопки «Повторить тренировку»
-document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-repeat-workout');
-    if (btn) {
-        e.preventDefault();
-        const date = btn.dataset.date;
-        if (date) {
-            // 📊 Событие Метрики
-            trackEvent('workout_repeated', { date });
-            repeatWorkout(date);
-        }
-    }
-});
+
 // ============================================
 // 🔄 МОДАЛКА ЗАМЕНЫ — логика
 // ============================================
@@ -8388,7 +8653,7 @@ function renderShareCard() {
     if (shareCardState.showDate) {
         ctx.fillStyle = '#8892b0';
         ctx.font = `${13 * S}px Roboto, Arial, sans-serif`;
-        const dateStr = new Date(shareCardState.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', {
+        const dateStr = parseLocalWorkoutDate(shareCardState.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', {
             day: 'numeric', month: 'long', year: 'numeric'
         });
         ctx.fillText(dateStr, 40 * S, titleY + 62 * S);

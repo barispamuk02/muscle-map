@@ -4308,9 +4308,56 @@ if (shareBtn) shareBtn.addEventListener('click', shareProject);
     if (dashboardClose) dashboardClose.addEventListener('click', closeDashboard);
     if (dashboardBackdrop) dashboardBackdrop.addEventListener('click', closeDashboard);
 
-    document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && dashboardModal.classList.contains('show')) closeDashboard();
     });
+
+    // 🌐 Обработка URL-параметров (?exercise=..., ?muscle=...)
+    setTimeout(handleUrlParams, 800);
+}
+
+// 🌐 Обработчик URL-параметров для SEO-страниц
+function handleUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const exerciseId = urlParams.get('exercise');
+    const muscleId = urlParams.get('muscle');
+
+    // Открыть мышцу по параметру
+    if (muscleId && typeof muscleDatabase !== 'undefined' && muscleDatabase[muscleId]) {
+        console.log('🌐 URL param: muscle =', muscleId);
+        if (typeof selectMuscle === 'function') {
+            selectMuscle(muscleId);
+        }
+    }
+
+    // Открыть упражнение по параметру
+    if (exerciseId && typeof exerciseDatabase !== 'undefined') {
+        const ex = exerciseDatabase.find(e => e.id === exerciseId);
+        if (ex) {
+            console.log('🌐 URL param: exercise =', exerciseId);
+
+            // Сначала открыть мышцу
+            if (ex.muscleId && typeof selectMuscle === 'function') {
+                selectMuscle(ex.muscleId);
+            }
+
+            // Потом раскрыть карточку упражнения
+            setTimeout(() => {
+                const card = document.querySelector(`[data-ex-id="${exerciseId}"]`);
+                if (card) {
+                    // Раскрыть детали
+                    const details = card.querySelector('.exercise-details');
+                    if (details && details.style.display !== 'block') {
+                        details.style.display = 'block';
+                        const toggle = card.querySelector('.exercise-toggle');
+                        if (toggle) toggle.classList.add('open');
+                    }
+                    // Скролл к карточке
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 500);
+        }
+    }
 }
 
 init();

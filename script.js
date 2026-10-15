@@ -5489,9 +5489,27 @@ function getExerciseNameById(id) {
 }
 
 function saveWorkoutToLog() {
-    const workout = getCurrentWorkout();
-    if (Object.keys(workout.exercises).length === 0) {
-        showToast('⚠️ Нет упражнений');
+const workout = getCurrentWorkout();
+
+const totalSets = Object.values(workout.exercises || {})
+    .reduce((sum, sets) =>
+        sum + (Array.isArray(sets) ? sets.length : 0), 0);
+
+if (totalSets === 0) {
+    showToast(
+        currentLang === 'en'
+            ? '⚠️ Add at least one set before saving'
+            : '⚠️ Добавьте хотя бы один подход'
+    );
+    return false;
+}
+
+    // Подтверждение перед переносом тренировки в дневник
+    const message = currentLang === 'en'
+        ? `Save ${totalSets} sets to your diary?\n\nThe current workout will be cleared after saving.`
+        : `Сохранить ${totalSets} подходов в дневник?\n\nПосле сохранения текущая тренировка будет очищена.`;
+
+    if (!confirm(message)) {
         return false;
     }
      // 📊 Тренировка сохранена
@@ -5604,6 +5622,23 @@ if (exerciseNames.length > limit) {
     }
     showToast(msg);
 }
+
+/* Повтор тренировки из дневника */
+document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.btn-repeat-workout');
+    if (!btn) return;
+
+    event.preventDefault();
+
+    const date = btn.dataset.date;
+    if (!date) return;
+
+    trackEvent('workout_repeated', { date });
+    repeatWorkout(date);
+
+    window.MuscleMapMyWorkout?.refresh();
+});
+
 function getWorkoutVolume(exercises) {
     let total = 0;
     Object.values(exercises).forEach(sets => {
@@ -5652,15 +5687,27 @@ function renderWorkoutTracker() {
         ? `<div class="tracker-last-hint">${t('tracker.lastTime')}: ${lastValues.slice(0, 3).map(v => `${v.weight}×${v.reps}`).join(' · ')}</div>`
         : '';
 
-    return `
-        <div class="tracker-exercise">
-            <div class="tracker-exercise-header">
-                <div class="tracker-exercise-name">${translateByName(exName)}</div>
-                <div class="tracker-exercise-stat">${sets.length} ${pluralizeSets(sets.length)} · ${t('log.max')} ${maxWeight} ${t('common.kg')}</div>
-            ${lastHint}
-            <div class="tracker-sets">${setsHtml}</div>
+   
+return `
+    <div class="tracker-exercise">
+        <div class="tracker-exercise-header">
+            <button type="button"
+                    class="tracker-exercise-name tracker-exercise-select"
+                    data-ex="${encodeURIComponent(exName)}">
+                ${translateByName(exName)}
+            </button>
+            <div class="tracker-exercise-stat">
+                ${sets.length} ${pluralizeSets(sets.length)} ·
+                ${t('log.max')} ${maxWeight} ${t('common.kg')}
+            </div>
         </div>
-    `;
+
+        ${lastHint}
+
+        <div class="tracker-sets">${setsHtml}</div>
+    </div>
+`;
+
 }).join('');
     }
 
@@ -5687,11 +5734,28 @@ function renderWorkoutTracker() {
                 <datalist id="trackerExList">
                     ${getAllExerciseNames().map(n => `<option value="${n}">`).join('')}
                 </datalist>
-                <div class="tracker-add-row">
-                   <input type="number" id="trackerWeight" placeholder="${t('tracker.weight')}" min="0" step="0.5">
-                    <input type="number" id="trackerReps" placeholder="${t('tracker.reps')}" min="1" max="100">
-                   <button class="btn-tracker-add" id="trackerAddBtn"><span data-svg="plus" data-svg-size="14"></span> ${t('tracker.add')}</button>
-            </div>
+                
+<div class="tracker-add-row">
+    <input type="number"
+           id="trackerWeight"
+           placeholder="${t('tracker.weight')}"
+           min="0"
+           step="0.5"
+           inputmode="decimal">
+
+    <input type="number"
+           id="trackerReps"
+           placeholder="${t('tracker.reps')}"
+           min="1"
+           max="100"
+           inputmode="numeric">
+
+    <button class="btn-tracker-add" id="trackerAddBtn">
+        <span data-svg="plus" data-svg-size="14"></span>
+        ${t('tracker.add')}
+    </button>
+</div>
+
             <div class="tracker-actions">
                 <button class="btn-tracker-save" id="trackerSaveBtn"><span data-svg="save" data-svg-size="14"></span> ${t('tracker.save')}</button>
                <button class="btn-tracker-clear" id="trackerClearBtn"><span data-svg="trash" data-svg-size="14"></span> ${t('tracker.clear')}</button>
@@ -5728,9 +5792,77 @@ function getAllExerciseNames() {
     return Array.from(names).sort();
 }
 function bindTrackerEvents() {
+    
+document.querySelectorAll('.tracker-exercise-select').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const name = decodeURIComponent(btn.dataset.ex || '');
+            const nameInput = document.getElementById('trackerExName');
+            const weightInput = document.getElementById('trackerWeight');
+            const repsInput = document.getElementById('trackerReps');
+
+            if (!name || !nameInput || !weightInput || !repsInput) return;
+
+            nameInput.value = name;
+
+            // Сначала берём последний подход текущей тренировки
+            const currentSets = getCurrentWorkout().exercises[name] || [];
+
+            // Если текущих подходов нет, берём предыдущую тренировку
+            const historySets = getLastValues(name);
+            const source = currentSets.length
+                ? currentSets[currentSets.length - 1]
+                : historySets[historySets.length - 1];
+
+            weightInput.value = source?.weight ?? '';
+            repsInput.value = source?.reps ?? '';
+
+            weightInput.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            weightInput.focus({ preventScroll: true });
+        });
+    });
+
     const addBtn = document.getElementById('trackerAddBtn');
     const saveBtn = document.getElementById('trackerSaveBtn');
     const clearBtn = document.getElementById('trackerClearBtn');
+    
+    // Быстрое изменение веса
+    const weightInput = document.getElementById('trackerWeight');
+    const addRow = addBtn?.closest('.tracker-add-row');
+
+    if (weightInput && addRow &&
+        addRow.closest('.view-my-workout') &&
+        !addRow.querySelector('.tracker-weight-adjust')) {
+
+        const controls = document.createElement('div');
+        controls.className = 'tracker-weight-adjust';
+
+        controls.innerHTML = `
+            <button type="button" data-steps="-5">
+                −2,5 кг
+            </button>
+            <button type="button" data-steps="5">
+                +2,5 кг
+            </button>
+        `;
+
+        addRow.insertBefore(controls, addBtn);
+
+        controls.addEventListener('click', (event) => {
+            const btn = event.target.closest('button[data-steps]');
+            if (!btn) return;
+
+            const steps = Number(btn.dataset.steps);
+
+            if (steps > 0) {
+                weightInput.stepUp(steps);
+            } else {
+                weightInput.stepDown(-steps);
+            }
+        });
+    }
 
     if (addBtn) {
         addBtn.addEventListener('click', () => {
@@ -5740,9 +5872,20 @@ function bindTrackerEvents() {
             if (!name) { showToast('⚠️ Введите название'); return; }
             if (!weight && weight !== '0') { showToast('⚠️ Введите вес'); return; }
             if (!reps) { showToast('⚠️ ' + t('tracker.repsError')); return; }
-            addSetToExercise(name, weight, reps);
-            showToast('✅ Подход добавлен!');
-            renderWorkoutTracker();
+            
+addSetToExercise(name, weight, reps);
+showToast('✅ Подход добавлен!');
+renderWorkoutTracker();
+
+// Восстанавливаем поля после обновления формы
+const nameField = document.getElementById('trackerExName');
+const weightField = document.getElementById('trackerWeight');
+const repsField = document.getElementById('trackerReps');
+
+if (nameField) nameField.value = name;
+if (weightField) weightField.value = weight;
+if (repsField) repsField.value = reps;
+;
         });
     }
     if (saveBtn) saveBtn.addEventListener('click', () => { if (saveWorkoutToLog()) renderWorkoutTracker(); });

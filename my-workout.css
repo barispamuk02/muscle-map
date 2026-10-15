@@ -80,3 +80,91 @@ body.my-workout-active .feedback-section { display: none !important; }
     outline: 2px solid #6fb3ff;
     outline-offset: 2px;
 }
+
+/* Mobile: compact workout statistics */
+@media (max-width: 600px) {
+    .view-my-workout .tracker-header {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .view-my-workout .tracker-header > div:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .view-my-workout .tracker-header > .tracker-stat {
+        padding: 12px 8px;
+        border-radius: 10px;
+        background: rgba(0, 184, 148, 0.06);
+    }
+}
+
+/* Quick select exercise from workout plan */
+.view-my-workout .tracker-exercise-select {
+    appearance: none;
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    color: #6fb3ff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-underline-offset: 4px;
+}
+
+.view-my-workout .tracker-exercise-select:focus-visible {
+    outline: 2px solid #6fb3ff;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* Mobile: compact set entry form */
+@media (max-width: 600px) {
+    .view-my-workout .tracker-add-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .view-my-workout .tracker-add input {
+        min-width: 0;
+        font-size: 16px;
+    }
+
+    .view-my-workout .tracker-add-row > .btn-tracker-add {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-height: 44px;
+    }
+}
+
+/* Quick weight adjustment */
+.view-my-workout .tracker-weight-adjust {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .view-my-workout .tracker-weight-adjust {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .view-my-workout .tracker-weight-adjust button {
+        min-height: 44px;
+        border: 1px solid rgba(111, 179, 255, 0.3);
+        border-radius: 8px;
+        background: rgba(111, 179, 255, 0.1);
+        color: #6fb3ff;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+}

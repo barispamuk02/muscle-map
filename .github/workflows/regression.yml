@@ -1,0 +1,22 @@
+name: Muscle Map regression
+on:
+  push:
+    branches:
+      - fix/premium-payment-integrity
+  pull_request:
+    paths:
+      - 'script.js'
+      - 'service-worker.js'
+      - 'index.html'
+      - 'tests/**'
+      - '.github/workflows/regression.yml'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/regression.test.cjs

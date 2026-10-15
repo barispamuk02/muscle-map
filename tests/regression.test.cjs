@@ -24,7 +24,7 @@ test('essential navigation and Premium DOM targets exist', () => {
     for (const id of ['navMuscles','navMyWorkout','navPrograms','navRecovery','navNutrition',
          'premiumBtn','premiumCta','premiumModal','viewMuscles','viewMyWorkout','viewPrograms',
          'workoutTracker','langToggle']) {
-        assert.ok(html.includes('id="' + id + '"') || (id === 'workoutTracker' && read('script.js').includes('id="workoutTracker"')), 'Missing ' + id);
+        assert.ok(html.includes('id="' + id + '"') || (id === 'workoutTracker' && (read('script.js').includes("trackerEl.id = 'workoutTracker'") || read('my-workout.js').includes("tracker.id = 'workoutTracker'"))), 'Missing ' + id);
     }
     assert.ok(html.includes('mobile-home.js'));
 });

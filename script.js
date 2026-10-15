@@ -5601,9 +5601,6 @@ if (totalSets === 0) {
     if (!confirm(message)) {
         return false;
     }
-     // 📊 Тренировка сохранена
-    trackEvent('workout_saved');
-
     const log = getWorkoutLog();
     const date = workout.date;
     if (log[date]) {
@@ -5616,6 +5613,7 @@ if (totalSets === 0) {
     }
     localStorage.setItem(TRACKER_KEYS.workoutLog, JSON.stringify(log));
     saveCurrentWorkout({ date: getLocalWorkoutDate(), exercises: {} });
+    trackEvent('workout_saved');
     showToast('✅ Тренировка сохранена!');
     return true;
 }
@@ -6807,6 +6805,7 @@ const premiumCta = document.getElementById('premiumCta');
 
 function openPremium() {
     if (!premiumModal) return;
+    trackEvent('premium_opened', { source: 'premium_modal' });
     renderPremium();
     premiumModal.classList.add('show');
 
@@ -6846,6 +6845,7 @@ function initDodo() {
 }
 
 async function openDodoCheckout() {
+    trackEvent('checkout_attempted');
     const userId = getUserId();
     console.log('🛒 Создаю Dodo checkout для', userId);
     
@@ -6859,12 +6859,14 @@ async function openDodoCheckout() {
         if (!res.ok) {
             console.error('Checkout error:', await res.text());
             showToast('⚠️ Не удалось создать checkout');
+            trackEvent('checkout_failed', { reason: 'api_error' });
             return;
         }
         
         const data = await res.json();
         
         if (data.checkout_url) {
+            trackEvent('checkout_started');
             console.log('✅ Checkout URL:', data.checkout_url);
             window.open(data.checkout_url, '_blank');
             
@@ -6872,10 +6874,12 @@ async function openDodoCheckout() {
             setTimeout(syncPremiumFromBackend, 10000);
             setTimeout(syncPremiumFromBackend, 30000);
         } else {
+            trackEvent('checkout_failed', { reason: 'missing_url' });
             showToast('⚠️ Checkout URL не получен');
         }
     } catch (e) {
         console.error('❌ Checkout error:', e);
+        trackEvent('checkout_failed', { reason: 'network_error' });
         showToast('⚠️ Ошибка соединения');
     }
 }
@@ -7536,8 +7540,8 @@ async function syncPremiumFromBackend() {
             if (typeof updatePremiumButtons === 'function') updatePremiumButtons();
             showToast('💎 Премиум активирован!');
            
-            // 📊 Событие Метрики — успешная оплата
-            trackEvent('payment_success');
+            // Доступ активирован по ответу backend. Факт оплаты проверяем отдельно по Dodo.
+            trackEvent('premium_activated');
         }     
         else if (!backendPremium && localPremium) {
             console.log('❌ Backend: Premium не активен — сбрасываю');
@@ -7573,6 +7577,7 @@ function updatePremiumUI() {
 
 // Показать плашку «Премиум» для заблокированной функции
 function showPremiumLock(featureName, description = '') {
+    trackEvent('premium_gate_viewed', { source: 'feature_lock' });
     // Удалить старую плашку
     const old = document.querySelector('.premium-lock');
     if (old) old.remove();

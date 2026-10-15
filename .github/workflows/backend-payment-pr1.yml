@@ -148,5 +148,44 @@ jobs:
           console.log('HTTP_WEBHOOK_CORS_ENTITLEMENT_OK');
           process.exit(0);
           NODE
+      - name: Verify Dodo checkout creation without external calls
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/muscle_map_ci?sslmode=disable
+          DODO_API_KEY: ci_fake_not_real
+          ALLOWED_ORIGINS: https://muscle-map.app
+          PORT: 3334
+        run: |
+          cat > /tmp/dodo-checkout-mock.cjs <<'JS'
+          const realFetch = global.fetch;
+          global.fetch = async (url, opts) => {
+            if (url !== 'https://live.dodopayments.com/checkouts') throw new Error('Unexpected outbound call');
+            const body = JSON.parse(opts.body);
+            if (body.metadata?.user_id !== 'u_ci_valid_customer') throw Error('Missing user attribution');
+            if (body.product_cart?.length !== 1 || body.product_cart[0].quantity !== 1) throw Error('Wrong product cart');
+            if (body.return_url !== 'https://muscle-map.app/?premium=success') throw Error('Wrong return address');
+            if (opts.headers.Authorization !== 'Bearer ci_fake_not_real') throw Error('Wrong authorization');
+            return {ok:true,json:async()=>({checkout_url:'https://checkout.dodopayments.com/fake-ci'})};
+          };
+          JS
+          node --require /tmp/dodo-checkout-mock.cjs server.js >/tmp/mm-checkout-ci.log 2>&1 &
+          APP_PID=$!
+          trap 'kill $APP_PID 2>/dev/null || true' EXIT
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          const url='http://127.0.0.1:3334';
+          let ready=false;
+          for(let i=0;i<50;i++){
+            try { const x=await fetch(url+'/health'); if(x.ok){ ready=true; break; } }catch{}
+            await new Promise(r=>setTimeout(r,200));
+          }
+          assert.equal(ready,true);
+          const resp=await fetch(url+'/api/checkout',{method:'POST',headers:{'content-type':'application/json',origin:'https://muscle-map.app'},body:JSON.stringify({userId:'u_ci_valid_customer'})});
+          assert.equal(resp.status,200);
+          assert.equal(resp.headers.get('access-control-allow-origin'),'https://muscle-map.app');
+          assert.deepEqual(await resp.json(),{checkout_url:'https://checkout.dodopayments.com/fake-ci'});
+          const invalid=await fetch(url+'/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({userId:'bad!no'})});
+          assert.equal(invalid.status,400);
+          console.log('MOCKED_CHECKOUT_OK_NO_LIVE_DODO_CALLS');
+          NODE
       - name: Scope verification
         run: echo "No Neon credentials, Dodo API calls, or production deployments used."

@@ -37,6 +37,22 @@ jobs:
           node-version: '22'
       - name: Install backend dependencies
         run: npm install --no-audit --no-fund
+      - name: Audit node-postgres TLS configuration precedence
+        run: |
+          node --input-type=module <<'NODE'
+          import pg from 'pg';
+          for (const mode of ['require','verify-full']) {
+            const client = new pg.Client({
+              connectionString: 'postgres://nobody:dummy@neon.example.net/app?sslmode=' + mode,
+              ssl: { rejectUnauthorized: true }
+            });
+            const ssl=client.connectionParameters.ssl;
+            console.log('TLS_CONFIG',mode,JSON.stringify(ssl));
+            if (typeof ssl === 'object' && ssl.rejectUnauthorized === false) {
+              throw Error('Insecure TLS validation from sslmode '+mode);
+            }
+          }
+          NODE
       - name: Check JavaScript syntax
         run: |
           node --check server.js

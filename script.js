@@ -6009,8 +6009,10 @@ function renderWorkoutLog() {
         const totalVolume = getWorkoutVolume(dayData);
         const totalSets = exercises.reduce((sum, [, sets]) => sum + sets.length, 0);
         const exHtml = exercises.map(([name, sets]) => {
-            const maxW = Math.max(...sets.map(s => s.weight || 0));
-            return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} ${t('log.sets')} · ${t('log.max')} <strong>${maxW} кг</strong></div></div>`;
+            const maxW = sets.length
+    ? Math.max(...sets.map(s => s.weight || 0)) + ' кг'
+    : '—';
+            return `<div class="log-exercise"><div class="log-ex-name">${translateByName(name)}</div><div class="log-ex-info">${sets.length} ${t('log.sets')} · ${t('log.max')} <strong>${maxW}</strong></div></div>`;
         }).join('');
        return `
     <div class="log-day">
@@ -7773,11 +7775,15 @@ function exportToPDF() {
 
                         // Упражнения
 exercises.slice(0, FREE_LIMIT).forEach(([name, sets]) => {
-                const maxW = Math.max(...sets.map(s => s.weight || 0));
+const maxW = sets.length
+    ? `${Math.max(...sets.map(s => s.weight || 0))} кг`
+    : '—';
+
                 doc.setTextColor(180, 180, 200);
                 doc.setFontSize(9);
                 doc.text(`• ${translateByName(name)}`, margin + 3, y);
-                doc.text(`${sets.length} ${t('log.sets')} · макс ${maxW} кг`, pageW - margin, y, { align: 'right' });
+                doc.text(`${sets.length} ${t('log.sets')} · макс ${maxW}`, pageW - margin, y, { align: 'right' });
+
                 y += 4;
             });
 

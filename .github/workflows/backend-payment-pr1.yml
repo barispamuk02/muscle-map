@@ -83,5 +83,54 @@ jobs:
           console.log('REAL_POSTGRES_TRANSACTION_OK');
           process.exit(0);
           NODE
+      - name: Exercise real HTTP webhook contract against disposable Postgres
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/muscle_map_ci?sslmode=disable
+          DODO_WEBHOOK_SECRET: whsec_MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=
+          ALLOWED_ORIGINS: https://muscle-map.app
+          PORT: 3333
+        run: |
+          node server.js >/tmp/muscle-map-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import crypto from 'node:crypto';
+          const url='http://127.0.0.1:3333';
+          let ready=false;
+          for(let i=0;i<50;i++) {
+            try {
+              const res=await fetch(url+'/health');
+              if(res.ok) { ready=true; break; }
+            } catch {}
+            await new Promise(r=>setTimeout(r,200));
+          }
+          assert.equal(ready,true,'server must start against disposable Postgres');
+          const now=Math.floor(Date.now()/1000).toString();
+          const eventId='evt_ci_http_1';
+          const next=new Date(Date.now()+28*86400000).toISOString();
+          const payload=JSON.stringify({type:'payment.succeeded',data:{metadata:{user_id:'u_ci_http_user_1'},next_billing_date:next}});
+          const secret=Buffer.from('12345678901234567890123456789012');
+          const signed=crypto.createHmac('sha256',secret).update(eventId+'.'+now+'.').update(payload).digest('base64');
+          const options={method:'POST',headers:{'content-type':'application/json','webhook-id':eventId,'webhook-timestamp':now,'webhook-signature':'v1,'+signed},body:payload};
+          const bad=await fetch(url+'/api/webhook/dodo',{...options,headers:{...options.headers,'webhook-signature':'v1,invalid'}});
+          assert.equal(bad.status,401);
+          const success=await fetch(url+'/api/webhook/dodo',options);
+          assert.equal(success.status,200);
+          assert.deepEqual(await success.json(),{ok:true,skipped:false});
+          const duplicate=await fetch(url+'/api/webhook/dodo',options);
+          assert.equal(duplicate.status,200);
+          assert.deepEqual(await duplicate.json(),{ok:true,skipped:true});
+          const status=await fetch(url+'/api/premium/u_ci_http_user_1',{headers:{origin:'https://muscle-map.app'}});
+          assert.equal(status.status,200);
+          assert.equal(status.headers.get('access-control-allow-origin'),'https://muscle-map.app');
+          const entitlement=await status.json();
+          assert.equal(entitlement.premium,true);
+          assert.equal(entitlement.expiresAt,next);
+          const invalidCheckout=await fetch(url+'/api/checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({userId:'bad!'})});
+          assert.equal(invalidCheckout.status,400);
+          console.log('HTTP_WEBHOOK_CORS_ENTITLEMENT_OK');
+          process.exit(0);
+          NODE
       - name: Scope verification
         run: echo "No Neon credentials, Dodo API calls, or production deployments used."

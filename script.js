@@ -4583,7 +4583,11 @@ function exportProgress() {
             streak: getStreakData(),
             studyDays: getStudyDays(),
             achievements: getUnlockedAchievements(),
-            views: {}
+            views: {},
+            workoutLog: getWorkoutLog(),
+            currentWorkout: getCurrentWorkout()
+
+
         }
     };
 
@@ -4616,6 +4620,57 @@ function importProgress(event) {
             const data = JSON.parse(e.target.result);
             if (!data.muscleMap) throw new Error('Неверный формат');
 
+            const backup = data.muscleMap;
+
+            const hasWorkoutLog =
+                Object.prototype.hasOwnProperty.call(backup, 'workoutLog');
+
+            const hasCurrentWorkout =
+                Object.prototype.hasOwnProperty.call(backup, 'currentWorkout');
+
+            if (hasWorkoutLog || hasCurrentWorkout) {
+                const validLog = !hasWorkoutLog || (
+                    backup.workoutLog &&
+                    typeof backup.workoutLog === 'object' &&
+                    !Array.isArray(backup.workoutLog) &&
+                    Object.values(backup.workoutLog).every(day =>
+                        day && typeof day === 'object' &&
+                        !Array.isArray(day) &&
+                        Object.values(day).every(Array.isArray)
+                    )
+                );
+
+                const validCurrent = !hasCurrentWorkout || (
+                    backup.currentWorkout &&
+                    typeof backup.currentWorkout.date === 'string' &&
+                    backup.currentWorkout.exercises &&
+                    typeof backup.currentWorkout.exercises === 'object' &&
+                    !Array.isArray(backup.currentWorkout.exercises) &&
+                    Object.values(backup.currentWorkout.exercises).every(Array.isArray)
+                );
+
+                if (!validLog || !validCurrent) {
+                    throw new Error('Неверный формат тренировок');
+                }
+
+                if (!confirm(
+                    'Импорт заменит текущие данные тренировок данными из резервной копии. Продолжить?'
+                )) return;
+
+                if (hasWorkoutLog) {
+                    localStorage.setItem(
+                        TRACKER_KEYS.workoutLog,
+                        JSON.stringify(backup.workoutLog)
+                    );
+                }
+
+                if (hasCurrentWorkout) {
+                    localStorage.setItem(
+                        TRACKER_KEYS.currentWorkout,
+                        JSON.stringify(backup.currentWorkout)
+                    );
+                }
+            }
             if (data.muscleMap.favorites) localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(data.muscleMap.favorites));
             if (data.muscleMap.completed) localStorage.setItem(STORAGE_KEYS.completed, JSON.stringify(data.muscleMap.completed));
             if (data.muscleMap.streak) localStorage.setItem(STORAGE_KEYS.streak, JSON.stringify(data.muscleMap.streak));

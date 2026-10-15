@@ -207,10 +207,12 @@ function getStreakData() {
 }
 
 function updateStreak() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalWorkoutDate();
     const streak = getStreakData();
     if (streak.lastDate === today) return;
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = getLocalWorkoutDate(yesterdayDate);
     if (streak.lastDate === yesterday) streak.days += 1;
     else streak.days = 1;
     streak.lastDate = today;
@@ -223,7 +225,7 @@ function getStudyDays() {
 }
 
 function addStudyDay() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalWorkoutDate();
     const days = getStudyDays();
     if (!days.includes(today)) {
         days.push(today);
@@ -4521,7 +4523,7 @@ function renderActivityCalendar() {
     for (let i = 29; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
+        const dateStr = getLocalWorkoutDate(d);
         days.push({
             date: dateStr,
             dayNum: d.getDate(),
@@ -4600,7 +4602,7 @@ function exportProgress() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const dateStr = new Date().toISOString().split('T')[0];
+    const dateStr = getLocalWorkoutDate();
     a.download = `muscle-map-progress-${dateStr}.json`;
     document.body.appendChild(a);
     a.click();
@@ -5450,14 +5452,18 @@ function findAlternatives(ex, reason, userEquip) {
         error: candidates.length === 0 ? 'no-results' : null
     };
 }
-function getLocalWorkoutDate() {
-    const now = new Date();
+function getLocalWorkoutDate(date = new Date()) {
+    const now = date;
 
     return [
         now.getFullYear(),
         String(now.getMonth() + 1).padStart(2, '0'),
         String(now.getDate()).padStart(2, '0')
     ].join('-');
+}
+
+function parseLocalWorkoutDate(dateString) {
+    return new Date(`${dateString}T12:00:00`);
 }
 
 function getCurrentWorkout() {
@@ -5609,7 +5615,7 @@ if (totalSets === 0) {
         log[date] = workout.exercises;
     }
     localStorage.setItem(TRACKER_KEYS.workoutLog, JSON.stringify(log));
-    saveCurrentWorkout({ date: new Date().toISOString().split('T')[0], exercises: {} });
+    saveCurrentWorkout({ date: getLocalWorkoutDate(), exercises: {} });
     showToast('✅ Тренировка сохранена!');
     return true;
 }
@@ -5652,7 +5658,7 @@ function repeatWorkout(date) {
     if (Object.keys(current.exercises).length > 0) {
         const ok = confirm(
             'В текущей тренировке уже есть записанные подходы.\n\n' +
-            t('log.repeatConfirm') + ' ' + new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US') + '?\n' +
+            t('log.repeatConfirm') + ' ' + parseLocalWorkoutDate(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US') + '?\n' +
             'Текущая тренировка будет заменена.'
         );
         if (!ok) {
@@ -5676,7 +5682,7 @@ if (exerciseNames.length > limit) {
 
     // ✅ Создаём новую тренировку — пустые массивы (юзер сам отметит)
     const newWorkout = {
-        date: new Date().toISOString().split('T')[0],
+        date: getLocalWorkoutDate(),
         exercises: {}
     };
     
@@ -5799,7 +5805,7 @@ return `
             <div class="tracker-header">
                 <div>
                     <div class="tracker-title"><span data-svg="dumbbell" data-svg-size="18"></span> ${t('tracker.title')}</div>
-                    <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(workout.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                    <div class="tracker-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${parseLocalWorkoutDate(workout.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                 </div>
                 <div class="tracker-stat">
     <div class="tracker-stat-value">${totalSets}</div>
@@ -5975,7 +5981,7 @@ if (repsField) repsField.value = reps;
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             if (!confirm('Очистить текущую тренировку?')) return;
-            saveCurrentWorkout({ date: new Date().toISOString().split('T')[0], exercises: {} });
+            saveCurrentWorkout({ date: getLocalWorkoutDate(), exercises: {} });
             showToast('🗑️ Очищено');
             renderWorkoutTracker();
         });
@@ -6045,7 +6051,7 @@ function renderWorkoutLog() {
        return `
     <div class="log-day">
         <div class="log-day-header">
-            <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
+            <div class="log-date"><span data-svg="calendar-days" data-svg-size="14"></span> ${parseLocalWorkoutDate(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', weekday: 'short' })}</div>
             <div class="log-day-stats">${totalSets} ${t('log.sets')} · ${totalVolume} кг</div>
            <button class="btn-repeat-workout" data-date="${date}" title="${t('log.repeat')}">
     <span data-svg="refresh-cw" data-svg-size="14"></span> ${t('log.repeat')}
@@ -6161,11 +6167,11 @@ function renderComparisonBlock() {
 </div>
             <div class="comparison-selects">
                 <select id="compareFrom">
-                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
+                    ${dates.map(d => `<option value="${d}">${parseLocalWorkoutDate(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
                 </select>
                 <span class="comparison-arrow">→</span>
                 <select id="compareTo">
-                    ${dates.map(d => `<option value="${d}">${new Date(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
+                    ${dates.map(d => `<option value="${d}">${parseLocalWorkoutDate(d).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</option>`).join('')}
                 </select>
             </div>
             <div id="comparisonResult" class="comparison-result"></div>
@@ -6528,19 +6534,19 @@ function getWaterData() {
 
 function getTodayWater() {
     const data = getWaterData();
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalWorkoutDate();
     return data[today] || 0;
 }
 
 function setTodayWater(amount) {
     const data = getWaterData();
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalWorkoutDate();
     data[today] = Math.max(0, amount);
     
     // Очистка старше 30 дней
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 30);
-    const cutoffStr = cutoff.toISOString().split('T')[0];
+    const cutoffStr = getLocalWorkoutDate(cutoff);
     Object.keys(data).forEach(d => {
         if (d < cutoffStr) delete data[d];
     });
@@ -6743,14 +6749,14 @@ function renderProgressChart(exerciseName) {
     const dots = points.map(p => `
         <circle cx="${p.x}" cy="${p.y}" r="4" 
                 fill="#00b894" stroke="#0a0a12" stroke-width="2">
-            <title>${new Date(p.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' })} — ${p.weight} кг</title>
+            <title>${parseLocalWorkoutDate(p.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' })} — ${p.weight} кг</title>
         </circle>
         <text x="${p.x}" y="${p.y - 10}" 
               fill="#00b894" font-size="10" font-weight="600" text-anchor="middle">${p.weight}</text>
     `).join('');
 
-    const firstDate = new Date(points[0].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
-    const lastDate = new Date(points[points.length - 1].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
+    const firstDate = parseLocalWorkoutDate(points[0].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
+    const lastDate = parseLocalWorkoutDate(points[points.length - 1].date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
 
     container.innerHTML = `
         <svg class="progress-chart-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -7785,7 +7791,7 @@ function exportToPDF() {
             doc.setFontSize(11);
             doc.setFont(fontName, 'normal');
             doc.text(
-                `📅 ${new Date(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' })}`,
+                `📅 ${parseLocalWorkoutDate(date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' })}`,
                 margin, y
             );
 
@@ -7884,7 +7890,7 @@ const maxW = sets.length
     );
 
     // ========== СОХРАНЕНИЕ ==========
-    const dateStr = now.toISOString().split('T')[0];
+    const dateStr = getLocalWorkoutDate(now);
     doc.save(`muscle-map-progress-${dateStr}.pdf`);
 
     showToast('📄 PDF скачан!');
@@ -7989,7 +7995,7 @@ function renderVolumeChart(days = 30) {
     const xLabels = [0, Math.floor(data.length / 2), data.length - 1].map(i => {
         if (i < 0 || i >= points.length) return '';
         const p = points[i];
-        const date = new Date(data[i].date);
+        const date = parseLocalWorkoutDate(data[i].date);
         const label = date.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
         return `<text class="chart-label" x="${p.x}" y="${height - 8}" text-anchor="middle">${label}</text>`;
     }).join('');
@@ -8078,7 +8084,7 @@ function renderStreakHeatmap(days = 30) {
     for (let i = days - 1; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = getLocalWorkoutDate(date);
         const dayData = log[dateStr];
         
         let level = 0;
@@ -8118,7 +8124,7 @@ function renderStreakHeatmap(days = 30) {
         const row = i % rows;
         const x = col * (cellSize + gap);
         const y = row * (cellSize + gap);
-        const date = new Date(c.date);
+        const date = parseLocalWorkoutDate(c.date);
         const label = date.toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' });
         
         return `<rect class="streak-cell" x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="4" fill="${colors[c.level]}">
@@ -8647,7 +8653,7 @@ function renderShareCard() {
     if (shareCardState.showDate) {
         ctx.fillStyle = '#8892b0';
         ctx.font = `${13 * S}px Roboto, Arial, sans-serif`;
-        const dateStr = new Date(shareCardState.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', {
+        const dateStr = parseLocalWorkoutDate(shareCardState.date).toLocaleDateString(currentLang === 'ru' ? 'ru-RU' : 'en-US', {
             day: 'numeric', month: 'long', year: 'numeric'
         });
         ctx.fillText(dateStr, 40 * S, titleY + 62 * S);

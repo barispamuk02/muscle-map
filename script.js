@@ -5450,15 +5450,43 @@ function findAlternatives(ex, reason, userEquip) {
         error: candidates.length === 0 ? 'no-results' : null
     };
 }
+function getLocalWorkoutDate() {
+    const now = new Date();
+
+    return [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0')
+    ].join('-');
+}
+
 function getCurrentWorkout() {
+    const today = getLocalWorkoutDate();
+    let workout;
+
     try {
-        return JSON.parse(localStorage.getItem(TRACKER_KEYS.currentWorkout)) || {
-            date: new Date().toISOString().split('T')[0],
-            exercises: {}
-        };
+        workout = JSON.parse(
+            localStorage.getItem(TRACKER_KEYS.currentWorkout)
+        );
     } catch {
-        return { date: new Date().toISOString().split('T')[0], exercises: {} };
+        workout = null;
     }
+
+    if (!workout || !workout.exercises ||
+        typeof workout.exercises !== 'object' ||
+        Array.isArray(workout.exercises)) {
+        return { date: today, exercises: {} };
+    }
+
+    // Обновляем дату только у пустой тренировки.
+    if (Object.keys(workout.exercises).length === 0 &&
+        workout.date !== today) {
+
+        workout.date = today;
+        saveCurrentWorkout(workout);
+    }
+
+    return workout;
 }
 
 function saveCurrentWorkout(workout) {

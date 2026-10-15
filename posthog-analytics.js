@@ -1,31 +1,13 @@
-/* Muscle Map analytics: anonymous pageview telemetry only; disable autocapture and session recordings. */
+/* Muscle Map: privacy-limited product analytics. No input, diary, or payment data is collected. */
 (function () {
     'use strict';
-    if (window.location.hostname !== 'muscle-map.app' && window.location.hostname !== 'www.muscle-map.app') return;
+    if (!/^(www\\.)?muscle-map\\.app$/.test(window.location.hostname)) return;
     if (navigator.globalPrivacyControl === true || navigator.doNotTrack === '1') return;
-    var key = 'phc_oLfcGvjb6awPy5UAPhtrRZ59Pzq5TSweXjARSzsMGxJG';
-    var src = 'https://eu.i.posthog.com/static/array.js';
-    window.posthog = window.posthog || [];
-    var q = window.posthog;
-    q._i = q._i || [];
-    if (!q.init) {
-        var names = 'capture identify alias people.set people.set_once set_config reset onFeatureFlags get_distinct_id'.split(' ');
-        names.forEach(function (name) {
-            var parts = name.split('.'), context = q;
-            for (var j = 0; j < parts.length - 1; j++) context = context[parts[j]] = context[parts[j]] || [];
-            context[parts[parts.length - 1]] = function () {
-                var args = Array.prototype.slice.call(arguments);
-                (context === q ? q : context).push([name].concat(args));
-            };
-        });
-        q.init = function (token, config) { q._i.push([token, config]); };
-    }
-    var script = document.createElement('script');
-    script.async = true;
-    script.src = src;
-    script.onerror = function () { console.warn('Analytics unavailable'); };
-    document.head.appendChild(script);
-    q.init(key, {
+
+    // PostHog's official bootstrap format preserves queued calls until the SDK loads.
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split('.');2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement('script')).type='text/javascript',p.crossOrigin='anonymous',p.async=!0,p.src=s.api_host.replace('.i.posthog.com','-assets.i.posthog.com')+'/static/array.js',(r=t.getElementsByTagName('script')[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a='posthog',u.people=u.people||[],u.toString=function(t){var e='posthog';return'posthog'!==a&&(e+='.'+a),t||(e+=' (stub)'),e},u.people.toString=function(){return u.toString(1)+'.people (stub)'},o='capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId'.split(' '),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+
+    window.posthog.init('phc_oLfcGvjb6awPy5UAPhtrRZ59Pzq5TSweXjARSzsMGxJG', {
         api_host: 'https://eu.i.posthog.com',
         ui_host: 'https://eu.posthog.com',
         capture_pageview: true,
@@ -33,10 +15,9 @@
         autocapture: false,
         disable_session_recording: true,
         person_profiles: 'identified_only',
+        persistence: 'memory',
         mask_all_text: true,
         mask_all_element_attributes: true,
-        persistence: 'memory',
-        respect_dnt: true,
-        opt_out_capturing_by_default: false
+        respect_dnt: true
     });
 })();

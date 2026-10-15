@@ -191,11 +191,16 @@ function generateMusclePage(muscleId, muscle, translation, exercises, exerciseNa
     }
 
     // Собираем slug'и всех сгенерированных упражнений
-const exerciseLinks = exerciseList.map(e => {
-    const slug = slugify(e.name_en || e.id || e.name);
-    const ruExName = exerciseNameRU[e.name_en?.toLowerCase()] || e.name;
-    return `<a href="../../exercises/${slug}/" class="exercise-link">${escapeHtml(ruExName)}</a>`;
-}).join('');
+const linkedSlugs = new Set();
+const exerciseLinks = exerciseList
+    .filter(e => !e.isCustom)
+    .map(e => {
+        const slug = slugify(e.name_en || e.id || e.name);
+        if (!slug || linkedSlugs.has(slug)) return '';
+        linkedSlugs.add(slug);
+        const ruExName = exerciseNameRU[e.name_en?.toLowerCase()] || e.name;
+        return `<a href="../../exercises/${slug}/" class="exercise-link">${escapeHtml(ruExName)}</a>`;
+    }).join('');
 
 // Если упражнений нет в каталоге (только custom) — показываем их без ссылок
 const customOnlyLinks = exerciseList

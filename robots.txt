@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://muscle-map.app/sitemap.xml
+Sitemap: https://muscle-map.app/sitemap-seo.xml

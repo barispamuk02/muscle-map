@@ -1,0 +1,30 @@
+name: Browser regression
+on:
+  push:
+    branches:
+      - test/full-browser-regression
+  pull_request:
+    paths:
+      - 'script.js'
+      - 'my-workout.js'
+      - 'mobile-home.js'
+      - 'index.html'
+      - 'tests/browser-smoke.cjs'
+      - '.github/workflows/browser-regression.yml'
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install chromium
+      - name: Test mobile and desktop journeys
+        run: node tests/browser-smoke.cjs

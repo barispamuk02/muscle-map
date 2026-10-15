@@ -25,7 +25,7 @@
         } else if (id === 'premiumBtn') {
             window.posthog.capture('premium_entry_clicked');
         } else if (id === 'premiumCta') {
-            window.posthog.capture('premium_checkout_clicked');
+            window.posthog.capture('premium_checkout_clicked', {}, { send_instantly: true });
         }
     });
 

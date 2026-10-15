@@ -7522,35 +7522,38 @@ function setPremium(active, days = 30) {
 async function syncPremiumFromBackend() {
     try {
         const userId = getUserId();
-        const res = await fetch(`${BACKEND_URL}/api/premium/${userId}`, {
-            method: 'GET',
-            cache: 'no-store'
-        });
+        const res = await fetch(`${BACKEND_URL}/api/premium/${userId}`, { method: 'GET', cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
-        
         const localPremium = isPremium();
         const backendPremium = data.premium === true;
-        
-        if (backendPremium && !localPremium) {
-            console.log('💎 Backend: Premium активен — обновляю');
-            const expires = new Date();
+        if (backendPremium) {
+            let expires = new Date();
             expires.setDate(expires.getDate() + 30);
-            localStorage.setItem(PREMIUM_KEY, JSON.stringify({
-                active: true,
-                since: new Date().toISOString(),
-                expires: expires.toISOString(),
-                plan: 'monthly'
-            }));
-            updatePremiumUI();
-            if (typeof updatePremiumButtons === 'function') updatePremiumButtons();
-            showToast('💎 Премиум активирован!');
-           
-            // Доступ активирован по ответу backend. Факт оплаты проверяем отдельно по Dodo.
-            trackEvent('premium_activated');
-        }     
-        else if (!backendPremium && localPremium) {
-            console.log('❌ Backend: Premium не активен — сбрасываю');
+            // Use exact backend expiry where provided, retaining backward compatibility during rollout.
+            if (data.expiresAt != null) {
+                const expiry = new Date(data.expiresAt);
+                if (!Number.isFinite(expiry.getTime()) || expiry <= new Date()) {
+                    console.warn('Invalid backend Premium expiry');
+                    return;
+                }
+                expires = expiry;
+            }
+            let previous = null;
+            try { previous = JSON.parse(localStorage.getItem(PREMIUM_KEY)); } catch {}
+            if (!localPremium || previous?.expires !== expires.toISOString()) {
+                localStorage.setItem(PREMIUM_KEY, JSON.stringify({
+                    active: true, since: previous?.since || new Date().toISOString(),
+                    expires: expires.toISOString(), plan: previous?.plan || 'monthly'
+                }));
+                updatePremiumUI();
+                if (typeof updatePremiumButtons === 'function') updatePremiumButtons();
+                if (!localPremium) {
+                    showToast('💎 Премиум активирован!');
+                    trackEvent('premium_activated');
+                }
+            }
+        } else if (localPremium) {
             localStorage.removeItem(PREMIUM_KEY);
             updatePremiumUI();
             if (typeof updatePremiumButtons === 'function') updatePremiumButtons();
@@ -7792,6 +7795,7 @@ function exportToPDF() {
         y += 10;
 
         dates.forEach(date => {
+            if (y > pageH - 36) { doc.addPage(); y = margin; }
             const dayData = workoutLog[date];
             const exercises = Object.entries(dayData);
             const totalVolume = getWorkoutVolume(dayData);
@@ -7819,7 +7823,8 @@ function exportToPDF() {
             y += 5;
 
                         // Упражнения
-exercises.slice(0, FREE_LIMIT).forEach(([name, sets]) => {
+exercises.forEach(([name, sets]) => {
+                if (y > pageH - 33) { doc.addPage(); y = margin; }
 const maxW = sets.length
     ? `${Math.max(...sets.map(s => s.weight || 0))} кг`
     : '—';
@@ -7832,13 +7837,6 @@ const maxW = sets.length
                 y += 4;
             });
 
-            if (exercises.length > FREE_LIMIT) {
-    doc.setTextColor(138, 138, 170);
-    doc.setFontSize(8);
-    doc.setFont(fontName, 'normal');
-    doc.text(`...и ещё ${exercises.length - FREE_LIMIT} ${t('log.exercises')}`, margin + 3, y);
-    y += 4;
-}
 
             y += 3;
         });

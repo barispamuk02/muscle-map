@@ -1,0 +1,286 @@
+/* Muscle Map Mobile Home v2: narrow-screen UI only. Desktop is unchanged. */
+.mm-mobile-hero,
+.mm-mobile-shortcuts,
+.mm-mobile-bottom-nav,
+.mm-mobile-menu-backdrop,
+.mm-mobile-menu { display: none; }
+
+@media (max-width: 768px) {
+  :root { --mm-blue: #6da8ff; --mm-ink: #0b1020; }
+  body { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+
+  /* Compact, app-like top bar. Original controls remain in DOM. */
+  .header {
+    position: relative !important;
+    z-index: 40 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    padding: 11px 16px !important;
+    gap: 10px !important;
+    min-height: 60px;
+    background: rgba(10,15,29,.98) !important;
+    border-bottom: 1px solid rgba(111,179,255,.10) !important;
+    backdrop-filter: blur(18px);
+  }
+  .header .header-content { width: auto !important; min-width: 0; text-align: left !important; flex: 1 1 auto; }
+  .header .header-content h1 {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0 !important;
+    margin: 0;
+    line-height: 1;
+    -webkit-text-fill-color: initial;
+    background: none;
+    animation: none !important;
+  }
+  .header .header-content h1 > [data-svg],
+  .header .header-content h1 > svg { flex: 0 0 auto; width: 26px; height: 26px; color: #6da8ff; }
+  .header .header-content h1::after {
+    content: 'Muscle Map';
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -.65px;
+    white-space: nowrap;
+    color: #f1f6ff;
+    -webkit-text-fill-color: #f1f6ff;
+  }
+  .header .header-content .subtitle { display: none !important; }
+  .header .header-actions {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    justify-content: flex-end !important;
+    align-items: center;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    scrollbar-width: none;
+  }
+  .header .header-actions > button { display: none !important; }
+  .header .header-actions > .btn-lang,
+  .header .header-actions > .btn-theme {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(111,179,255,.14);
+    background: #182338;
+    color: #c3d7fb;
+    font-size: 12px !important;
+  }
+
+  /* Put product value and anatomy ahead of vanity statistics. */
+  .quote-section, .stats-section, .challenges-section { display: none !important; }
+  body.mm-home .mm-mobile-hero {
+    /* Keep text above the fixed body::before background layer. */
+    position: relative;
+    z-index: 15;
+    display: block;
+    padding: 20px 18px 9px;
+    background: radial-gradient(ellipse at 95% 0%, rgba(55,113,210,.14), transparent 72%);
+  }
+  .mm-mobile-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #7db6ff;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+  }
+  .mm-mobile-eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #33dfc5; box-shadow: 0 0 12px rgba(51,223,197,.7); }
+  .mm-mobile-hero h2 { color: #f5f8ff; font-size: clamp(24px, 7vw, 30px); line-height: 1.12; letter-spacing: -.85px; font-weight: 830; margin: 11px 0 8px; max-width: 420px; }
+  .mm-mobile-hero p { font-size: 13px; color: #a7b6cf; line-height: 1.45; margin: 0; }
+
+  /* Existing search remains the actual live search input. */
+  body.mm-home .search-section {
+    position: relative !important;
+    z-index: 20;
+    top: auto !important;
+    margin: 0;
+    padding: 12px 16px 5px;
+    border: 0;
+    background: transparent;
+    backdrop-filter: none;
+  }
+  body.mm-home #searchInput {
+    max-width: none;
+    min-height: 50px;
+    border-radius: 14px;
+    border: 1px solid rgba(111,179,255,.22);
+    background: #17243a;
+    color: #f1f6ff;
+    font-size: 16px;
+    padding: 12px 15px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+  }
+  body.mm-home #searchInput::placeholder { color: #8c9dba; }
+  body.mm-home #searchInput:focus { border-color: #6da8ff; outline: 2px solid rgba(109,168,255,.14); outline-offset: 2px; }
+  .main-content { height: auto !important; min-height: calc(100dvh - 250px) !important; overflow: visible !important; }
+  body.mm-home #viewMuscles { display: flex !important; flex-direction: column; height: auto !important; min-height: 0 !important; }
+  body.mm-home #viewMuscles > .body-view {
+    order: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto;
+    min-width: 0;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 17px 12px 16px !important;
+    margin: 12px 16px 8px;
+    border: 1px solid rgba(99,151,239,.24);
+    border-radius: 22px;
+    background: radial-gradient(ellipse at 50% 36%, rgba(58,98,164,.18), transparent 72%), #10192c;
+    box-shadow: 0 14px 40px rgba(0,0,0,.20);
+  }
+  body.mm-home #viewMuscles > .body-view::before {
+    content: 'ИНТЕРАКТИВНАЯ АНАТОМИЯ';
+    display: block;
+    align-self: flex-start;
+    color: #c8d8f4;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 1px;
+    margin: 0 0 9px 4px;
+  }
+  body.mm-home.mm-english #viewMuscles > .body-view::before { content: 'INTERACTIVE ANATOMY'; }
+  body.mm-home #viewMuscles > .body-view::after {
+    content: 'Нажми на мышцу, чтобы изучить упражнения';
+    display: block;
+    color: #91a4c5;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
+    margin-top: 11px;
+  }
+  body.mm-home.mm-english #viewMuscles > .body-view::after { content: 'Tap a muscle to explore exercises'; }
+  body.mm-home #viewMuscles .body-wrapper { width: 100%; gap: 9px; }
+  body.mm-home #viewMuscles .body-image-container {
+    width: min(62vw, 222px) !important;
+    max-width: min(62vw, 222px) !important;
+    flex: 0 0 auto;
+  }
+  body.mm-home #viewMuscles .view-toggle-btn { min-height: 42px; border-radius: 12px; }
+  body.mm-home #viewMuscles > .muscle-list {
+    order: 3;
+    width: auto;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0;
+    overflow: visible !important;
+    margin: 0 16px 12px;
+    padding: 6px 0;
+    background: transparent;
+    border-right: 0;
+  }
+  body.mm-home #viewMuscles > .info-panel { order: 2; min-width: 0; margin-bottom: 18px; }
+  body.mm-home .mm-mobile-shortcuts {
+    order: 1;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: 9px;
+    margin: 5px 16px 20px;
+  }
+  .mm-mobile-shortcuts button {
+    min-width: 0;
+    min-height: 48px;
+    padding: 12px 8px;
+    font-family: inherit; font-weight: 700; font-size: 12px; line-height: 1.2;
+    border-radius: 13px;
+    cursor: pointer;
+  }
+  .mm-mobile-shortcuts button:first-child { color: #fff; background: #356bdb; border: 1px solid #6396ff; }
+  .mm-mobile-shortcuts button:last-child { color: #d6e4ff; background: #19263c; border: 1px solid rgba(111,179,255,.25); }
+
+  /* Fixed bottom navigation, staying clear of Android gesture area. */
+  .mm-mobile-bottom-nav {
+    position: fixed;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 1px;
+    align-items: center;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 990;
+    min-height: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding: 5px 5px calc(5px + env(safe-area-inset-bottom, 0px));
+    background: rgba(10,15,29,.97);
+    border-top: 1px solid rgba(111,179,255,.15);
+    box-shadow: 0 -8px 26px rgba(0,0,0,.25);
+    backdrop-filter: blur(20px);
+  }
+  .mm-mobile-bottom-nav button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+    width: 100%;
+    min-height: 53px;
+    color: #8193b2;
+    background: transparent;
+    border: 0;
+    border-radius: 11px;
+    padding: 3px 0;
+    font: 500 10px/1.1 system-ui, sans-serif;
+    cursor: pointer;
+  }
+  .mm-mobile-bottom-nav button[aria-current="page"] { color: #80b7ff; background: rgba(95,150,247,.12); font-weight: 700; }
+  .mm-mobile-bottom-nav button .mm-tab-icon { display: block; width: 24px; height: 24px; }
+  .mm-mobile-bottom-nav button .mm-tab-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .mm-mobile-bottom-nav button:focus-visible,
+  .mm-mobile-menu button:focus-visible,
+  .mm-mobile-shortcuts button:focus-visible { outline: 2px solid #77afff; outline-offset: 2px; }
+  .mm-mobile-menu-backdrop:not([hidden]) {
+    display: block;
+    position: fixed; inset: 0;
+    z-index: 996;
+    background: rgba(0,0,0,.66);
+  }
+  .mm-mobile-menu:not([hidden]) {
+    display: block;
+    position: fixed;
+    z-index: 997;
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    left: 10px; right: 10px;
+    max-width: 550px;
+    margin-inline: auto;
+    border: 1px solid rgba(111,179,255,.21);
+    border-radius: 22px;
+    padding: 17px;
+    background: #121d30;
+    box-shadow: 0 22px 80px rgba(0,0,0,.5);
+  }
+  .mm-mobile-menu-head { display: flex; justify-content: space-between; align-items: center; color: #eef5ff; font-weight: 800; margin-bottom: 14px; }
+  .mm-mobile-menu-head button { width: 40px; height: 40px; color: #c8d6ed; background: #1c2b44; border: 0; border-radius: 11px; font-size: 24px; }
+  .mm-mobile-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .mm-mobile-menu-grid button { min-height: 53px; color: #dae5fa; font: 600 13px system-ui,sans-serif; border-radius: 13px; border: 1px solid rgba(111,179,255,.18); background: #1a2940; text-align: left; padding: 12px; }
+  .mm-mobile-menu-grid button.mm-premium { color: #ffe48c; border-color: rgba(255,213,93,.35); }
+  .mm-mobile-menu[hidden], .mm-mobile-menu-backdrop[hidden] { display: none !important; }
+  body.mm-mobile-menu-open { overflow: hidden; }
+
+  [data-theme="light"] .mm-mobile-hero h2 { color: #1a263c; }
+  [data-theme="light"] .mm-mobile-hero p { color: #485d7d; }
+  [data-theme="light"] .mm-mobile-hero .mm-mobile-eyebrow { color: #245cb1; }
+  [data-theme="light"] .header { background: rgba(248,251,255,.98) !important; }
+  [data-theme="light"] .header .header-content h1::after { color: #1c2f4c; -webkit-text-fill-color: #1c2f4c; }
+  [data-theme="light"] .mm-mobile-bottom-nav { background: rgba(247,249,254,.98); }
+  [data-theme="light"] .mm-mobile-menu { background: #edf3ff; }
+  [data-theme="light"] .mm-mobile-menu-head { color: #213755; }
+  [data-theme="light"] .mm-mobile-menu-grid button { background: #e1eafa; color: #233957; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-mobile-bottom-nav, .mm-mobile-hero { animation: none !important; transition: none !important; }
+}

@@ -1,8 +1,8 @@
 // ============================================
 // 🔧 SERVICE WORKER — КЕШ ДЛЯ ОФЛАЙН-РЕЖИМА
 // ============================================
-const CACHE_NAME = 'muscle-map-v165';
-const RUNTIME_CACHE = 'muscle-map-runtime-v165';
+const CACHE_NAME = 'muscle-map-v166';
+const RUNTIME_CACHE = 'muscle-map-runtime-v166';
 
 // Файлы, которые кешируем сразу при установке
 const PRECACHE_URLS = [
@@ -13,6 +13,7 @@ const PRECACHE_URLS = [
     './index.html',
     './styles.css',
     './script.js',
+    './posthog-analytics.js',
     './my-workout.js',
     './my-workout.css',
     './mobile-home.css',

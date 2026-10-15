@@ -41,8 +41,9 @@ test('Premium export contains all exercises and backend expiry is respected', ()
 
 test('PWA pre-cache includes only existing static files', () => {
     const source = read('service-worker.js');
-    assert.match(source,/muscle-map-v165/);
+    assert.match(source,/muscle-map-v166/);
     const segment=source.split('const PRECACHE_URLS = [')[1].split('];')[0];
+    assert.ok(segment.includes("'./posthog-analytics.js'"), 'Analytics bootstrap must be cached with the PWA shell');
     const files=[...segment.matchAll(/['"]\.\/([^'"]+)['"]/g)].map(m=>m[1]);
     for (const p of files) {
         assert.ok(p === '' || exists(p), 'Missing PWA asset: ' + p);

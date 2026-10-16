@@ -42,6 +42,10 @@ async function testPage(browser,config,{safe}){
         assert.equal(await page.locator('#accountStageLabel').isHidden(),true);
         assert.equal(await page.locator('#stagingMailTest').isHidden(),true);
         assert.equal(await page.locator('#stagingMailTestHint').isHidden(),true);
+        assert.equal(await page.locator('#legacyPremiumNotice').isHidden(),true,
+            'new Production customers must not see old owner test-account migration warning');
+        assert.equal(await page.locator('#legacyPremiumWarning').isHidden(),true,
+            'Production login is independent of old owner test purchases');
         assert.equal(await page.title(),'Аккаунт | Muscle Map');
         assert.equal(authCalls,1);
     }else{

@@ -7476,7 +7476,6 @@ const BACKEND_URL = 'https://muscle-map-backend.onrender.com';
 // Production must use a cryptographically verified account: a browser-generated
 // legacy userId or localStorage premium marker cannot authorize paid UI here.
 const PRODUCTION_AUTH_BASE = 'https://ep-muddy-rice-b1y5qbz8.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth';
-let productionVerifiedPremium = false;
 function isProductionAuthSite() {
     return ['muscle-map.app', 'www.muscle-map.app'].includes(location.hostname.toLowerCase());
 }

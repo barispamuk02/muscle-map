@@ -36,10 +36,12 @@ async function run() {
         // defaults to no API connection and contains no production endpoint.
         await page.route('**/account-config.js', async route => {
             const original = fs.readFileSync(path.join(root,'account-config.js'),'utf8');
-            assert.ok(original.includes('apiUrl: null'));
-            assert.ok(original.includes('enableBackendPremium: false'));
-            const mocked = original.replace('apiUrl: null','apiUrl: ' + JSON.stringify(origin))
-                .replace('enableBackendPremium: false','enableBackendPremium: true');
+            assert.ok(original.includes("apiUrl: 'https://muscle-map-backend-staging.onrender.com'"));
+            assert.ok(original.includes('enableBackendPremium: true'));
+            assert.ok(!original.includes("'https://muscle-map-backend.onrender.com'"));
+            const mocked = original.replace(
+                "'https://muscle-map-backend-staging.onrender.com'",JSON.stringify(origin)
+            );
             await route.fulfill({status:200,contentType:'application/javascript',body:mocked});
         });
         await page.route('**/api/v2/me/premium', async route => {

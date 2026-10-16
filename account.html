@@ -31,6 +31,23 @@
         <button type="submit" id="authSubmit" class="action-primary" data-i18n="login">Войти</button>
       </form>
       <button type="button" class="action-secondary" id="authOpenVerify" data-i18n="openVerify">Подтвердить e-mail с кодом</button>
+      <button type="button" class="action-secondary" id="authOpenRecovery" data-i18n="forgotPassword">Забыли пароль?</button>
+    </section>
+
+    <section id="authRecovery" class="hidden" aria-label="Восстановление пароля">
+      <h2 data-i18n="resetTitle">Восстановление пароля</h2>
+      <p class="lead" data-i18n="resetHint">Получите код на свою почту и установите новый пароль.</p>
+      <form id="recoveryRequestForm">
+        <label for="recoveryEmail"><span data-i18n="email">Электронная почта</span><input id="recoveryEmail" type="email" autocomplete="email" maxlength="254" required></label>
+        <button class="action-primary" id="recoveryRequestSubmit" type="submit" data-i18n="resetSend">Отправить код</button>
+      </form>
+      <form id="recoveryFinishForm" class="hidden">
+        <label for="recoveryOtp"><span data-i18n="resetCode">Код восстановления</span><input id="recoveryOtp" type="text" inputmode="numeric" autocomplete="one-time-code" minlength="4" maxlength="10" pattern="[0-9]{4,10}" required></label>
+        <label for="recoveryPassword"><span data-i18n="resetNewPassword">Новый пароль</span><input id="recoveryPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+        <label for="recoveryRepeatPassword"><span data-i18n="resetRepeatPassword">Повторите новый пароль</span><input id="recoveryRepeatPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+        <button class="action-primary" id="recoveryResetSubmit" type="submit" data-i18n="resetAction">Изменить пароль</button>
+      </form>
+      <button type="button" class="action-secondary" id="recoveryBack" data-i18n="verifyBack">Вернуться ко входу</button>
     </section>
 
     <section id="authVerify" class="hidden" aria-label="Подтверждение e-mail">

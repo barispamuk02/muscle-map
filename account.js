@@ -28,7 +28,10 @@
             loggedOut:'Вы вышли из аккаунта.', unknown:'Не получилось войти. Проверьте данные или попробуйте позднее.',
             noSession:'Сессия не сохранилась. Проверьте разрешение cookie для сервиса Neon Auth в этом браузере.',
             apiError:'Сервис авторизации недоступен. Попробуйте позднее.',
-            premiumActive:'Premium активен до',premiumFree:'Premium не активен'
+            premiumActive:'Premium активен до',premiumFree:'Premium не активен',
+            verifyTitle:'Подтвердите электронную почту',verifyHint:'Мы отправим одноразовый код на указанный адрес. Введите его ниже.',
+            verifyCode:'Код из письма',verifyAction:'Подтвердить адрес',verifyResend:'Отправить код повторно',verifyBack:'Вернуться ко входу',
+            verifySent:'Код подтверждения отправлен. Проверьте почту.',verifySuccess:'Адрес подтверждён. Теперь можно войти.'
         },
         en: {
             back:'Back to Muscle Map',testLabel:'STAGING SIGN-IN · NOT PRODUCTION',
@@ -46,7 +49,10 @@
             loggedOut:'You are signed out.',unknown:'Sign-in failed. Check your credentials or try again later.',
             noSession:'Session cookie not available. Check browser permissions for Neon Auth cookies.',
             apiError:'The authentication service could not be reached. Please try again later.',
-            premiumActive:'Premium active until',premiumFree:'Premium inactive'
+            premiumActive:'Premium active until',premiumFree:'Premium inactive',
+            verifyTitle:'Verify your email',verifyHint:'We will send a one-time code to your email. Enter it below.',
+            verifyCode:'Email code',verifyAction:'Verify email',verifyResend:'Resend code',verifyBack:'Back to sign-in',
+            verifySent:'Verification code sent. Check your inbox.',verifySuccess:'Email verified. You can sign in now.'
         }
     };
     let savedLang = '';
@@ -59,7 +65,7 @@
     document.title = lang === 'en' ? 'Account | Muscle Map staging' : 'Аккаунт | Muscle Map тест';
 
     const byId = id => document.getElementById(id);
-    const guest = byId('authGuest'), member = byId('authMember');
+    const guest = byId('authGuest'), member = byId('authMember'), verify = byId('authVerify');
     const form = byId('authForm'), button = byId('authSubmit');
     const nameLabel = byId('nameLabel'), password = byId('accountPassword');
     const messageBox = byId('accountMessage');
@@ -95,6 +101,26 @@
         button.textContent = t(mode === 'login' ? 'login' : 'register');
         message('');
     }
+    function showVerification(email) {
+        member.classList.add('hidden');
+        guest.classList.add('hidden');
+        verify.classList.remove('hidden');
+        byId('verifyEmail').value = email || byId('accountEmail').value.trim().toLowerCase();
+        byId('verifyOtp').value = '';
+        message('');
+    }
+    async function sendVerificationCode() {
+        const email = byId('verifyEmail').value.trim().toLowerCase();
+        if (!byId('verifyEmail').reportValidity()) return;
+        const control = byId('verifyResend');
+        control.disabled = true;
+        try {
+            await authRequest('/email-otp/send-verification-otp','POST',{ email, type:'email-verification' });
+            message(t('verifySent'));
+        } catch (err) {
+            message(err.message || t('apiError'), true);
+        } finally { control.disabled = false; }
+    }
     async function authRequest(endpoint, method = 'GET', body) {
         const url = cfg.authUrl.replace(/\/$/, '') + endpoint;
         const headers = { Accept: 'application/json' };
@@ -116,6 +142,7 @@
         try { data = await res.json(); } catch {}
         if (!res.ok) {
             // Avoid reflecting uncontrolled provider response into the page.
+            if (res.status === 403 && data?.code === 'EMAIL_NOT_VERIFIED') throw new Error('EMAIL_NOT_VERIFIED');
             if (res.status === 401 || res.status === 403 || res.status === 400) throw new Error(t('unknown'));
             if (res.status === 429) throw new Error('Too many requests. Please try again later.');
             throw new Error(t('apiError'));
@@ -182,8 +209,13 @@
                 const hasSession = await refreshSession();
                 if (!hasSession) {
                     setBusy(false);
-                    selectMode('login');
-                    message(t('created'));
+                    if (cfg.emailVerificationRequired === true) {
+                        showVerification(email);
+                        await sendVerificationCode();
+                    } else {
+                        selectMode('login');
+                        message(t('created'));
+                    }
                 }
             } else {
                 await authRequest('/sign-in/email', 'POST', { email, password: pass });
@@ -192,10 +224,40 @@
             }
         } catch (err) {
             password.value = '';
-            message(err.message || t('unknown'), true);
+            if (err.message === 'EMAIL_NOT_VERIFIED') {
+                showVerification(email);
+                await sendVerificationCode();
+            } else {
+                message(err.message || t('unknown'), true);
+            }
         } finally {
             setBusy(false);
         }
+    });
+    byId('verifyResend').addEventListener('click', () => { void sendVerificationCode(); });
+    byId('verifyBack').addEventListener('click', () => {
+        verify.classList.add('hidden');
+        guest.classList.remove('hidden');
+        selectMode('login');
+    });
+    byId('verifyForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        if (busy || !byId('verifyForm').reportValidity()) return;
+        const email = byId('verifyEmail').value.trim().toLowerCase();
+        const otp = byId('verifyOtp').value.trim();
+        if (!/^[0-9]{4,10}$/.test(otp)) { message(t('unknown'), true); return; }
+        const button = byId('verifySubmit');
+        button.disabled = true;
+        try {
+            await authRequest('/email-otp/verify-email','POST',{email,otp});
+            byId('verifyOtp').value = '';
+            verify.classList.add('hidden');
+            guest.classList.remove('hidden');
+            selectMode('login');
+            byId('accountEmail').value = email;
+            message(t('verifySuccess'));
+        } catch (err) { message(err.message || t('apiError'), true); }
+        finally { button.disabled = false; }
     });
     byId('authLogout').addEventListener('click', async () => {
         if (busy) return;

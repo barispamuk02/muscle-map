@@ -25,7 +25,7 @@ const prodApi='https://muscle-map-backend.onrender.com';
 const fakeJwt=['eyJhbGciOiJFZERTQSJ9','eyJzdWIiOiJ0ZXN0In0','a'.repeat(86)].join('.');
 const expires='2026-11-14T04:23:24.489Z';
 
-function setup({hostname='muscle-map.app',stage='production',session=true,paid=true,now}={}){
+function setup({hostname='muscle-map.app',stage='production',session=true,paid=true,now='2026-10-16T20:00:00.000Z'}={}){
     const calls=[],state=new Map();
     let updates=0;
     const cfg={

@@ -38,7 +38,7 @@ async function testPage(browser,config,{safe}){
     if(safe){
         await page.locator('#authGuest').waitFor({state:'visible'});
         await page.waitForFunction(()=>
-            !document.querySelector('#accountMessage')?.textContent?.includes('Проверяем сессию'));
+            document.querySelector('#accountMessage')?.classList.contains('hidden'));
         assert.equal(await page.locator('#accountStageLabel').isHidden(),true);
         assert.equal(await page.locator('#stagingMailTest').isHidden(),true);
         assert.equal(await page.locator('#stagingMailTestHint').isHidden(),true);

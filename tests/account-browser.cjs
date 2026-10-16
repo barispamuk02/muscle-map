@@ -1,87 +1,106 @@
 'use strict';
+// This suite tests OTP UX with MOCKED provider responses. It must not send
+// automated e-mail to unowned inboxes. Live Neon JWT auth was covered in
+// GitHub Actions run 38838495017 before required email verification.
 const { chromium } = require('playwright');
-const { randomUUID } = require('node:crypto');
 const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const { jwtVerify, createRemoteJWKSet } = require('jose');
 
 const root = path.resolve(__dirname, '..');
-const staticFiles = new Set(['account.html','account.js','account.css','account-config.js','index.html']);
-const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8' };
-const server = http.createServer((req,res) => {
-    const name = decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\//,'') || 'account.html';
-    if (!staticFiles.has(name)) { res.writeHead(404).end(); return; }
-    res.setHeader('Content-Type',mime[path.extname(name)]);
-    fs.createReadStream(path.join(root,name)).pipe(res);
+const allow = new Set(['account.html','account.js','account.css','account-config.js','index.html']);
+const mime = {'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8'};
+const server = http.createServer((req, res) => {
+    const name = decodeURIComponent(new URL(req.url, 'http://localhost').pathname).replace(/^\//, '') || 'account.html';
+    if (!allow.has(name)) return res.writeHead(404).end();
+    res.setHeader('Content-Type', mime[path.extname(name)]);
+    fs.createReadStream(path.join(root, name)).pipe(res);
 });
 const mobile = process.env.MOBILE_ACCOUNT === 'true';
+
 async function run() {
-    const port = 8000;
-    await new Promise(resolve => server.listen(port,'127.0.0.1',resolve));
+    await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
+    const origin = 'http://localhost:' + server.address().port;
     const browser = await chromium.launch({headless:true,args:['--no-sandbox']});
     try {
-        const context = await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1280,height:820},isMobile:mobile,hasTouch:mobile});
+        const context = await browser.newContext({
+            viewport: mobile ? {width:390,height:844} : {width:1280,height:820},
+            isMobile:mobile,hasTouch:mobile,locale:'ru-RU'
+        });
         const page = await context.newPage();
         const errors=[];
-        page.on('pageerror',e=>errors.push(e.message));
-        await page.goto('http://localhost:'+port+'/account.html',{waitUntil:'domcontentloaded'});
-        const message = page.locator('#accountMessage');
-        const email = 'mm-staging-' + randomUUID().slice(0,12) + '@example.com';
-        const pass = 'Stage!'+randomUUID()+'a1';
+        page.on('pageerror', err => errors.push(err.message));
+        let verified=false, signedIn=false, sent=0, userEmail='';
+        await page.route('**/neondb/auth/**',async route => {
+            const request = route.request();
+            const suffix = new URL(request.url()).pathname.split('/neondb/auth')[1];
+            const method = request.method();
+            const headers={
+                'Access-Control-Allow-Origin':origin,
+                'Access-Control-Allow-Credentials':'true',
+                'Access-Control-Allow-Headers':'content-type',
+                'Access-Control-Allow-Methods':'GET,POST,OPTIONS',
+                'Content-Type':'application/json'
+            };
+            if (method==='OPTIONS') return route.fulfill({status:204,headers,body:''});
+            const data = method==='POST' ? request.postDataJSON() : {};
+            let result={}, status=200;
+            if (suffix==='/get-session') {
+                result=signedIn ? {user:{id:'test-id',email:userEmail},session:{id:'test-session'}} : null;
+            } else if (suffix==='/sign-up/email') {
+                userEmail=data.email; verified=false; signedIn=false;
+                result={user:{id:'test-id',email:userEmail},token:null};
+            } else if (suffix==='/email-otp/send-verification-otp') {
+                assert.equal(data.type,'email-verification');
+                assert.equal(data.email,userEmail);
+                sent++;
+                result={success:true};
+            } else if (suffix==='/email-otp/verify-email') {
+                if (data.otp !== '123456') {
+                    status=400;result={code:'INVALID_OTP'};
+                } else {
+                    verified=true;result={status:true};
+                }
+            } else if (suffix==='/sign-in/email') {
+                if (!verified) {status=403;result={code:'EMAIL_NOT_VERIFIED'};}
+                else {signedIn=true;result={user:{id:'test-id',email:userEmail}};}
+            } else if (suffix==='/sign-out') {
+                signedIn=false;result={success:true};
+            } else {
+                status=404;result={error:'unexpected mocked route '+suffix};
+            }
+            return route.fulfill({status,headers,body:JSON.stringify(result)});
+        });
+        await page.goto(origin+'/account.html',{waitUntil:'domcontentloaded'});
         await page.locator('#tabRegister').click();
-        await page.locator('#accountName').fill('Staging Browser Test');
-        await page.locator('#accountEmail').fill(email);
-        await page.locator('#accountPassword').fill(pass);
+        await page.locator('#accountName').fill('Test OTP Account');
+        await page.locator('#accountEmail').fill('test-otp@example.test');
+        await page.locator('#accountPassword').fill('TestOTP!12345');
         await page.locator('#authSubmit').click();
-        // Managed Better Auth can either auto-sign-in or require an explicit login.
-        await page.waitForFunction(() =>
-            !document.querySelector('#accountMember') &&
-            (document.querySelector('#authMember')?.classList.contains('hidden') === false ||
-             document.querySelector('#accountMessage')?.textContent?.includes('Аккаунт создан') ||
-             document.querySelector('#accountMessage')?.classList.contains('error')),
-             { timeout:30000 });
-        const error = await message.evaluate(el=>el.classList.contains('error')?el.textContent:'');
-        if (error) throw Error('Sign up failed: '+error);
-        if (await page.locator('#authMember').isHidden()) {
-            await page.locator('#tabLogin').click();
-            await page.locator('#accountEmail').fill(email);
-            await page.locator('#accountPassword').fill(pass);
-            await page.locator('#authSubmit').click();
-        }
-        await page.locator('#authMember').waitFor({state:'visible',timeout:20000});
-        assert.match(await page.locator('#accountIdentity').textContent(),/mm-staging-/);
-        assert.match(await page.locator('#accountPremium').textContent(),/Проверка подписки|Subscription status/);
+        await page.locator('#authVerify').waitFor({state:'visible'});
+        assert.equal(sent,1,'verification code requested once after registration');
+        assert.ok(await page.locator('#authGuest').isHidden());
+        await page.locator('#verifyOtp').fill('000000');
+        await page.locator('#verifySubmit').click();
+        await page.waitForFunction(() => document.querySelector('#accountMessage')?.classList.contains('error'));
+        assert.equal(verified,false);
+        assert.ok(await page.locator('#authVerify').isVisible());
+        await page.locator('#verifyOtp').fill('123456');
+        await page.locator('#verifySubmit').click();
+        await page.locator('#authGuest').waitFor({state:'visible'});
+        assert.equal(verified,true);
+        await page.locator('#accountPassword').fill('TestOTP!12345');
+        await page.locator('#authSubmit').click();
+        await page.locator('#authMember').waitFor({state:'visible'});
         await page.reload({waitUntil:'domcontentloaded'});
-        await page.locator('#authMember').waitFor({state:'visible',timeout:15000});
+        await page.locator('#authMember').waitFor({state:'visible'});
         await page.locator('#authLogout').click();
         await page.locator('#authGuest').waitFor({state:'visible'});
-        await page.locator('#accountEmail').fill(email);
-        await page.locator('#accountPassword').fill(pass);
-        await page.locator('#authSubmit').click();
-        await page.locator('#authMember').waitFor({state:'visible',timeout:15000});
-        // Confirm the signed short-lived Neon JWT can be used by our backend.
-        const jwtData = await page.evaluate(async () => {
-            const authUrl = window.MUSCLE_MAP_ACCOUNT_CONFIG.authUrl;
-            const response = await fetch(authUrl + '/token', { credentials:'include', cache:'no-store' });
-            const json = await response.json().catch(() => ({}));
-            return { status:response.status, token:json.token || null };
-        });
-        assert.equal(jwtData.status,200,'Managed Neon Auth token endpoint must be available');
-        assert.ok(jwtData.token,'Managed Neon Auth did not return a signed JWT');
-        const authUrl = 'https://ep-summer-recipe-b1qi9f29.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth';
-        const { payload, protectedHeader } = await jwtVerify(
-            jwtData.token,
-            createRemoteJWKSet(new URL(authUrl + '/.well-known/jwks.json')),
-            { issuer:new URL(authUrl).origin, algorithms:['EdDSA'] }
-        );
-        assert.ok(typeof payload.sub === 'string' && payload.sub.length > 3);
-        assert.equal(protectedHeader.alg,'EdDSA');
-        console.log('STAGING_NEON_SIGNED_JWT_EDDSA_VERIFIED_OK');
-        assert.deepEqual(errors,[], 'No runtime errors expected');
-        console.log('STAGING_NEON_AUTH_SIGNUP_LOGIN_LOGOUT_RELOGIN_OK',mobile?'mobile':'desktop');
+        assert.equal(signedIn,false);
+        assert.deepEqual(errors,[]);
+        console.log('MOCKED_STAGING_OTP_SIGNUP_INVALID_CODE_VERIFIED_LOGIN_LOGOUT_OK',mobile?'mobile':'desktop');
         await context.close();
-    } finally { await browser.close();await new Promise(resolve=>server.close(resolve)); }
+    } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 }
-run().catch(e=>{console.error('STAGING_NEON_AUTH_E2E_FAILED',e);server.close();process.exitCode=1;});
+run().catch(error => {console.error('STAGING_OTP_UI_TEST_FAILED',error);server.close();process.exitCode=1;});

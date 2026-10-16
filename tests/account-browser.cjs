@@ -31,7 +31,7 @@ async function run() {
         const page = await context.newPage();
         const errors=[];
         page.on('pageerror', err => errors.push(err.message));
-        let verified=false, signedIn=false, sent=0, userEmail='', premiumRequests=0, mailTestRequests=0;
+        let verified=false, signedIn=false, sent=0, userEmail='', premiumRequests=0, mailTestRequests=0, recoveryRequests=0, passwordReset=false;
         // Intercept staging config only inside this test. Real staging UI still
         // defaults to no API connection and contains no production endpoint.
         await page.route('**/account-config.js', async route => {
@@ -88,6 +88,18 @@ async function run() {
                 } else {
                     verified=true;result={status:true};
                 }
+            } else if (suffix==='/email-otp/request-password-reset') {
+                assert.equal(data.email,userEmail);
+                recoveryRequests++;
+                result={success:true};
+            } else if (suffix==='/email-otp/reset-password') {
+                assert.equal(data.email,userEmail);
+                if (data.otp!=='654321') {
+                    status=400;result={code:'INVALID_OTP'};
+                } else {
+                    assert.ok(data.password.length>=12);
+                    passwordReset=true;result={success:true};
+                }
             } else if (suffix==='/sign-in/email') {
                 if (!verified) {status=403;result={code:'EMAIL_NOT_VERIFIED'};}
                 else {signedIn=true;result={user:{id:'test-id',email:userEmail}};}
@@ -137,6 +149,28 @@ async function run() {
         await page.locator('#authGuest').waitFor({state:'visible'});
         assert.equal(signedIn,false);
         assert.ok(premiumRequests>=2,'must recheck Premium on session restore');
+
+        // Real user-facing recovery (fully mocked, never emails anyone).
+        await page.locator('#authOpenRecovery').click();
+        await page.locator('#authRecovery').waitFor({state:'visible'});
+        await page.locator('#recoveryEmail').fill(userEmail);
+        await page.locator('#recoveryRequestSubmit').click();
+        await page.locator('#recoveryFinishForm').waitFor({state:'visible'});
+        assert.equal(recoveryRequests,1);
+        await page.locator('#recoveryOtp').fill('000000');
+        await page.locator('#recoveryPassword').fill('Recovered-password12345');
+        await page.locator('#recoveryRepeatPassword').fill('Recovered-password12345');
+        await page.locator('#recoveryResetSubmit').click();
+        await page.waitForFunction(()=>
+            document.querySelector('#accountMessage')?.textContent?.includes('Не удалось изменить пароль'));
+        assert.equal(passwordReset,false);
+        await page.locator('#recoveryOtp').fill('654321');
+        await page.locator('#recoveryPassword').fill('Recovered-password12345');
+        await page.locator('#recoveryRepeatPassword').fill('Recovered-password12345');
+        await page.locator('#recoveryResetSubmit').click();
+        await page.locator('#authGuest').waitFor({state:'visible'});
+        assert.equal(passwordReset,true);
+        assert.equal(recoveryRequests,1,'reset code should not be silently resent');
         assert.deepEqual(errors,[]);
         console.log('MOCKED_STAGING_OTP_SIGNUP_INVALID_CODE_VERIFIED_LOGIN_LOGOUT_OK',mobile?'mobile':'desktop');
         await context.close();

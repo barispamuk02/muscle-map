@@ -119,6 +119,9 @@
     const nameLabel = byId('nameLabel'), password = byId('accountPassword');
     const messageBox = byId('accountMessage');
     const legacyPremiumNotices = [byId('legacyPremiumNotice'), byId('legacyPremiumWarning')];
+    // Owner's historical test purchases are not a warning for new paid customers.
+    // Retain the old-account migration notes only in the isolated STAGING UI.
+    if (cfg.stage === 'staging') legacyPremiumNotices[0].classList.remove('hidden');
     let mode = 'login', busy = false;
 
     function showBootError() {
@@ -224,7 +227,8 @@
             byId('accountIdentity').textContent = user.email || user.name || t('signedIn');
             const premiumEl = byId('accountPremium');
             premiumEl.textContent = cfg.enableBackendPremium === true ? t('premiumChecking') : t('notConnected');
-            for (const notice of legacyPremiumNotices) notice.classList.remove('hidden');
+            for (const notice of legacyPremiumNotices)
+                notice.classList.toggle('hidden', cfg.stage !== 'staging');
             if (cfg.enableBackendPremium === true) {
                 // JWT is short lived; it is NEVER persisted by this client.
                 // Only the server uses verified JWT claims as the owner identity.

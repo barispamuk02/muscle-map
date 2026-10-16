@@ -5,7 +5,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const source=fs.readFileSync('script.js','utf8');
+const source=fs.readFileSync('script.js','utf8').replace(/\r\n/g,'\n');
 
 function part(start,end){
     const a=source.indexOf(start),b=source.indexOf(end,a+start.length);

@@ -50,7 +50,7 @@
             resetAction:'Изменить пароль',resetSent:'Если аккаунт существует, новый код отправлен. Используйте последнее письмо.',
             resetMismatch:'Пароли не совпадают или слишком короткие (минимум 12 символов).',
             resetSuccess:'Пароль изменён. Войдите с новым паролем.',
-            resetError:'Не удалось изменить пароль. Проверьте новый код из последнего письма.'
+            resetError:'Не удалось изменить пароль. Проверьте новый код из последнего письма.',
             verifyAwait:'Проверьте почту. Если кода нет, нажмите «Отправить код повторно».',
             verifyInvalid:'Неверный или устаревший код. Проверьте последнее письмо.',
             verifyExpired:'Срок действия кода истёк. Запросите новый код.',
@@ -88,7 +88,7 @@
             resetAction:'Reset password',resetSent:'If this account exists, a new code has been sent. Use the latest email.',
             resetMismatch:'Passwords must match and contain at least 12 characters.',
             resetSuccess:'Password changed. Sign in with the new password.',
-            resetError:'Password reset failed. Check the newest recovery code.'
+            resetError:'Password reset failed. Check the newest recovery code.',
             verifyAwait:'Check your inbox. If no code arrived, press “Resend code”.',
             verifyInvalid:'Incorrect or outdated code. Check the latest email.',
             verifyExpired:'The code has expired. Request a new one.',

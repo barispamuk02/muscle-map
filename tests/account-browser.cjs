@@ -31,7 +31,7 @@ async function run() {
         const page = await context.newPage();
         const errors=[];
         page.on('pageerror', err => errors.push(err.message));
-        let verified=false, signedIn=false, sent=0, userEmail='', premiumRequests=0;
+        let verified=false, signedIn=false, sent=0, userEmail='', premiumRequests=0, mailTestRequests=0;
         // Intercept staging config only inside this test. Real staging UI still
         // defaults to no API connection and contains no production endpoint.
         await page.route('**/account-config.js', async route => {
@@ -43,6 +43,14 @@ async function run() {
                 "'https://muscle-map-backend-staging.onrender.com'",JSON.stringify(origin)
             );
             await route.fulfill({status:200,contentType:'application/javascript',body:mocked});
+        });
+        await page.route('**/api/staging/me/mail-test',async route=>{
+            mailTestRequests++;
+            assert.equal(route.request().method(),'POST');
+            assert.equal(route.request().headers().authorization,'Bearer ui-only-test-token');
+            assert.equal(route.request().postData(),null,'recipient must never be browser-supplied');
+            await route.fulfill({status:202,contentType:'application/json',
+                body:JSON.stringify({ok:true,message:'test email accepted'})});
         });
         await page.route('**/api/v2/me/premium', async route => {
             premiumRequests++;
@@ -120,6 +128,9 @@ async function run() {
         await page.locator('#authSubmit').click();
         await page.locator('#authMember').waitFor({state:'visible'});
         await page.locator('#accountPremium').getByText('Premium не активен').waitFor({timeout:10000});
+        await page.locator('#stagingMailTest').click();
+        await page.waitForFunction(()=>document.querySelector('#accountMessage')?.textContent?.includes('Тестовое письмо принято'));
+        assert.equal(mailTestRequests,1,'exactly one authenticated staging mail-test call');
         assert.ok(premiumRequests>0,'must call protected Premium read with bearer token');
         await page.reload({waitUntil:'domcontentloaded'});
         await page.locator('#authMember').waitFor({state:'visible'});

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#0a0a12">
-<title>Аккаунт | Muscle Map (тест)</title>
+<title>Аккаунт | Muscle Map</title>
 <link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="account.css">
 </head>
@@ -13,10 +13,10 @@
 <main class="account-shell">
   <a class="home-link" href="index.html">← <span data-i18n="back">Вернуться к Muscle Map</span></a>
   <div class="logo-mark">M<span>✦</span></div>
-  <div class="test-tag" data-i18n="testLabel">ТЕСТОВЫЙ ВХОД · НЕ PRODUCTION</div>
+  <div class="test-tag" id="accountStageLabel" data-i18n="testLabel">ТЕСТОВЫЙ ВХОД · НЕ PRODUCTION</div>
   <section class="auth-card" aria-label="Аккаунт Muscle Map">
     <h1 data-i18n="title">Ваш аккаунт Muscle Map</h1>
-    <p class="lead" data-i18n="lead">Войдите, чтобы в будущем синхронизировать подписку и тренировки между устройствами.</p>
+    <p class="lead" data-i18n="lead">Войдите, чтобы проверить подписку Premium. Дневник тренировок пока хранится на этом устройстве.</p>
     <p class="notice" id="legacyPremiumNotice" data-i18n="notice">Существующие Premium-подписки пока НЕ привязываются автоматически. Текущий дневник остаётся на устройстве.</p>
 
     <section id="authGuest">
@@ -51,7 +51,7 @@
       <dl class="premium-meta"><dt data-i18n="premium">Premium</dt><dd id="accountPremium" data-i18n="notConnected">Проверка подписки станет доступна после подключения защищённого backend.</dd></dl>
       <p class="notice" id="legacyPremiumWarning" data-i18n="claimWarn">Если у вас уже была подписка Premium, она останется у прежнего аккаунта до подтверждения владения через платёжного провайдера.</p>
       <button type="button" id="stagingMailTest" class="action-secondary" data-i18n="sendMailTest">Отправить тестовое письмо</button>
-      <p class="privacy-note" data-i18n="mailTestHint">Только на ваш подтверждённый адрес, не чаще одного раза в сутки. Не влияет на Premium.</p>
+      <p class="privacy-note" id="stagingMailTestHint" data-i18n="mailTestHint">Только на ваш подтверждённый адрес, не чаще одного раза в сутки. Не влияет на Premium.</p>
       <button type="button" id="authLogout" class="action-secondary" data-i18n="logout">Выйти из аккаунта</button>
     </section>
     <div id="accountMessage" class="message hidden" role="status" aria-live="polite"></div>

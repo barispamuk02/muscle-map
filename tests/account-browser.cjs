@@ -35,12 +35,15 @@ async function run() {
         // Intercept staging config only inside this test. Real staging UI still
         // defaults to no API connection and contains no production endpoint.
         await page.route('**/account-config.js', async route => {
-            const original = fs.readFileSync(path.join(root,'account-config.js'),'utf8');
-            assert.ok(original.includes("apiUrl: 'https://muscle-map-backend-staging.onrender.com'"));
-            assert.ok(original.includes('enableBackendPremium: true'));
-            assert.ok(!original.includes("'https://muscle-map-backend.onrender.com'"));
-            // Keep the true staging URL: Playwright intercepts the external
-            // Premium and mail-test HTTP requests without hitting Render.
+            // This regression deliberately simulates STAGING while the
+            // release branch itself publishes PRODUCTION account-config.js.
+            // Never substitute the actual release config in a staging mock.
+            const original = "window.MUSCLE_MAP_ACCOUNT_CONFIG = Object.freeze({"
+                + "stage:'staging',"
+                + "authUrl:'https://ep-summer-recipe-b1qi9f29.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth',"
+                + "apiUrl:'https://muscle-map-backend-staging.onrender.com',"
+                + "emailVerificationRequired:true,enableBackendPremium:true"
+                + "});";
             await route.fulfill({status:200,contentType:'application/javascript',body:original});
         });
         await page.route('**/api/staging/me/mail-test',async route=>{

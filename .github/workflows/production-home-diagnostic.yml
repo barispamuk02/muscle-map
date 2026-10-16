@@ -29,7 +29,7 @@ jobs:
           set -euo pipefail
           ok=0
           for i in $(seq 1 50); do
-            if curl -fsS --connect-timeout 8 --max-time 30 -H 'Cache-Control: no-cache' 'https://muscle-map.app/script.js' | grep -q 'Initialize before any top-level Premium UI checks execute'; then
+            if curl -fsS --connect-timeout 8 --max-time 30 -H 'Cache-Control: no-cache' -o /tmp/muscle-map-prod-script.js 'https://muscle-map.app/script.js' && grep -q 'Initialize before any top-level Premium UI checks execute' /tmp/muscle-map-prod-script.js; then
               ok=1
               break
             fi

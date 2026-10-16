@@ -43,6 +43,14 @@
             verifyCode:'Код из письма',verifyAction:'Подтвердить адрес',verifyResend:'Отправить код повторно',verifyBack:'Вернуться ко входу',
             verifySent:'Новый код запрошен. Используйте только последнее письмо.',verifySuccess:'Адрес подтверждён. Теперь можно войти.',
             openVerify:'Подтвердить e-mail с кодом',
+            forgotPassword:'Забыли пароль?',resetTitle:'Восстановление пароля',
+            resetHint:'Получите код на свою почту и установите новый пароль.',
+            resetSend:'Отправить код',resetCode:'Код восстановления',
+            resetNewPassword:'Новый пароль',resetRepeatPassword:'Повторите новый пароль',
+            resetAction:'Изменить пароль',resetSent:'Если аккаунт существует, новый код отправлен. Используйте последнее письмо.',
+            resetMismatch:'Пароли не совпадают или слишком короткие (минимум 12 символов).',
+            resetSuccess:'Пароль изменён. Войдите с новым паролем.',
+            resetError:'Не удалось изменить пароль. Проверьте новый код из последнего письма.'
             verifyAwait:'Проверьте почту. Если кода нет, нажмите «Отправить код повторно».',
             verifyInvalid:'Неверный или устаревший код. Проверьте последнее письмо.',
             verifyExpired:'Срок действия кода истёк. Запросите новый код.',
@@ -73,6 +81,14 @@
             verifyCode:'Email code',verifyAction:'Verify email',verifyResend:'Resend code',verifyBack:'Back to sign-in',
             verifySent:'A new code was requested. Use the most recent email only.',verifySuccess:'Email verified. You can sign in now.',
             openVerify:'Verify email with a code',
+            forgotPassword:'Forgot password?',resetTitle:'Reset password',
+            resetHint:'Receive a code by email and choose a new password.',
+            resetSend:'Send recovery code',resetCode:'Recovery code',
+            resetNewPassword:'New password',resetRepeatPassword:'Repeat new password',
+            resetAction:'Reset password',resetSent:'If this account exists, a new code has been sent. Use the latest email.',
+            resetMismatch:'Passwords must match and contain at least 12 characters.',
+            resetSuccess:'Password changed. Sign in with the new password.',
+            resetError:'Password reset failed. Check the newest recovery code.'
             verifyAwait:'Check your inbox. If no code arrived, press “Resend code”.',
             verifyInvalid:'Incorrect or outdated code. Check the latest email.',
             verifyExpired:'The code has expired. Request a new one.',
@@ -98,6 +114,7 @@
     byId('stagingMailTest').classList.toggle('hidden', cfg.stage !== 'staging');
     byId('stagingMailTestHint').classList.toggle('hidden', cfg.stage !== 'staging');
     const guest = byId('authGuest'), member = byId('authMember'), verify = byId('authVerify');
+    const recovery = byId('authRecovery');
     const form = byId('authForm'), button = byId('authSubmit');
     const nameLabel = byId('nameLabel'), password = byId('accountPassword');
     const messageBox = byId('accountMessage');
@@ -297,6 +314,75 @@
             }
         } finally {
             setBusy(false);
+        }
+    });
+    // User-facing password recovery uses the actual tested Neon Better Auth
+    // email-OTP reset endpoints; no login password or OTP is saved locally.
+    byId('authOpenRecovery').addEventListener('click', () => {
+        if (busy) return;
+        member.classList.add('hidden');
+        guest.classList.add('hidden');
+        verify.classList.add('hidden');
+        recovery.classList.remove('hidden');
+        byId('recoveryEmail').value = byId('accountEmail').value.trim().toLowerCase();
+        byId('recoveryFinishForm').classList.add('hidden');
+        byId('recoveryOtp').value = '';
+        byId('recoveryPassword').value = '';
+        byId('recoveryRepeatPassword').value = '';
+        message('');
+    });
+    byId('recoveryBack').addEventListener('click', () => {
+        if (busy) return;
+        recovery.classList.add('hidden');
+        guest.classList.remove('hidden');
+        selectMode('login');
+    });
+    byId('recoveryRequestForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        if (busy || !byId('recoveryRequestForm').reportValidity()) return;
+        const email = byId('recoveryEmail').value.trim().toLowerCase();
+        const control = byId('recoveryRequestSubmit');
+        setBusy(true); control.disabled = true;
+        try {
+            await authRequest('/email-otp/request-password-reset', 'POST', {email});
+            byId('recoveryFinishForm').classList.remove('hidden');
+            message(t('resetSent'));
+        } catch {
+            message(t('apiError'), true);
+        } finally {
+            setBusy(false); control.disabled = false;
+        }
+    });
+    byId('recoveryFinishForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        if (busy || !byId('recoveryFinishForm').reportValidity()) return;
+        const email = byId('recoveryEmail').value.trim().toLowerCase();
+        const otp = byId('recoveryOtp').value.trim();
+        const pass = byId('recoveryPassword').value;
+        if (!/^[0-9]{4,10}$/.test(otp) || pass.length < 12 ||
+            pass.length > 128 || pass !== byId('recoveryRepeatPassword').value) {
+            message(t('resetMismatch'), true);
+            return;
+        }
+        const control = byId('recoveryResetSubmit');
+        setBusy(true); control.disabled = true;
+        try {
+            await authRequest('/email-otp/reset-password', 'POST', {email,otp,password:pass});
+            byId('recoveryOtp').value = '';
+            byId('recoveryPassword').value = '';
+            byId('recoveryRepeatPassword').value = '';
+            recovery.classList.add('hidden');
+            guest.classList.remove('hidden');
+            selectMode('login');
+            byId('accountEmail').value = email;
+            message(t('resetSuccess'));
+        } catch {
+            // Avoid provider response reflection and account enumeration.
+            message(t('resetError'), true);
+        } finally {
+            byId('recoveryPassword').value = '';
+            byId('recoveryRepeatPassword').value = '';
+            setBusy(false); control.disabled = false;
         }
     });
     byId('authOpenVerify').addEventListener('click', () => {

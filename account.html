@@ -17,7 +17,7 @@
   <section class="auth-card" aria-label="Аккаунт Muscle Map">
     <h1 data-i18n="title">Ваш аккаунт Muscle Map</h1>
     <p class="lead" data-i18n="lead">Войдите, чтобы в будущем синхронизировать подписку и тренировки между устройствами.</p>
-    <p class="notice" data-i18n="notice">Существующие Premium-подписки пока НЕ привязываются автоматически. Текущий дневник остаётся на устройстве.</p>
+    <p class="notice" id="legacyPremiumNotice" data-i18n="notice">Существующие Premium-подписки пока НЕ привязываются автоматически. Текущий дневник остаётся на устройстве.</p>
 
     <section id="authGuest">
       <div class="tabs" role="tablist" aria-label="Способ входа">
@@ -49,7 +49,7 @@
       <p class="success" data-i18n="signedIn">Вы вошли в Muscle Map</p>
       <p id="accountIdentity" class="identity"></p>
       <dl class="premium-meta"><dt data-i18n="premium">Premium</dt><dd id="accountPremium" data-i18n="notConnected">Проверка подписки станет доступна после подключения защищённого backend.</dd></dl>
-      <p class="notice" data-i18n="claimWarn">Если у вас уже была подписка Premium, она останется у прежнего аккаунта до подтверждения владения через платёжного провайдера.</p>
+      <p class="notice" id="legacyPremiumWarning" data-i18n="claimWarn">Если у вас уже была подписка Premium, она останется у прежнего аккаунта до подтверждения владения через платёжного провайдера.</p>
       <button type="button" id="stagingMailTest" class="action-secondary" data-i18n="sendMailTest">Отправить тестовое письмо</button>
       <p class="privacy-note" data-i18n="mailTestHint">Только на ваш подтверждённый адрес, не чаще одного раза в сутки. Не влияет на Premium.</p>
       <button type="button" id="authLogout" class="action-secondary" data-i18n="logout">Выйти из аккаунта</button>

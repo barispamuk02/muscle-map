@@ -11,7 +11,7 @@ const mobile = fs.readFileSync('mobile-home.js','utf8');
 test('account navigation and controls are present and safe by default', () => {
     assert.match(main, /href="account\.html"/);
     assert.match(mobile, /\['navAccount', '👤', 'account'\]/);
-    for(const id of ['authGuest','authMember','authVerify','verifyForm','verifyOtp','verifyResend','authForm','accountEmail',
+    for(const id of ['authGuest','authMember','authVerify','authOpenVerify','verifyForm','verifyOtp','verifyResend','authForm','accountEmail',
         'accountPassword','accountName','authLogout','accountMessage']) {
         assert.ok(html.includes('id="' + id + '"'), 'missing #' + id);
     }
@@ -24,6 +24,7 @@ test('account UI uses official auth flow endpoints without storing credentials',
         assert.ok(js.includes(e), 'missing endpoint '+e);
     assert.match(js, /credentials:\s*'include'/);
     assert.match(js, /\/email-otp\/verify-email/);
+    assert.match(js, /showVerification\(byId\('accountEmail'\)/);
     assert.match(js, /\/email-otp\/send-verification-otp/);
     assert.doesNotMatch(js, /localStorage\.setItem/);
     assert.doesNotMatch(js, /sessionStorage\.setItem/);

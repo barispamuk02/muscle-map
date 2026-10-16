@@ -36,8 +36,8 @@ async function run() {
         // defaults to no API connection and contains no production endpoint.
         await page.route('**/account-config.js', async route => {
             const original = fs.readFileSync(path.join(root,'account-config.js'),'utf8');
-            assert.match(original,/apiUrl:\\s*null/);
-            assert.match(original,/enableBackendPremium:\\s*false/);
+            assert.ok(original.includes('apiUrl: null'));
+            assert.ok(original.includes('enableBackendPremium: false'));
             const mocked = original.replace('apiUrl: null','apiUrl: ' + JSON.stringify(origin))
                 .replace('enableBackendPremium: false','enableBackendPremium: true');
             await route.fulfill({status:200,contentType:'application/javascript',body:mocked});

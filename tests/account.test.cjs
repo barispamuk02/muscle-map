@@ -32,11 +32,13 @@ test('account UI uses official auth flow endpoints without storing credentials',
     assert.doesNotMatch(js, /sessionStorage\.setItem/);
     assert.doesNotMatch(js, /console\.(?:log|debug)\(/);
 });
-test('staging configuration must not change production payment entitlements', () => {
-    assert.match(config, /stage:\s*'staging'/);
+test('released Production account config uses only the verified Neon and backend endpoints', () => {
+    assert.match(config, /stage:\s*'production'/);
     assert.match(config, /enableBackendPremium:\s*true/);
-    assert.ok(config.includes("apiUrl: 'https://muscle-map-backend-staging.onrender.com'"));
-    assert.ok(!config.includes("apiUrl: 'https://muscle-map-backend.onrender.com'"));
+    assert.ok(config.includes("apiUrl: 'https://muscle-map-backend.onrender.com'"));
+    assert.ok(!config.includes('ep-summer-recipe-b1qi9f29'));
+    assert.ok(!config.includes('muscle-map-backend-staging'));
+    assert.equal(config,fs.readFileSync('release/account-config.production.js','utf8'));
     assert.ok(!js.includes('muscleMap_premium'));
     assert.doesNotMatch(js, /\/api\/checkout/);
     assert.doesNotMatch(html, /<script\s+src="script\.js"/);

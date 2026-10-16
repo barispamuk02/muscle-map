@@ -19,7 +19,8 @@
             notice:'Существующие Premium-подписки пока НЕ привязываются автоматически. Текущий дневник остаётся на устройстве.',
             login:'Войти',register:'Регистрация',name:'Ваше имя',email:'Электронная почта',
             password:'Пароль', signedIn:'Вы вошли в Muscle Map', premium:'Premium',
-            notConnected:'Проверка подписки станет доступна после подключения защищённого backend.',
+            notConnected:'Проверка подписки пока недоступна.',
+            premiumChecking:'Проверяем Premium…',premiumError:'Не удалось проверить Premium. Обновите страницу позже.',
             claimWarn:'Если у вас уже была подписка Premium, она останется у прежнего аккаунта до подтверждения владения через платёжного провайдера.',
             logout:'Выйти из аккаунта',
             privacy:'Пароль передаётся только сервису Neon Auth. Он не записывается в Muscle Map, localStorage или аналитику.',
@@ -48,7 +49,8 @@
             notice:'Existing Premium subscriptions are NOT automatically linked. Workout history stays on this device.',
             login:'Sign in',register:'Create account',name:'Your name',email:'Email',
             password:'Password',signedIn:'You are signed in',premium:'Premium',
-            notConnected:'Subscription status will be available once the secured backend is connected.',
+            notConnected:'Subscription status is not available yet.',
+            premiumChecking:'Checking Premium…',premiumError:'Could not check Premium. Please reload later.',
             claimWarn:'Your existing Premium subscription remains with its original account until independent payment ownership is verified.',
             logout:'Sign out',
             privacy:'Your password goes directly to Neon Auth. It is not saved in Muscle Map, localStorage or analytics.',
@@ -85,6 +87,7 @@
     const form = byId('authForm'), button = byId('authSubmit');
     const nameLabel = byId('nameLabel'), password = byId('accountPassword');
     const messageBox = byId('accountMessage');
+    const legacyPremiumNotices = [byId('legacyPremiumNotice'), byId('legacyPremiumWarning')];
     let mode = 'login', busy = false;
 
     function showBootError() {
@@ -188,7 +191,9 @@
         member.classList.toggle('hidden', !authenticated);
         if (authenticated) {
             byId('accountIdentity').textContent = user.email || user.name || t('signedIn');
-            byId('accountPremium').textContent = t('notConnected');
+            const premiumEl = byId('accountPremium');
+            premiumEl.textContent = cfg.enableBackendPremium === true ? t('premiumChecking') : t('notConnected');
+            for (const notice of legacyPremiumNotices) notice.classList.remove('hidden');
             if (cfg.enableBackendPremium === true) {
                 // JWT is short lived; it is NEVER persisted by this client.
                 // Only the server uses verified JWT claims as the owner identity.
@@ -205,23 +210,24 @@
                         throw new Error('Missing or unsafe staging Premium API endpoint');
                     }
                     const token = await authRequest('/token');
-                    if (typeof token?.token === 'string') {
-                        const res = await fetch(endpoint.origin + '/api/v2/me/premium', {
-                            headers: { Authorization: 'Bearer ' + token.token },
-                            cache: 'no-store',
-                            redirect: 'error'
-                        });
-                        if (res.ok) {
-                            const status = await res.json();
-                            const date = status.expiresAt ? new Date(status.expiresAt) : null;
-                            byId('accountPremium').textContent = status.premium &&
-                                date && Number.isFinite(date.getTime())
-                                ? t('premiumActive') + ' ' + date.toLocaleDateString(lang)
-                                : (status.premium === false ? t('premiumFree') : t('notConnected'));
-                        }
-                    }
+                    if (typeof token?.token !== 'string' || !token.token) throw new Error('Missing session token');
+                    const res = await fetch(endpoint.origin + '/api/v2/me/premium', {
+                        headers: { Authorization: 'Bearer ' + token.token },
+                        cache: 'no-store',
+                        redirect: 'error'
+                    });
+                    if (!res.ok) throw new Error('Premium status request failed');
+                    const status = await res.json();
+                    const date = status.expiresAt ? new Date(status.expiresAt) : null;
+                    const active = status.premium === true && date &&
+                        Number.isFinite(date.getTime()) && date > new Date();
+                    premiumEl.textContent = active
+                        ? t('premiumActive') + ' ' + date.toLocaleDateString(lang)
+                        : (status.premium === false ? t('premiumFree') : t('premiumError'));
+                    // Historical-linking notices are irrelevant once a paid identity is verified.
+                    if (active) for (const notice of legacyPremiumNotices) notice.classList.add('hidden');
                 } catch {
-                    byId('accountPremium').textContent = t('notConnected');
+                    premiumEl.textContent = t('premiumError');
                 }
             }
         }

@@ -14,14 +14,14 @@
             description: 'Выбери мышцу и открой подходящие упражнения.', search: 'Найти мышцу…',
             workout: 'Моя тренировка', programs: 'Программы', muscles: 'Мышцы', progress: 'Прогресс',
             more: 'Ещё', menu: 'Все разделы', recovery: 'Восстановление', nutrition: 'Питание',
-            premium: 'Премиум', share: 'Поделиться', random: 'Случайная мышца', close: 'Закрыть'
+            premium: 'Премиум', account: 'Аккаунт', share: 'Поделиться', random: 'Случайная мышца', close: 'Закрыть'
         },
         en: {
             kicker: 'ANATOMY & TRAINING', title: 'Explore muscles. Train smarter.',
             description: 'Choose a muscle to discover exercises.', search: 'Find a muscle…',
             workout: 'My Workout', programs: 'Programs', muscles: 'Muscles', progress: 'Progress',
             more: 'More', menu: 'All sections', recovery: 'Recovery', nutrition: 'Nutrition',
-            premium: 'Premium', share: 'Share', random: 'Random muscle', close: 'Close'
+            premium: 'Premium', account: 'Account', share: 'Share', random: 'Random muscle', close: 'Close'
         }
     };
     const hero = document.createElement('section');
@@ -66,7 +66,7 @@
     sheet.innerHTML = '<div class="mm-mobile-menu-head"><span data-mm-text="menu"></span><button type="button" data-mm-close aria-label="Close">×</button></div>' +
         '<div class="mm-mobile-menu-grid">' + [
             ['navRecovery', '♡', 'recovery'], ['navNutrition', '♧', 'nutrition'],
-            ['premiumBtn', '◇', 'premium'], ['shareBtn', '↗', 'share'],
+            ['premiumBtn', '◇', 'premium'], ['navAccount', '👤', 'account'], ['shareBtn', '↗', 'share'],
             ['randomBtn', '⤨', 'random']
         ].map(([target, symbol, key]) => '<button type="button" class="' + (target === 'premiumBtn' ? 'mm-premium' : '') + '" data-mm-target="' + target + '">' + symbol + ' <span data-mm-text="' + key + '"></span></button>').join('') + '</div>';
     document.body.appendChild(backdrop);

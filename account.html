@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0a12">
+<title>Аккаунт | Muscle Map</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="account.css">
+</head>
+<body>
+<main class="account-shell">
+  <a class="home-link" href="index.html">← <span data-i18n="back">Вернуться к Muscle Map</span></a>
+  <div class="logo-mark">M<span>✦</span></div>
+  <div class="test-tag" id="accountStageLabel" data-i18n="testLabel">ТЕСТОВЫЙ ВХОД · НЕ PRODUCTION</div>
+  <section class="auth-card" aria-label="Аккаунт Muscle Map">
+    <h1 data-i18n="title">Ваш аккаунт Muscle Map</h1>
+    <p class="lead" data-i18n="lead">Войдите, чтобы проверить подписку Premium. Дневник тренировок пока хранится на этом устройстве.</p>
+    <p class="notice hidden" id="legacyPremiumNotice" data-i18n="notice">Существующие Premium-подписки пока НЕ привязываются автоматически. Текущий дневник остаётся на устройстве.</p>
+
+    <section id="authGuest">
+      <div class="tabs" role="tablist" aria-label="Способ входа">
+        <button type="button" role="tab" id="tabLogin" class="selected" aria-selected="true" data-mode="login" data-i18n="login">Вход</button>
+        <button type="button" role="tab" id="tabRegister" aria-selected="false" data-mode="register" data-i18n="register">Регистрация</button>
+      </div>
+      <form id="authForm" novalidate>
+        <label id="nameLabel" class="hidden" for="accountName"><span data-i18n="name">Ваше имя</span><input id="accountName" autocomplete="name" minlength="2" maxlength="80" name="name"></label>
+        <label for="accountEmail"><span data-i18n="email">Электронная почта</span><input type="email" id="accountEmail" name="email" autocomplete="email" maxlength="254" required></label>
+        <label for="accountPassword"><span data-i18n="password">Пароль</span><input type="password" id="accountPassword" name="password" autocomplete="current-password" minlength="8" maxlength="128" required></label>
+        <button type="submit" id="authSubmit" class="action-primary" data-i18n="login">Войти</button>
+      </form>
+      <button type="button" class="action-secondary" id="authOpenVerify" data-i18n="openVerify">Подтвердить e-mail с кодом</button>
+      <button type="button" class="action-secondary" id="authOpenRecovery" data-i18n="forgotPassword">Забыли пароль?</button>
+    </section>
+
+    <section id="authRecovery" class="hidden" aria-label="Восстановление пароля">
+      <h2 data-i18n="resetTitle">Восстановление пароля</h2>
+      <p class="lead" data-i18n="resetHint">Получите код на свою почту и установите новый пароль.</p>
+      <form id="recoveryRequestForm">
+        <label for="recoveryEmail"><span data-i18n="email">Электронная почта</span><input id="recoveryEmail" type="email" autocomplete="email" maxlength="254" required></label>
+        <button class="action-primary" id="recoveryRequestSubmit" type="submit" data-i18n="resetSend">Отправить код</button>
+      </form>
+      <form id="recoveryFinishForm" class="hidden">
+        <label for="recoveryOtp"><span data-i18n="resetCode">Код восстановления</span><input id="recoveryOtp" type="text" inputmode="numeric" autocomplete="one-time-code" minlength="4" maxlength="10" pattern="[0-9]{4,10}" required></label>
+        <label for="recoveryPassword"><span data-i18n="resetNewPassword">Новый пароль</span><input id="recoveryPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+        <label for="recoveryRepeatPassword"><span data-i18n="resetRepeatPassword">Повторите новый пароль</span><input id="recoveryRepeatPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+        <button class="action-primary" id="recoveryResetSubmit" type="submit" data-i18n="resetAction">Изменить пароль</button>
+      </form>
+      <button type="button" class="action-secondary" id="recoveryBack" data-i18n="verifyBack">Вернуться ко входу</button>
+    </section>
+
+    <section id="authVerify" class="hidden" aria-label="Подтверждение e-mail">
+      <h2 data-i18n="verifyTitle">Подтвердите электронную почту</h2>
+      <p class="lead" data-i18n="verifyHint">Мы отправим одноразовый код на указанный адрес. Введите его ниже.</p>
+      <form id="verifyForm">
+        <label for="verifyEmail"><span data-i18n="email">Электронная почта</span><input id="verifyEmail" type="email" name="email" autocomplete="email" required maxlength="254"></label>
+        <label for="verifyOtp"><span data-i18n="verifyCode">Код из письма</span><input id="verifyOtp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" minlength="4" pattern="[0-9]{4,10}" required></label>
+        <button class="action-primary" id="verifySubmit" type="submit" data-i18n="verifyAction">Подтвердить адрес</button>
+        <button class="action-secondary" id="verifyResend" type="button" data-i18n="verifyResend">Отправить код повторно</button>
+        <button class="action-secondary" id="verifyBack" type="button" data-i18n="verifyBack">Вернуться ко входу</button>
+      </form>
+    </section>
+
+    <section id="authMember" class="hidden" aria-live="polite">
+      <p class="success" data-i18n="signedIn">Вы вошли в Muscle Map</p>
+      <p id="accountIdentity" class="identity"></p>
+      <dl class="premium-meta"><dt data-i18n="premium">Premium</dt><dd id="accountPremium" data-i18n="notConnected">Проверка подписки станет доступна после подключения защищённого backend.</dd></dl>
+      <p class="notice hidden" id="legacyPremiumWarning" data-i18n="claimWarn">Если у вас уже была подписка Premium, она останется у прежнего аккаунта до подтверждения владения через платёжного провайдера.</p>
+      <button type="button" id="stagingMailTest" class="action-secondary" data-i18n="sendMailTest">Отправить тестовое письмо</button>
+      <p class="privacy-note" id="stagingMailTestHint" data-i18n="mailTestHint">Только на ваш подтверждённый адрес, не чаще одного раза в сутки. Не влияет на Premium.</p>
+      <button type="button" id="authLogout" class="action-secondary" data-i18n="logout">Выйти из аккаунта</button>
+    </section>
+    <div id="accountMessage" class="message hidden" role="status" aria-live="polite"></div>
+  </section>
+  <p class="privacy-note" data-i18n="privacy">Пароль передаётся только сервису Neon Auth. Он не записывается в Muscle Map, localStorage или аналитику.</p>
+</main>
+<script src="account-config.js"></script>
+<script src="account.js" defer></script>
+</body>
+</html>

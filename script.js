@@ -6846,14 +6846,31 @@ function initDodo() {
 
 async function openDodoCheckout() {
     trackEvent('checkout_attempted');
-    const userId = getUserId();
-    console.log('🛒 Создаю Dodo checkout для', userId);
-    
+    const production = isProductionAuthSite();
+    let userId = null;
+    if (!production) userId = getUserId();
+
     try {
-        const res = await fetch(`${BACKEND_URL}/api/checkout`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId })
+        let endpoint = BACKEND_URL + '/api/checkout';
+        let headers = { 'Content-Type': 'application/json' };
+        let body = JSON.stringify({ userId });
+        if (production) {
+            // Checkout must be attached to the signed Neon identity, never
+            // an untrusted localStorage ID. Backend independently verifies it.
+            let token;
+            try {
+                token = await getProductionAuthToken();
+            } catch {
+                showToast('🔐 Для оплаты войдите в аккаунт Muscle Map.');
+                window.location.assign('account.html');
+                return;
+            }
+            endpoint = BACKEND_URL + '/api/v2/me/checkout';
+            headers = { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' };
+            body = '{}';
+        }
+        const res = await fetch(endpoint, {
+            method: 'POST', headers, body, cache: 'no-store', redirect: 'error'
         });
         
         if (!res.ok) {
@@ -7454,6 +7471,38 @@ const PREMIUM_KEY = 'muscleMap_premium';
 // 🔗 BACKEND СИНХРОНИЗАЦИЯ
 // ============================================
 const BACKEND_URL = 'https://muscle-map-backend.onrender.com';
+// Production must use a cryptographically verified account: a browser-generated
+// legacy userId or localStorage premium marker cannot authorize paid UI here.
+const PRODUCTION_AUTH_BASE = 'https://ep-muddy-rice-b1y5qbz8.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth';
+let productionVerifiedPremium = false;
+function isProductionAuthSite() {
+    return ['muscle-map.app', 'www.muscle-map.app'].includes(location.hostname.toLowerCase());
+}
+async function getProductionAuthToken() {
+    const config = window.MUSCLE_MAP_ACCOUNT_CONFIG;
+    if (!isProductionAuthSite() || config?.stage !== 'production' ||
+        config?.authUrl !== PRODUCTION_AUTH_BASE ||
+        config?.apiUrl !== BACKEND_URL) {
+        throw Error('Production account configuration not active');
+    }
+    const sessionResponse = await fetch(PRODUCTION_AUTH_BASE + '/get-session', {
+        method: 'GET', credentials: 'include', cache: 'no-store', redirect: 'error'
+    });
+    if (!sessionResponse.ok) throw Error('Account session unavailable');
+    const session = await sessionResponse.json();
+    if (typeof session?.user?.id !== 'string' || session.user.emailVerified !== true) {
+        throw Error('A verified account sign-in is required');
+    }
+    const tokenResponse = await fetch(PRODUCTION_AUTH_BASE + '/token', {
+        method: 'GET', credentials: 'include', cache: 'no-store', redirect: 'error'
+    });
+    if (!tokenResponse.ok) throw Error('Account token unavailable');
+    const token = await tokenResponse.json();
+    if (typeof token?.token !== 'string' || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token.token)) {
+        throw Error('Invalid account token');
+    }
+    return token.token;
+}
 
 function getUserId() {
     let userId = localStorage.getItem('muscleMap_userId');
@@ -7477,6 +7526,8 @@ function trackEvent(eventName, params = {}) {
 }
 // Проверка — премиум ли пользователь
 function isPremium() {
+    // Authenticated Production mode does NOT trust editable localStorage.
+    if (isProductionAuthSite()) return productionVerifiedPremium;
     try {
         const data = JSON.parse(localStorage.getItem(PREMIUM_KEY));
         if (!data) return false;
@@ -7495,6 +7546,10 @@ function isPremium() {
 
 // Установка статуса Премиум
 function setPremium(active, days = 30) {
+    if (isProductionAuthSite()) {
+        // Old developer/test toggles cannot grant paid functionality in v2.
+        return;
+    }
     if (active) {
         const expires = new Date();
         expires.setDate(expires.getDate() + days);
@@ -7520,6 +7575,30 @@ function setPremium(active, days = 30) {
 // 🔗 СИНХРОНИЗАЦИЯ PREMIUM С BACKEND
 // ============================================
 async function syncPremiumFromBackend() {
+    if (isProductionAuthSite()) {
+        let allowed = false;
+        try {
+            const token = await getProductionAuthToken();
+            const result = await fetch(BACKEND_URL + '/api/v2/me/premium', {
+                method: 'GET', headers: { Authorization: 'Bearer ' + token },
+                cache: 'no-store', redirect: 'error'
+            });
+            if (!result.ok) throw Error('Authenticated Premium check failed');
+            const status = await result.json();
+            const expiry = new Date(status?.expiresAt);
+            allowed = status?.premium === true &&
+                Number.isFinite(expiry.getTime()) && expiry > new Date();
+        } catch {
+            // Missing login, network outage or an invalid token must fail closed.
+            allowed = false;
+        }
+        if (productionVerifiedPremium !== allowed) {
+            productionVerifiedPremium = allowed;
+            updatePremiumUI();
+            if (typeof updatePremiumButtons === 'function') updatePremiumButtons();
+        }
+        return;
+    }
     try {
         const userId = getUserId();
         const res = await fetch(`${BACKEND_URL}/api/premium/${userId}`, { method: 'GET', cache: 'no-store' });

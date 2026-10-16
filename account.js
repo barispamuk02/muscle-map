@@ -37,7 +37,9 @@
             verifyInvalid:'Неверный или устаревший код. Проверьте последнее письмо.',
             verifyExpired:'Срок действия кода истёк. Запросите новый код.',
             verifyLimit:'Превышено число попыток. Запросите новый код позже.',
-            verifyFailed:'Не удалось проверить код.'
+            verifyFailed:'Не удалось проверить код.',
+            sendMailTest:'Отправить тестовое письмо',mailTestHint:'Только на ваш подтверждённый адрес, один раз в сутки. Не влияет на Premium.',
+            mailTestSuccess:'Тестовое письмо принято к отправке. Проверьте почту.',mailTestLimit:'Проверка доступна один раз за 24 часа.',mailTestError:'Не удалось отправить тестовое письмо. Проверьте настройки Resend.'
         },
         en: {
             back:'Back to Muscle Map',testLabel:'STAGING SIGN-IN · NOT PRODUCTION',
@@ -64,7 +66,9 @@
             verifyInvalid:'Incorrect or outdated code. Check the latest email.',
             verifyExpired:'The code has expired. Request a new one.',
             verifyLimit:'Too many attempts. Request a new code later.',
-            verifyFailed:'Could not verify the code.'
+            verifyFailed:'Could not verify the code.',
+            sendMailTest:'Send test email',mailTestHint:'Only to your verified address, once every 24 hours. Premium is unaffected.',
+            mailTestSuccess:'Test email accepted for delivery. Check your inbox.',mailTestLimit:'One test per 24 hours is allowed.',mailTestError:'Could not send test email. Check Resend configuration.'
         }
     };
     let savedLang = '';
@@ -304,6 +308,33 @@
             message(t('verifySuccess'));
         } catch (err) { message(err.message || t('apiError'), true); }
         finally { button.disabled = false; }
+    });
+    byId('stagingMailTest').addEventListener('click', async () => {
+        const btn=byId('stagingMailTest');
+        if(busy||btn.disabled)return;
+        btn.disabled=true;
+        message('');
+        try {
+            // This is the isolated, dedicated staging API. Never send a JWT
+            // to the production backend or any redirected destination.
+            if(cfg.stage!=='staging' ||
+                cfg.apiUrl!=='https://muscle-map-backend-staging.onrender.com'){
+                throw Error(t('mailTestError'));
+            }
+            const token=await authRequest('/token');
+            if(typeof token?.token!=='string'||!token.token){
+                throw Error(t('mailTestError'));
+            }
+            const response=await fetch(cfg.apiUrl+'/api/staging/me/mail-test',{
+                method:'POST',headers:{Authorization:'Bearer '+token.token},
+                cache:'no-store',redirect:'error'
+            });
+            if(response.status===429)throw Error(t('mailTestLimit'));
+            if(response.status!==202)throw Error(t('mailTestError'));
+            message(t('mailTestSuccess'));
+        }catch(error){
+            message(error.message||t('mailTestError'),true);
+        }finally{btn.disabled=false;}
     });
     byId('authLogout').addEventListener('click', async () => {
         if (busy) return;

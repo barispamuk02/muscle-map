@@ -1,0 +1,58 @@
+name: Production public no-charge smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'account-config.js'
+      - 'account.html'
+      - 'account.js'
+      - 'script.js'
+      - '.github/workflows/production-public-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Verify live Backend, NO AUTH AND NO CHARGES
+        shell: bash
+        run: |
+          set -euo pipefail
+          api='https://muscle-map-backend.onrender.com'
+          for i in $(seq 1 24); do
+            status=$(curl -sS -L --connect-timeout 10 --max-time 30 -o /dev/null -w '%{http_code}' "$api/health" || true)
+            if [ "$status" = 200 ]; then break; fi
+            sleep 10
+          done
+          test "$status" = 200
+          old_premium=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$api/api/premium/u_ci_anonymous_release_123")
+          test "$old_premium" = 403
+          old_checkout=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json' -d '{}' "$api/api/checkout")
+          test "$old_checkout" = 403
+          private_premium=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$api/api/v2/me/premium")
+          test "$private_premium" = 401
+          private_checkout=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json' -d '{}' "$api/api/v2/me/checkout")
+          test "$private_checkout" = 401
+          echo 'PRODUCTION_BACKEND_PROTECTED_ROUTES_NO_CHARGE=PASS'
+      - name: Verify published public Frontend NEVER uses STAGING Auth
+        shell: bash
+        run: |
+          set -euo pipefail
+          site='https://muscle-map.app'
+          ok=0
+          for i in $(seq 1 36); do
+            html=$(curl -fsS --connect-timeout 10 --max-time 30 "$site/account.html" || true)
+            cfg=$(curl -fsS --connect-timeout 10 --max-time 30 "$site/account-config.js" || true)
+            if printf '%s' "$html" | grep -q 'authGuest' &&
+               printf '%s' "$cfg" | grep -q "stage: 'production'" &&
+               printf '%s' "$cfg" | grep -q 'ep-muddy-rice-b1y5qbz8.neonauth' &&
+               ! printf '%s' "$cfg" | grep -q 'ep-summer-recipe-b1qi9f29'; then
+              ok=1
+              break
+            fi
+            sleep 10
+          done
+          test "$ok" = 1
+          echo 'PRODUCTION_FRONTEND_NEON_AUTH_CONFIGURATION=PASS'

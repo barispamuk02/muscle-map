@@ -3,7 +3,7 @@
 window.MUSCLE_MAP_ACCOUNT_CONFIG = Object.freeze({
     stage: 'staging',
     authUrl: 'https://ep-summer-recipe-b1qi9f29.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth',
-    apiUrl: 'https://muscle-map-backend.onrender.com',
+    apiUrl: null, // supply isolated staging backend URL only after it is deployed
     emailVerificationRequired: true, // OTP is required on the isolated Neon Auth staging branch
     enableBackendPremium: false
 });

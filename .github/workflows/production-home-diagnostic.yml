@@ -23,3 +23,18 @@ jobs:
           npx playwright install chromium
       - name: Diagnose published production homepage, no login or payment
         run: LOCAL_CANDIDATE=true node tests/production-home-diagnostic.cjs
+      - name: Verify corrected PUBLIC site after GitHub Pages deployment, no login or charge
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 50); do
+            if curl -fsS --connect-timeout 8 --max-time 30 -H 'Cache-Control: no-cache' 'https://muscle-map.app/script.js' | grep -q 'Initialize before any top-level Premium UI checks execute'; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          node tests/production-home-diagnostic.cjs
+

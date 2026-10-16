@@ -31,3 +31,14 @@
 7. Keep Render Auto-Deploy **off**. Do not issue a real Dodo charge or change LIVE credentials as part of account staging.
 
 Official reference: https://neon.com/docs/auth and https://github.com/neondatabase/website/blob/main/content/docs/compute/functions/authentication.md
+
+
+## Email verification work (2026-10-16)
+
+The account page now has an OTP code form and resend control for `/email-otp/send-verification-otp` and `/email-otp/verify-email`. The interface is gated behind `emailVerificationRequired` in `account-config.js`. It remains **false** because the managed Neon Auth staging tenant currently reports `require_email_verification: false` and the connected Neon action can change the displayed application name, but not the separate email/password verification options.
+
+**Required operator action in Neon Console, staging branch only:** Auth → Email & Password → require email verification (OTP) ON, and enable verification messages on sign up/sign in where available. Confirm delivery to a real controlled mailbox and reject bad/expired OTP. Only after the provider reports the new config and actual successful verification tests may we set `emailVerificationRequired: true` on the frontend branch. Never use a made-up OTP or mark `neon_auth.user.emailVerified` by hand in the actual tenant.
+
+The backend Draft PR #2 now supports mandatory `REQUIRE_EMAIL_VERIFICATION=true`, queries `neon_auth.user.emailVerified` after verifying the signed JWT, and rejects unverified users before creating/binding any Premium account or checkout. GitHub Actions runs a disposable PostgreSQL HTTP test with a real Neon JWT but local **fixture** email-verification states. This tests authorization logic only, not genuine mail delivery.
+
+Production Neon Auth, Render backend and Dodo LIVE are unchanged. The connection-string retrieval via connected Neon tool currently returns an authorization failure, so a persistent isolated Render staging instance has not been provisioned. The disposable GitHub Actions backend/DB is the independent API test stand instead.

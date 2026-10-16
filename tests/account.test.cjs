@@ -39,3 +39,15 @@ test('staging configuration must not change production payment entitlements', ()
     assert.doesNotMatch(js, /\/api\/checkout/);
     assert.doesNotMatch(html, /<script\s+src="script\.js"/);
 });
+
+test('Premium UI separates loading, unavailable and verified paid state', () => {
+    assert.match(js, /premiumChecking:'Проверяем Premium/);
+    assert.match(js, /premiumError:'Не удалось проверить Premium/);
+    assert.match(js, /premiumEl\.textContent = cfg\.enableBackendPremium === true \? t\('premiumChecking'\)/);
+    assert.match(js, /if \(!res\.ok\) throw new Error\('Premium status request failed'\)/);
+    assert.match(js, /status\.premium === true && date/);
+    assert.match(js, /premiumEl\.textContent = t\('premiumError'\)/);
+    assert.match(html, /id="legacyPremiumNotice"/);
+    assert.match(html, /id="legacyPremiumWarning"/);
+    assert.match(js, /if \(active\) for \(const notice of legacyPremiumNotices\) notice\.classList\.add\('hidden'\)/);
+});

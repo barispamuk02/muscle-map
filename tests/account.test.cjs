@@ -12,7 +12,9 @@ test('account navigation and controls are present and safe by default', () => {
     assert.match(main, /href="account\.html"/);
     assert.match(mobile, /\['navAccount', '👤', 'account'\]/);
     for(const id of ['authGuest','authMember','authVerify','authOpenVerify','verifyForm','verifyOtp','verifyResend','authForm','accountEmail',
-        'accountPassword','accountName','authLogout','accountMessage']) {
+        'accountPassword','accountName','authLogout','accountMessage','authOpenRecovery',
+        'authRecovery','recoveryRequestForm','recoveryFinishForm','recoveryEmail',
+        'recoveryOtp','recoveryPassword','recoveryRepeatPassword','recoveryBack']) {
         assert.ok(html.includes('id="' + id + '"'), 'missing #' + id);
     }
     assert.match(html, /robots" content="noindex,nofollow"/);
@@ -50,4 +52,12 @@ test('Premium UI separates loading, unavailable and verified paid state', () => 
     assert.match(html, /id="legacyPremiumNotice"/);
     assert.match(html, /id="legacyPremiumWarning"/);
     assert.match(js, /if \(active\) for \(const notice of legacyPremiumNotices\) notice\.classList\.add\('hidden'\)/);
+});
+
+test('account password reset uses delivered email OTP without browser-stored secrets', () => {
+    assert.match(js, /\/email-otp\/request-password-reset/);
+    assert.match(js, /\/email-otp\/reset-password/);
+    assert.match(js, /password:pass/);
+    assert.match(html, /id="recoveryPassword"[^>]+autocomplete="new-password"/);
+    assert.doesNotMatch(js, /sessionStorage\.setItem|localStorage\.setItem/);
 });

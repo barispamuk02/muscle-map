@@ -39,10 +39,9 @@ async function run() {
             assert.ok(original.includes("apiUrl: 'https://muscle-map-backend-staging.onrender.com'"));
             assert.ok(original.includes('enableBackendPremium: true'));
             assert.ok(!original.includes("'https://muscle-map-backend.onrender.com'"));
-            const mocked = original.replace(
-                "'https://muscle-map-backend-staging.onrender.com'",JSON.stringify(origin)
-            );
-            await route.fulfill({status:200,contentType:'application/javascript',body:mocked});
+            // Keep the true staging URL: Playwright intercepts the external
+            // Premium and mail-test HTTP requests without hitting Render.
+            await route.fulfill({status:200,contentType:'application/javascript',body:original});
         });
         await page.route('**/api/staging/me/mail-test',async route=>{
             mailTestRequests++;

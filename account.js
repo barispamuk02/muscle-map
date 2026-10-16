@@ -181,6 +181,7 @@
                 password.value = '';
                 const hasSession = await refreshSession();
                 if (!hasSession) {
+                    setBusy(false);
                     selectMode('login');
                     message(t('created'));
                 }

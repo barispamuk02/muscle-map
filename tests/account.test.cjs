@@ -32,7 +32,9 @@ test('account UI uses official auth flow endpoints without storing credentials',
 });
 test('staging configuration must not change production payment entitlements', () => {
     assert.match(config, /stage:\s*'staging'/);
-    assert.match(config, /enableBackendPremium:\s*false/);
+    assert.match(config, /enableBackendPremium:\s*true/);
+    assert.ok(config.includes("apiUrl: 'https://muscle-map-backend-staging.onrender.com'"));
+    assert.ok(!config.includes("apiUrl: 'https://muscle-map-backend.onrender.com'"));
     assert.ok(!js.includes('muscleMap_premium'));
     assert.doesNotMatch(js, /\/api\/checkout/);
     assert.doesNotMatch(html, /<script\s+src="script\.js"/);

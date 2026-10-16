@@ -30,5 +30,7 @@ jobs:
       - run: |
           npm install --no-save --no-audit --no-fund playwright@1.56.1 jose@5.10.0
           npx playwright install chromium
-      - name: Browser signup login session logout
+      - name: Desktop signup login session logout + signed JWT
         run: node tests/account-browser.cjs
+      - name: Mobile signup login session logout + signed JWT
+        run: MOBILE_ACCOUNT=true node tests/account-browser.cjs

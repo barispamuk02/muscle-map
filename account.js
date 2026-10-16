@@ -32,6 +32,7 @@
             verifyTitle:'Подтвердите электронную почту',verifyHint:'Мы отправим одноразовый код на указанный адрес. Введите его ниже.',
             verifyCode:'Код из письма',verifyAction:'Подтвердить адрес',verifyResend:'Отправить код повторно',verifyBack:'Вернуться ко входу',
             verifySent:'Новый код запрошен. Используйте только последнее письмо.',verifySuccess:'Адрес подтверждён. Теперь можно войти.',
+            openVerify:'Подтвердить e-mail с кодом',
             verifyAwait:'Проверьте почту. Если кода нет, нажмите «Отправить код повторно».',
             verifyInvalid:'Неверный или устаревший код. Проверьте последнее письмо.',
             verifyExpired:'Срок действия кода истёк. Запросите новый код.',
@@ -58,6 +59,7 @@
             verifyTitle:'Verify your email',verifyHint:'We will send a one-time code to your email. Enter it below.',
             verifyCode:'Email code',verifyAction:'Verify email',verifyResend:'Resend code',verifyBack:'Back to sign-in',
             verifySent:'A new code was requested. Use the most recent email only.',verifySuccess:'Email verified. You can sign in now.',
+            openVerify:'Verify email with a code',
             verifyAwait:'Check your inbox. If no code arrived, press “Resend code”.',
             verifyInvalid:'Incorrect or outdated code. Check the latest email.',
             verifyExpired:'The code has expired. Request a new one.',
@@ -258,6 +260,11 @@
         } finally {
             setBusy(false);
         }
+    });
+    byId('authOpenVerify').addEventListener('click', () => {
+        if (busy) return;
+        showVerification(byId('accountEmail').value.trim().toLowerCase());
+        message(t('verifyAwait'));
     });
     byId('verifyResend').addEventListener('click', () => { void sendVerificationCode(); });
     byId('verifyBack').addEventListener('click', () => {

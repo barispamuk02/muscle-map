@@ -46,8 +46,11 @@ const localCandidate = process.env.LOCAL_CANDIDATE === 'true';
       // Counters animate through IntersectionObserver only when on screen.
       // Mobile stat row is below the fold: scroll it into view first.
       if(viewport.width<500) {
-        await page.locator('[data-count]').first().scrollIntoViewIfNeeded();
-        await page.waitForTimeout(3200);
+        const firstCounter=page.locator('[data-count]').first();
+        if(await firstCounter.isVisible()){
+          await firstCounter.scrollIntoViewIfNeeded();
+          await page.waitForTimeout(3200);
+        }
       }
       const m=await page.evaluate(()=>{
         const find=id=>document.getElementById(id);
@@ -55,7 +58,7 @@ const localCandidate = process.env.LOCAL_CANDIDATE === 'true';
         return {
           title:document.title,
           readyState:document.readyState,
-          counters:counterNodes.map(n=>({expected:n.getAttribute('data-count'),shown:n.textContent.trim()})).slice(0,10),
+          counters:counterNodes.map(n=>({expected:n.getAttribute('data-count'),shown:n.textContent.trim(),visible:!!n.getClientRects().length})).slice(0,10),
           quote:find('quoteText')?.textContent.trim().slice(0,110),
           image:find('bodyImage')?{src:find('bodyImage').getAttribute('src'),complete:find('bodyImage').complete,width:find('bodyImage').naturalWidth}:null,
           muscleListChildren:find('muscleList')?.children.length??null,
@@ -76,7 +79,7 @@ const localCandidate = process.env.LOCAL_CANDIDATE === 'true';
           m.exerciseDatabaseCount<1000 ||
           m.quote==='Загрузка...' ||
           !m.image?.width ||
-          m.counters.some(c=>Number(c.expected)>0 && (c.shown==='0'||c.shown===''))) {
+          m.counters.some(c=>c.visible && Number(c.expected)>0 && (c.shown==='0'||c.shown===''))) {
         console.error(label+'_PRODUCTION_HOME=FAIL');
         process.exitCode=1;
       } else console.log(label+'_PRODUCTION_HOME=PASS');

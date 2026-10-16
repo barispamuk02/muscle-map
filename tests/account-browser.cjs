@@ -73,7 +73,7 @@ async function run() {
             const data = method==='POST' ? request.postDataJSON() : {};
             let result={}, status=200;
             if (suffix==='/get-session') {
-                result=signedIn ? {user:{id:'test-id',email:userEmail},session:{id:'test-session'}} : null;
+                result=signedIn ? {user:{id:'test-id',email:userEmail,emailVerified:verified},session:{id:'test-session'}} : null;
             } else if (suffix==='/sign-up/email') {
                 userEmail=data.email; verified=false; signedIn=false;
                 result={user:{id:'test-id',email:userEmail},token:null};

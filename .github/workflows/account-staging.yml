@@ -3,7 +3,7 @@ on:
   push:
     branches: [feature/account-neon-auth-staging-20261016]
   pull_request:
-    paths: ['account.html','account.js','account.css','account-config.js','tests/account.test.cjs','index.html','.github/workflows/account-staging.yml']
+    paths: ['account.html','account.js','account.css','account-config.js','tests/account.test.cjs','tests/account-browser.cjs','tests/staging-live.test.cjs','index.html','.github/workflows/account-staging.yml']
 permissions:
   contents: read
 jobs:
@@ -34,3 +34,14 @@ jobs:
         run: node tests/account-browser.cjs
       - name: Mobile signup login session logout + signed JWT
         run: MOBILE_ACCOUNT=true node tests/account-browser.cjs
+  live-staging-api:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Health and auth safety of separate Render staging
+        run: node --test tests/staging-live.test.cjs

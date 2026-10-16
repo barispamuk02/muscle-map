@@ -189,17 +189,31 @@
                 // JWT is short lived; it is NEVER persisted by this client.
                 // Only the server uses verified JWT claims as the owner identity.
                 try {
+                    // Staging tokens must never be sent to the LIVE backend,
+                    // even if the feature flag is accidentally turned on.
+                    const endpoint = typeof cfg.apiUrl === 'string'
+                        ? new URL(cfg.apiUrl) : null;
+                    if (!endpoint ||
+                        !(endpoint.protocol === 'https:' ||
+                          (endpoint.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(endpoint.hostname))) ||
+                        endpoint.username || endpoint.password || endpoint.search || endpoint.hash ||
+                        (cfg.stage === 'staging' && endpoint.hostname === 'muscle-map-backend.onrender.com')) {
+                        throw new Error('Missing or unsafe staging Premium API endpoint');
+                    }
                     const token = await authRequest('/token');
                     if (typeof token?.token === 'string') {
-                        const res = await fetch(cfg.apiUrl + '/api/v2/me/premium', {
+                        const res = await fetch(endpoint.origin + '/api/v2/me/premium', {
                             headers: { Authorization: 'Bearer ' + token.token },
-                            cache: 'no-store'
+                            cache: 'no-store',
+                            redirect: 'error'
                         });
                         if (res.ok) {
                             const status = await res.json();
-                            byId('accountPremium').textContent = status.premium
-                                ? t('premiumActive') + ' ' + new Date(status.expiresAt).toLocaleDateString(lang)
-                                : t('premiumFree');
+                            const date = status.expiresAt ? new Date(status.expiresAt) : null;
+                            byId('accountPremium').textContent = status.premium &&
+                                date && Number.isFinite(date.getTime())
+                                ? t('premiumActive') + ' ' + date.toLocaleDateString(lang)
+                                : (status.premium === false ? t('premiumFree') : t('notConnected'));
                         }
                     }
                 } catch {

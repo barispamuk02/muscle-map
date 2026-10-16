@@ -1,6 +1,10 @@
 // Public production homepage diagnosis: no login, no checkout, no payment.
 'use strict';
 const { chromium } = require('playwright');
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname,'..');
+const localCandidate = process.env.LOCAL_CANDIDATE === 'true';
 (async () => {
   const browser = await chromium.launch({headless:true,args:['--no-sandbox']});
   try {
@@ -8,6 +12,31 @@ const { chromium } = require('playwright');
       const context = await browser.newContext({viewport,locale:'ru-RU',serviceWorkers:'block'});
       const page = await context.newPage();
       const errors=[],network=[],requests=[];
+      if(localCandidate) {
+        // Run exact production hostname while serving the proposed branch
+        // source. No Production writes, accounts or payments.
+        await page.route('https://muscle-map.app/**',async route=>{
+          const url=new URL(route.request().url());
+          const rel=decodeURIComponent(url.pathname).replace(/^\\/+/, '')||'index.html';
+          const full=path.resolve(root,rel);
+          if(!full.startsWith(root+path.sep) || !fs.existsSync(full) || !fs.statSync(full).isFile()) {
+            return route.fulfill({status:404,body:''});
+          }
+          const ext=path.extname(full);
+          const mime={
+            '.html':'text/html','.js':'application/javascript','.css':'text/css',
+            '.json':'application/json','.svg':'image/svg+xml','.png':'image/png',
+            '.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg',
+            '.ico':'image/x-icon','.woff2':'font/woff2'
+          }[ext]||'application/octet-stream';
+          return route.fulfill({status:200,contentType:mime,body:fs.readFileSync(full)});
+        });
+        await page.route('**/neondb/auth/**',route=>route.fulfill({
+          status:200,contentType:'application/json',body:'null',
+          headers:{'access-control-allow-origin':'https://muscle-map.app',
+            'access-control-allow-credentials':'true'}
+        }));
+      }
       page.on('pageerror',e=>errors.push(e.message.slice(0,380)));
       page.on('console',m=>{if(m.type()==='error')errors.push(m.text().slice(0,380));});
       page.on('requestfailed',r=>{if(r.url().startsWith('https://muscle-map.app/'))network.push(r.url().split('?')[0]+' '+(r.failure()?.errorText||''));});
@@ -32,7 +61,7 @@ const { chromium } = require('playwright');
           initializedIconNodes:document.querySelectorAll('svg.svg-icon, svg[data-icon]').length
         };
       });
-      const label=viewport.width<500?'MOBILE':'DESKTOP';
+      const label=(localCandidate?'CANDIDATE_':'LIVE_')+(viewport.width<500?'MOBILE':'DESKTOP');
       console.log(label+'_HTTP='+response.status());
       console.log(label+'_MAIN_METRICS='+JSON.stringify(m));
       console.log(label+'_JS_ERRORS='+JSON.stringify(errors.slice(0,16)));

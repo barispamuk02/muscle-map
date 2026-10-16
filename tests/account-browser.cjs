@@ -79,11 +79,15 @@ async function run() {
         await page.locator('#accountPassword').fill('TestOTP!12345');
         await page.locator('#authSubmit').click();
         await page.locator('#authVerify').waitFor({state:'visible'});
-        assert.equal(sent,1,'verification code requested once after registration');
+        assert.equal(sent,0,'client must not silently rotate any sign-up OTP');
+        await page.locator('#verifyResend').click();
+        await page.waitForFunction(() => document.querySelector('#accountMessage')?.textContent?.includes('Новый код запрошен'));
+        assert.equal(sent,1,'explicit resend generates one OTP');
         assert.ok(await page.locator('#authGuest').isHidden());
         await page.locator('#verifyOtp').fill('000000');
         await page.locator('#verifySubmit').click();
         await page.waitForFunction(() => document.querySelector('#accountMessage')?.classList.contains('error'));
+        assert.match(await page.locator('#accountMessage').textContent(),/INVALID_OTP/);
         assert.equal(verified,false);
         assert.ok(await page.locator('#authVerify').isVisible());
         await page.locator('#verifyOtp').fill('123456');

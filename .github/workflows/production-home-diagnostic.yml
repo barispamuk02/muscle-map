@@ -1,7 +1,10 @@
-name: Public Production Homepage Diagnostic
+name: Production Homepage Browser Regression
 on:
   push:
-    branches: [diagnostic/production-home-20261016]
+    branches: [diagnostic/production-home-20261016, main]
+    paths: ['script.js','index.html','service-worker.js','tests/production-home-diagnostic.cjs','.github/workflows/production-home-diagnostic.yml']
+  pull_request:
+    paths: ['script.js','index.html','service-worker.js','tests/production-home-diagnostic.cjs','.github/workflows/production-home-diagnostic.yml']
   workflow_dispatch:
 permissions:
   contents: read

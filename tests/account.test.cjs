@@ -6,9 +6,11 @@ const html = fs.readFileSync('account.html','utf8');
 const js = fs.readFileSync('account.js','utf8');
 const config = fs.readFileSync('account-config.js','utf8');
 const main = fs.readFileSync('index.html','utf8');
+const mobile = fs.readFileSync('mobile-home.js','utf8');
 
 test('account navigation and controls are present and safe by default', () => {
     assert.match(main, /href="account\.html"/);
+    assert.match(mobile, /\['navAccount', '👤', 'account'\]/);
     for(const id of ['authGuest','authMember','authForm','accountEmail',
         'accountPassword','accountName','authLogout','accountMessage']) {
         assert.ok(html.includes('id="' + id + '"'), 'missing #' + id);

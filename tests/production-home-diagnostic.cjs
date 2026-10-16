@@ -17,7 +17,7 @@ const localCandidate = process.env.LOCAL_CANDIDATE === 'true';
         // source. No Production writes, accounts or payments.
         await page.route('https://muscle-map.app/**',async route=>{
           const url=new URL(route.request().url());
-          const rel=decodeURIComponent(url.pathname).replace(/^\\/+/, '')||'index.html';
+          const rel=decodeURIComponent(url.pathname).split('/').filter(Boolean).join('/')||'index.html';
           const full=path.resolve(root,rel);
           if(!full.startsWith(root+path.sep) || !fs.existsSync(full) || !fs.statSync(full).isFile()) {
             return route.fulfill({status:404,body:''});

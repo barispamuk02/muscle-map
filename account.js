@@ -31,7 +31,12 @@
             premiumActive:'Premium активен до',premiumFree:'Premium не активен',
             verifyTitle:'Подтвердите электронную почту',verifyHint:'Мы отправим одноразовый код на указанный адрес. Введите его ниже.',
             verifyCode:'Код из письма',verifyAction:'Подтвердить адрес',verifyResend:'Отправить код повторно',verifyBack:'Вернуться ко входу',
-            verifySent:'Код подтверждения отправлен. Проверьте почту.',verifySuccess:'Адрес подтверждён. Теперь можно войти.'
+            verifySent:'Новый код запрошен. Используйте только последнее письмо.',verifySuccess:'Адрес подтверждён. Теперь можно войти.',
+            verifyAwait:'Проверьте почту. Если кода нет, нажмите «Отправить код повторно».',
+            verifyInvalid:'Неверный или устаревший код. Проверьте последнее письмо.',
+            verifyExpired:'Срок действия кода истёк. Запросите новый код.',
+            verifyLimit:'Превышено число попыток. Запросите новый код позже.',
+            verifyFailed:'Не удалось проверить код.'
         },
         en: {
             back:'Back to Muscle Map',testLabel:'STAGING SIGN-IN · NOT PRODUCTION',
@@ -52,7 +57,12 @@
             premiumActive:'Premium active until',premiumFree:'Premium inactive',
             verifyTitle:'Verify your email',verifyHint:'We will send a one-time code to your email. Enter it below.',
             verifyCode:'Email code',verifyAction:'Verify email',verifyResend:'Resend code',verifyBack:'Back to sign-in',
-            verifySent:'Verification code sent. Check your inbox.',verifySuccess:'Email verified. You can sign in now.'
+            verifySent:'A new code was requested. Use the most recent email only.',verifySuccess:'Email verified. You can sign in now.',
+            verifyAwait:'Check your inbox. If no code arrived, press “Resend code”.',
+            verifyInvalid:'Incorrect or outdated code. Check the latest email.',
+            verifyExpired:'The code has expired. Request a new one.',
+            verifyLimit:'Too many attempts. Request a new code later.',
+            verifyFailed:'Could not verify the code.'
         }
     };
     let savedLang = '';
@@ -142,7 +152,18 @@
         try { data = await res.json(); } catch {}
         if (!res.ok) {
             // Avoid reflecting uncontrolled provider response into the page.
-            if (res.status === 403 && data?.code === 'EMAIL_NOT_VERIFIED') throw new Error('EMAIL_NOT_VERIFIED');
+            const rawCode = typeof data?.code === 'string' ? data.code : data?.error?.code;
+            const code = typeof rawCode === 'string' && /^[A-Z0-9_]{2,64}$/.test(rawCode) ? rawCode : '';
+            if (code === 'EMAIL_NOT_VERIFIED') throw new Error('EMAIL_NOT_VERIFIED');
+            if (endpoint === '/email-otp/verify-email') {
+                const messageKey = code === 'TOO_MANY_ATTEMPTS' ? 'verifyLimit' :
+                    /EXPIRED/.test(code) ? 'verifyExpired' :
+                    /INVALID|NOT_FOUND|OTP/.test(code) ? 'verifyInvalid' : 'verifyFailed';
+                throw new Error(t(messageKey) + ' (HTTP ' + res.status + (code ? ', ' + code : '') + ')');
+            }
+            if (endpoint === '/email-otp/send-verification-otp') {
+                throw new Error(t('apiError') + ' (HTTP ' + res.status + (code ? ', ' + code : '') + ')');
+            }
             if (res.status === 401 || res.status === 403 || res.status === 400) throw new Error(t('unknown'));
             if (res.status === 429) throw new Error('Too many requests. Please try again later.');
             throw new Error(t('apiError'));
@@ -153,6 +174,10 @@
         const data = await authRequest('/get-session');
         const user = data && data.user;
         const authenticated = Boolean(user && typeof user.id === 'string');
+        if (authenticated && cfg.emailVerificationRequired === true && user.emailVerified === false) {
+            showVerification(user.email || '');
+            return false;
+        }
         guest.classList.toggle('hidden', authenticated);
         member.classList.toggle('hidden', !authenticated);
         if (authenticated) {
@@ -211,7 +236,7 @@
                     setBusy(false);
                     if (cfg.emailVerificationRequired === true) {
                         showVerification(email);
-                        await sendVerificationCode();
+                        message(t('verifyAwait'));
                     } else {
                         selectMode('login');
                         message(t('created'));
@@ -226,7 +251,7 @@
             password.value = '';
             if (err.message === 'EMAIL_NOT_VERIFIED') {
                 showVerification(email);
-                await sendVerificationCode();
+                message(t('verifyAwait'));
             } else {
                 message(err.message || t('unknown'), true);
             }

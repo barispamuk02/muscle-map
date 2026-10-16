@@ -6,7 +6,11 @@ const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const production=fs.readFileSync(path.join(root,'release/account-config.production.js'),'utf8');
-const staging=fs.readFileSync(path.join(root,'account-config.js'),'utf8');
+const staging="window.MUSCLE_MAP_ACCOUNT_CONFIG = Object.freeze({"+
+"stage:'staging',"+
+"authUrl:'https://ep-summer-recipe-b1qi9f29.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth',"+
+"apiUrl:'https://muscle-map-backend-staging.onrender.com',"+
+"emailVerificationRequired:true,enableBackendPremium:true});";
 const base='https://muscle-map.app/';
 const assets={'account.html':'text/html; charset=utf-8',
     'account.js':'application/javascript; charset=utf-8',

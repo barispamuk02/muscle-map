@@ -31,7 +31,24 @@ async function run() {
         const page = await context.newPage();
         const errors=[];
         page.on('pageerror', err => errors.push(err.message));
-        let verified=false, signedIn=false, sent=0, userEmail='';
+        let verified=false, signedIn=false, sent=0, userEmail='', premiumRequests=0;
+        // Intercept staging config only inside this test. Real staging UI still
+        // defaults to no API connection and contains no production endpoint.
+        await page.route('**/account-config.js', async route => {
+            const original = fs.readFileSync(path.join(root,'account-config.js'),'utf8');
+            assert.match(original,/apiUrl:\\s*null/);
+            assert.match(original,/enableBackendPremium:\\s*false/);
+            const mocked = original.replace('apiUrl: null','apiUrl: ' + JSON.stringify(origin))
+                .replace('enableBackendPremium: false','enableBackendPremium: true');
+            await route.fulfill({status:200,contentType:'application/javascript',body:mocked});
+        });
+        await page.route('**/api/v2/me/premium', async route => {
+            premiumRequests++;
+            assert.equal(route.request().headers().authorization,'Bearer ui-only-test-token');
+            await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+                premium:false,expiresAt:null
+            })});
+        });
         await page.route('**/neondb/auth/**',async route => {
             const request = route.request();
             const suffix = new URL(request.url()).pathname.split('/neondb/auth')[1];
@@ -65,6 +82,9 @@ async function run() {
             } else if (suffix==='/sign-in/email') {
                 if (!verified) {status=403;result={code:'EMAIL_NOT_VERIFIED'};}
                 else {signedIn=true;result={user:{id:'test-id',email:userEmail}};}
+            } else if (suffix==='/token') {
+                assert.equal(signedIn,true);
+                result={token:'ui-only-test-token'};
             } else if (suffix==='/sign-out') {
                 signedIn=false;result={success:true};
             } else {
@@ -97,11 +117,14 @@ async function run() {
         await page.locator('#accountPassword').fill('TestOTP!12345');
         await page.locator('#authSubmit').click();
         await page.locator('#authMember').waitFor({state:'visible'});
+        await page.locator('#accountPremium').getByText('Premium не активен').waitFor({timeout:10000});
+        assert.ok(premiumRequests>0,'must call protected Premium read with bearer token');
         await page.reload({waitUntil:'domcontentloaded'});
         await page.locator('#authMember').waitFor({state:'visible'});
         await page.locator('#authLogout').click();
         await page.locator('#authGuest').waitFor({state:'visible'});
         assert.equal(signedIn,false);
+        assert.ok(premiumRequests>=2,'must recheck Premium on session restore');
         assert.deepEqual(errors,[]);
         console.log('MOCKED_STAGING_OTP_SIGNUP_INVALID_CODE_VERIFIED_LOGIN_LOGOUT_OK',mobile?'mobile':'desktop');
         await context.close();

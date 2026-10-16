@@ -1,13 +1,22 @@
 'use strict';
 /**
- * Staging-only account experience.
+ * Account experience for isolated STAGING and explicitly approved PRODUCTION.
  * Passwords and sessions are handled by Managed Better Auth on Neon.
  * Do not mirror the password or session token into localStorage, analytics or logs.
  * NOTE: SameSite/third-party cookie behavior still requires genuine browser testing.
  */
 (function () {
     const cfg = window.MUSCLE_MAP_ACCOUNT_CONFIG || {};
-    if (!/^https:\/\/[a-z0-9.-]+\/[a-z0-9_/-]+$/i.test(cfg.authUrl || '')) {
+    // Fail closed: accidental publication of the Draft STAGING config must
+    // NEVER submit sign-in credentials from the public production domain.
+    const prodAuth = 'https://ep-muddy-rice-b1y5qbz8.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth';
+    const stagingAuth = 'https://ep-summer-recipe-b1qi9f29.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth';
+    const prodApi = 'https://muscle-map-backend.onrender.com';
+    const stagingApi = 'https://muscle-map-backend-staging.onrender.com';
+    const isProductionHost = ['muscle-map.app', 'www.muscle-map.app'].includes(location.hostname.toLowerCase());
+    const validConfiguration = (cfg.stage === 'production' && cfg.authUrl === prodAuth && cfg.apiUrl === prodApi) ||
+        (cfg.stage === 'staging' && cfg.authUrl === stagingAuth && cfg.apiUrl === stagingApi && !isProductionHost);
+    if (!validConfiguration) {
         return showBootError();
     }
 
@@ -15,7 +24,7 @@
         ru: {
             back:'Вернуться к Muscle Map',testLabel:'ТЕСТОВЫЙ ВХОД · НЕ PRODUCTION',
             title:'Ваш аккаунт Muscle Map',
-            lead:'Войдите, чтобы в будущем синхронизировать подписку и тренировки между устройствами.',
+            lead:'Войдите, чтобы проверить подписку Premium. Дневник тренировок пока хранится на этом устройстве.',
             notice:'Существующие Premium-подписки пока НЕ привязываются автоматически. Текущий дневник остаётся на устройстве.',
             login:'Войти',register:'Регистрация',name:'Ваше имя',email:'Электронная почта',
             password:'Пароль', signedIn:'Вы вошли в Muscle Map', premium:'Premium',
@@ -45,7 +54,7 @@
         en: {
             back:'Back to Muscle Map',testLabel:'STAGING SIGN-IN · NOT PRODUCTION',
             title:'Your Muscle Map account',
-            lead:'Sign in to eventually sync your subscription and workouts across devices.',
+            lead:'Sign in to check your Premium subscription. Workout history currently stays on this device.',
             notice:'Existing Premium subscriptions are NOT automatically linked. Workout history stays on this device.',
             login:'Sign in',register:'Create account',name:'Your name',email:'Email',
             password:'Password',signedIn:'You are signed in',premium:'Premium',
@@ -80,9 +89,14 @@
     const t = (k) => translations[lang][k] || k;
     document.documentElement.lang = lang;
     for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
-    document.title = lang === 'en' ? 'Account | Muscle Map staging' : 'Аккаунт | Muscle Map тест';
+    document.title = lang === 'en'
+        ? (cfg.stage === 'production' ? 'Account | Muscle Map' : 'Account | Muscle Map staging')
+        : (cfg.stage === 'production' ? 'Аккаунт | Muscle Map' : 'Аккаунт | Muscle Map тест');
 
     const byId = id => document.getElementById(id);
+    byId('accountStageLabel').classList.toggle('hidden', cfg.stage === 'production');
+    byId('stagingMailTest').classList.toggle('hidden', cfg.stage !== 'staging');
+    byId('stagingMailTestHint').classList.toggle('hidden', cfg.stage !== 'staging');
     const guest = byId('authGuest'), member = byId('authMember'), verify = byId('authVerify');
     const form = byId('authForm'), button = byId('authSubmit');
     const nameLabel = byId('nameLabel'), password = byId('accountPassword');
@@ -183,7 +197,7 @@
         const data = await authRequest('/get-session');
         const user = data && data.user;
         const authenticated = Boolean(user && typeof user.id === 'string');
-        if (authenticated && cfg.emailVerificationRequired === true && user.emailVerified === false) {
+        if (authenticated && cfg.emailVerificationRequired === true && user.emailVerified !== true) {
             showVerification(user.email || '');
             return false;
         }
@@ -206,8 +220,8 @@
                         !(endpoint.protocol === 'https:' ||
                           (endpoint.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(endpoint.hostname))) ||
                         endpoint.username || endpoint.password || endpoint.search || endpoint.hash ||
-                        (cfg.stage === 'staging' && endpoint.hostname === 'muscle-map-backend.onrender.com')) {
-                        throw new Error('Missing or unsafe staging Premium API endpoint');
+                        endpoint.origin !== cfg.apiUrl) {
+                        throw new Error('Missing or unsafe Premium API endpoint');
                     }
                     const token = await authRequest('/token');
                     if (typeof token?.token !== 'string' || !token.token) throw new Error('Missing session token');

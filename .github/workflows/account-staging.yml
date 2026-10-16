@@ -19,7 +19,7 @@ jobs:
       - run: node --check account-config.js
       - run: node --test tests/account.test.cjs
   staging-browser:
-    if: github.event_name == 'push'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:

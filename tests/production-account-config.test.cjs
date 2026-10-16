@@ -27,13 +27,14 @@ test('rejects staging, local, unsigned and malformed production auth URLs', () =
     }
 });
 
-test('release candidate matches generator and keeps active STAGING config untouched', () => {
+test('release candidate matches generator and Production active config', () => {
     const fs = require('node:fs');
     const release = fs.readFileSync('release/account-config.production.js', 'utf8');
     const liveDraft = fs.readFileSync('account-config.js', 'utf8');
     const actualProductionUrl = 'https://ep-muddy-rice-b1y5qbz8.neonauth.c-5.eu-central-1.aws.neon.tech/neondb/auth';
     assert.equal(release, generate(actualProductionUrl));
-    assert.match(liveDraft, /stage: 'staging'/);
+    assert.equal(liveDraft, release);
+    assert.match(liveDraft, /stage: 'production'/);
     assert.doesNotMatch(release, /ep-summer-recipe-b1qi9f29|muscle-map-backend-staging/);
     assert.match(release, /emailVerificationRequired: true/);
     assert.match(release, /enableBackendPremium: true/);

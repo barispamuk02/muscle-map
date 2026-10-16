@@ -68,6 +68,8 @@ function icon(name, size = 24, className = '') {
 let currentMuscleId = null;
 let currentView = 'front';
 let isTransitioning = false;
+// Initialize before any top-level Premium UI checks execute.
+let productionVerifiedPremium = false;
 let currentEquipmentFilter = 'all';
 let currentListFilter = 'all';
 // ============================================

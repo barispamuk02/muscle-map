@@ -43,6 +43,12 @@ const localCandidate = process.env.LOCAL_CANDIDATE === 'true';
       page.on('response',r=>{if(r.url().startsWith('https://muscle-map.app/') && r.status()>=400)network.push(r.status()+' '+r.url().split('?')[0]);});
       const response=await page.goto('https://muscle-map.app/?public_diagnostic=20261016',{waitUntil:'domcontentloaded',timeout:45000});
       await page.waitForTimeout(9000);
+      // Counters animate through IntersectionObserver only when on screen.
+      // Mobile stat row is below the fold: scroll it into view first.
+      if(viewport.width<500) {
+        await page.locator('[data-count]').first().scrollIntoViewIfNeeded();
+        await page.waitForTimeout(3200);
+      }
       const m=await page.evaluate(()=>{
         const find=id=>document.getElementById(id);
         const counterNodes=[...document.querySelectorAll('[data-count]')];

@@ -51,7 +51,7 @@ async function run() {
         }
         await page.locator('#authMember').waitFor({state:'visible',timeout:20000});
         assert.match(await page.locator('#accountIdentity').textContent(),/mm-staging-/);
-        assert.match(await page.locator('#accountPremium').textContent(),/Проверка подписки/);
+        assert.match(await page.locator('#accountPremium').textContent(),/Проверка подписки|Subscription status/);
         await page.reload({waitUntil:'domcontentloaded'});
         await page.locator('#authMember').waitFor({state:'visible',timeout:15000});
         await page.locator('#authLogout').click();

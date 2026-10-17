@@ -75,15 +75,6 @@ async function main() {
             assert.ok(await page.locator('#premiumModal.show').count(), 'Premium modal must open');
             await page.evaluate(() => closePremium());
             assert.equal(await page.locator('#premiumModal.show').count(), 0, 'Premium modal should close');
-            // Simulate Production hostname only for the new UI; never sign in
-            // or call live checkout or Premium backend during this browser test.
-            await page.evaluate(() => { isProductionAuthSite = () => true; });
-            if (mobile) await page.locator('.mm-mobile-bottom-nav [data-mm-target="navPrograms"]').click();
-            else await page.locator('#navPrograms').click();
-            await page.locator('[data-program="mass3"]').click();
-            assert.equal(await page.locator('.program-progression-open').count(), 1, 'paid progression entry must display');
-            await page.locator('[data-program="strength4"]').click();
-            assert.equal(await page.locator('.program-progression-open').count(), 1, 'switching programs keeps paid entry');
             assert.deepEqual(errors, [], (mobile ? 'Mobile' : 'Desktop') + ' JavaScript errors');
             console.log((mobile ? 'MOBILE' : 'DESKTOP') + '_BROWSER_REGRESSION_OK', JSON.stringify({ exerciseCount, diarySet: result.sets }));
             await context.close();

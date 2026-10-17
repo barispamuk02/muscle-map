@@ -7501,7 +7501,7 @@ function initAbdomenHud() {
         if (!path || !abdomenIds.has(path.dataset.muscleId) || currentView !== 'front') return;
         // First touch on the abdominal region reveals the HUD launcher.
         toggle.classList.add('mm-hud-revealed');
-    });
+    }, true);
     toggle.addEventListener('click', () => {
         abdomenHudOpen = !abdomenHudOpen;
         updateAbdomenHud();

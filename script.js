@@ -474,6 +474,13 @@ function selectMuscle(id) {
 // ============================================
 // УПРАЖНЕНИЯ
 // ============================================
+// Explicitly retired from PUBLIC discovery only. Preserve source records and stable IDs
+// so earlier saved diary/history entries can still be resolved.
+const PUBLIC_HIDDEN_EXERCISE_IDS = new Set(['1403', '0716']);
+function isExercisePublic(ex) {
+    return !!ex && !PUBLIC_HIDDEN_EXERCISE_IDS.has(String(ex.id));
+}
+
 function getExercisesForMuscle(muscleId) {
     if (typeof customExercises !== 'undefined' && customExercises[muscleId]) {
         const custom = customExercises[muscleId];
@@ -515,7 +522,7 @@ function getExercisesForMuscle(muscleId) {
         }
 
         if (all.length > 0 && typeof exerciseDatabase !== 'undefined') {
-            const fromDb = exerciseDatabase.filter(ex => ex.muscleId === muscleId);
+            const fromDb = exerciseDatabase.filter(ex => ex.muscleId === muscleId && isExercisePublic(ex));
             return [...all, ...fromDb];
         }
 
@@ -523,7 +530,7 @@ function getExercisesForMuscle(muscleId) {
     }
 
     if (typeof exerciseDatabase === 'undefined') return [];
-    const all = exerciseDatabase.filter(ex => ex.muscleId === muscleId);
+    const all = exerciseDatabase.filter(ex => ex.muscleId === muscleId && isExercisePublic(ex));
     const priority = all.filter(ex => {
         const n = (ex.name_en || '').toLowerCase();
         return !n.includes('close grip') && !n.includes('wide grip') && !n.includes('narrow')
@@ -4421,7 +4428,7 @@ function handleUrlParams() {
     // Открыть упражнение по параметру
     if (exerciseId && typeof exerciseDatabase !== 'undefined') {
         const ex = exerciseDatabase.find(e => e.id === exerciseId);
-        if (ex) {
+        if (isExercisePublic(ex)) {
             console.log('🌐 URL param: exercise =', exerciseId);
 
             // Сначала открыть мышцу
@@ -5588,7 +5595,7 @@ function findAlternatives(ex, reason, userEquip) {
     // Собираем кандидатов
     let candidates = exerciseDatabase.filter(cand => {
         // 1. Не исходное
-        if (cand.id === ex.id) return false;
+        if (cand.id === ex.id || !isExercisePublic(cand)) return false;
 
         // 2. Данные синергистов
         const candSyn = synergistsData[cand.name_en];
@@ -6059,6 +6066,7 @@ function getAllExerciseNames() {
     // 2. ВСЕ упражнения из базы — переведённые через translateExerciseName
     if (typeof exerciseDatabase !== 'undefined') {
         exerciseDatabase.forEach(e => {
+            if (!isExercisePublic(e)) return;
             const translated = translateExerciseName(e);
             if (translated) names.add(translated);
         });

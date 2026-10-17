@@ -482,7 +482,7 @@ function getExercisesForMuscle(muscleId) {
                 if (custom.primary) {
             custom.primary.forEach((ex, idx) => {
                 all.push({
-                    id: 'custom_' + muscleId + '_primary_' + idx,
+                    id: ex.stableId || 'custom_' + muscleId + '_primary_' + idx,
                     name: ex.name,
                     name_en: '',
                     equipment: 'custom',
@@ -499,7 +499,7 @@ function getExercisesForMuscle(muscleId) {
         if (custom.secondary) {
             custom.secondary.forEach((ex, idx) => {
                 all.push({
-                    id: 'custom_' + muscleId + '_secondary_' + idx,
+                    id: ex.stableId || 'custom_' + muscleId + '_secondary_' + idx,
                     name: ex.name,
                     name_en: '',
                     equipment: 'custom',

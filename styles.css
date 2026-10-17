@@ -7339,3 +7339,8 @@ body:has(.premium-modal.show) {
 #mmAbdomenHudToggle.mm-hud-revealed {
   animation: mm-hud-label-in 360ms cubic-bezier(.22,1,.36,1) both;
 }
+
+/* No reveal motion for visitors who request reduced animation. */
+@media (prefers-reduced-motion: reduce) {
+  #mmAbdomenHudToggle.mm-hud-revealed { animation: none !important; }
+}

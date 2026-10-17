@@ -32,6 +32,9 @@ async function main() {
     const backDefinition = app.split('const SVG_MUSCLES_BACK = [')[1].split('];')[0];
     assert.doesNotMatch(frontDefinition, /27_Triceps_surae_muscle/, 'Back-only calf must not be on front SVG');
     assert.match(backDefinition, /27_Triceps_surae_muscle/, 'Calf must remain available on back SVG');
+    assert.doesNotMatch(frontDefinition, /19_TRICEPS|22_Musculi_extensores_carpi/, 'Back-only arm muscles must not receive front taps');
+    assert.doesNotMatch(backDefinition, /18_BICEPS|20_Brachialis|21_Wristflexors/, 'Front-only arm muscles must not receive back taps');
+
     assert.match(frontDefinition, /28_Tibialis_anterior_muscle/, 'Tibialis must remain on front SVG');
 
     const mobileHome = fs.readFileSync(path.join(root, 'mobile-home.js'), 'utf8');
@@ -121,6 +124,14 @@ async function main() {
                 assert.equal(isolation.afterBack.view, 'front', 'Hidden back layer cannot rotate the manikin');
                 assert.equal(isolation.afterBack.selected, isolation.before, 'Hidden back SVG cannot be selected');
                 assert.equal(isolation.afterFront.view, 'front', 'Front muscle tap cannot rotate to back');
+
+                await page.locator('#searchInput').fill('бицепс');
+                await page.waitForSelector('#muscleSearchSuggestions:not([hidden]) .mm-muscle-suggestion');
+                await page.locator('#searchInput').press('Enter');
+                assert.equal(await page.evaluate(() => currentMuscleId), 'male_biceps_brachii',
+                    'Autocomplete selection should pick biceps');
+                assert.equal(await page.locator('#muscleSearchSuggestions').getAttribute('hidden'), '',
+                    'Autocomplete closes after selection');
 
                 // Real tap on a muscle must lead visitors to the exercise panel.
                 await page.waitForSelector('#muscleList .list-item', { timeout: 15000 });

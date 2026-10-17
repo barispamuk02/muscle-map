@@ -98,6 +98,20 @@ async function main() {
 
 
 
+                // Hidden back SVG must never pick a muscle or rotate the front view.
+                const isolation = await page.evaluate(() => {
+                    const back = document.querySelector('#bodySvgBack svg path[data-muscle-id]');
+                    const front = document.querySelector('#bodySvgFront svg path[data-muscle-id]');
+                    const before = currentMuscleId;
+                    back?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                    const afterBack = { view: currentView, selected: currentMuscleId };
+                    front?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                    return { before, afterBack, afterFront: { view: currentView, selected: currentMuscleId }, frontId: front?.dataset.muscleId };
+                });
+                assert.equal(isolation.afterBack.view, 'front', 'Hidden back layer cannot rotate the manikin');
+                assert.equal(isolation.afterBack.selected, isolation.before, 'Hidden back SVG cannot be selected');
+                assert.equal(isolation.afterFront.view, 'front', 'Front muscle tap cannot rotate to back');
+
                 // Real tap on a muscle must lead visitors to the exercise panel.
                 await page.waitForSelector('#muscleList .list-item', { timeout: 15000 });
                 await page.evaluate(() => {

@@ -28,6 +28,12 @@ async function main() {
     assert.doesNotMatch(sw, /localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
     assert.match(app, /updateViaCache: 'none'/);
     assert.match(app, /controllerchange/);
+    const frontDefinition = app.split('const SVG_MUSCLES_FRONT = [')[1].split('];')[0];
+    const backDefinition = app.split('const SVG_MUSCLES_BACK = [')[1].split('];')[0];
+    assert.doesNotMatch(frontDefinition, /27_Triceps_surae_muscle/, 'Back-only calf must not be on front SVG');
+    assert.match(backDefinition, /27_Triceps_surae_muscle/, 'Calf must remain available on back SVG');
+    assert.match(frontDefinition, /28_Tibialis_anterior_muscle/, 'Tibialis must remain on front SVG');
+
     const mobileHome = fs.readFileSync(path.join(root, 'mobile-home.js'), 'utf8');
     assert.doesNotMatch(mobileHome, /info\.scrollIntoView\(/,
         'Selecting anatomy or muscle list must not auto-scroll down to exercises');

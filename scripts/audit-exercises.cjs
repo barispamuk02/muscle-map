@@ -171,6 +171,22 @@ function output(flag,data){
 }
 output('--json',JSON.stringify(report,null,2)+'\n');
 output('--markdown',lines.join('\n'));
+// One auditable tracker row per immutable catalogue ID. Never fabricate reviewer identity.
+const flaggedByID=new Map();
+for(const issue of issues){
+    if(!issue.exerciseId)continue;
+    const a=flaggedByID.get(issue.exerciseId)||[];
+    if(!a.includes(issue.code))a.push(issue.code);
+    flaggedByID.set(issue.exerciseId,a);
+}
+const csvCell=value=>'"'+String(value??'').replace(/"/g,'""')+'"';
+const columns=['exercise_id','name_en','muscle_id','technical_flags','review_status',
+    'evidence_type','source_urls','reviewer_name','reviewer_credentials','review_date','notes'];
+const reviewRows=exercises.map(ex=>[
+    ex.id,ex.name_en,ex.muscleId,(flaggedByID.get(String(ex.id))||[]).join(';'),
+    'unreviewed','','','','','',''
+].map(csvCell).join(','));
+output('--review-csv',columns.join(',')+'\n'+reviewRows.join('\n')+'\n');
 console.log('EXERCISE_AUDIT_SUMMARY '+JSON.stringify({stats,counts,byCode}));
 for(const issue of issues.filter(x=>x.severity==='error').slice(0,12))
     console.log('EXERCISE_AUDIT_ERROR '+JSON.stringify(issue));

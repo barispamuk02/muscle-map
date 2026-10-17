@@ -151,12 +151,23 @@ async function main() {
                 assert.equal(await page.locator('#mmAbdomenHud [data-abdomen-muscle]').count(), 4);
                 await page.waitForFunction(() => document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line').length === 4);
                 if (mobile) {
-                    const fit = await page.evaluate(() => ({
-                        layoutWidth: window.innerWidth,
-                        documentWidth: document.documentElement.scrollWidth
-                    }));
-                    assert.ok(fit.layoutWidth <= 390 && fit.documentWidth <= 390,
-                        'Abdominal HUD side labels must not widen the 390px mobile viewport: ' + JSON.stringify(fit));
+                    for (const width of [320, 360, 390, 412]) {
+                        await page.setViewportSize({width, height: 844});
+                        await page.waitForTimeout(90);
+                        const fit = await page.evaluate(() => ({
+                            layoutWidth: window.innerWidth,
+                            documentWidth: document.documentElement.scrollWidth,
+                            labels: [...document.querySelectorAll('#mmAbdomenHud .mm-abdomen-hud-choice')]
+                                .map(node => {
+                                    const {left, right} = node.getBoundingClientRect();
+                                    return {left, right};
+                                })
+                        }));
+                        assert.ok(fit.layoutWidth <= width && fit.documentWidth <= width
+                            && fit.labels.every(({left, right}) => left >= -1 && right <= width + 1),
+                            'HUD callouts must remain inside the ' + width + 'px mobile viewport: ' + JSON.stringify(fit));
+                    }
+                    await page.setViewportSize({width: 390, height: 844});
                 }
                 await page.waitForTimeout(930); // Let the initial staggered connector drawing finish.
                 await page.evaluate(() => {

@@ -7117,3 +7117,27 @@ body:has(.premium-modal.show) {
   .body-image-container img#bodyImage.mm-motion-incoming { animation-duration: 1ms !important; }
   .body-image-container .body-svg-layer { transition-duration: 1ms !important; }
 }
+
+/* Performance: avoid continuously repainting all anatomy SVG paths.
+   Highlight remains interactive but only reacts to selection or hover. */
+.body-svg-layer svg path {
+  animation: none !important;
+  transition: opacity 220ms ease-out, fill 220ms ease-out !important;
+  filter: none;
+}
+.body-svg-layer svg path.active {
+  animation: none !important;
+  filter: drop-shadow(0 0 7px rgba(255,71,87,.48)) !important;
+}
+.body-svg-layer svg path.synergist-active {
+  animation: none !important;
+  filter: drop-shadow(0 0 5px rgba(255,184,0,.45)) !important;
+}
+.body-svg-layer svg path:hover {
+  animation: none !important;
+  transform: none !important;
+  filter: drop-shadow(0 0 6px rgba(255,71,87,.42)) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .body-svg-layer svg path { transition: none !important; }
+}

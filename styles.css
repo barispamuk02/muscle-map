@@ -7252,3 +7252,40 @@ body:has(.premium-modal.show) {
 @media (prefers-reduced-motion: reduce) {
   .mm-hud-line, .mm-abdomen-hud-choice { transition: none !important; }
 }
+
+/* Anatomy HUD v2 prototype: atlas-like side callouts, not bottom button grid. */
+#bodyContainer .mm-abdomen-hud {
+  position: absolute; inset: 0; width: 100%; max-width: none;
+  display: block; pointer-events: none; z-index: 8;
+}
+#bodyContainer .mm-abdomen-hud-choice {
+  position: absolute; width: clamp(92px, 35vw, 140px);
+  min-height: 44px; padding: 8px 10px; pointer-events: auto;
+  background: rgba(15,27,44,.96); border: 1px solid rgba(143,178,212,.55);
+  box-shadow: 0 3px 16px rgba(0,0,0,.28); letter-spacing: .01em;
+  line-height: 1.24; border-radius: 7px;
+}
+#bodyContainer .mm-abdomen-hud-choice:nth-child(1) {
+  right: calc(100% + 10px); top: 32%;
+}
+#bodyContainer .mm-abdomen-hud-choice:nth-child(2) {
+  left: calc(100% + 10px); top: 36%;
+}
+#bodyContainer .mm-abdomen-hud-choice:nth-child(3) {
+  right: calc(100% + 10px); top: 42%;
+}
+#bodyContainer .mm-abdomen-hud-choice:nth-child(4) {
+  left: calc(100% + 10px); top: 46%;
+}
+#bodyContainer .mm-abdomen-hud-choice[aria-pressed="true"] {
+  background: #552738; border-color: #ff6778;
+  box-shadow: inset 3px 0 0 #ff6778;
+}
+#bodyContainer .mm-abdomen-hud-lines { z-index: 7; }
+@media (max-width: 768px) {
+  #bodyContainer .mm-abdomen-hud-choice {
+    width: clamp(72px, 23vw, 98px); font-size: 10px; padding: 7px 4px;
+  }
+  #bodyContainer .mm-abdomen-hud-choice:nth-child(odd) { right: calc(100% + 3px); }
+  #bodyContainer .mm-abdomen-hud-choice:nth-child(even) { left: calc(100% + 3px); }
+}

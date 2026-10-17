@@ -1,8 +1,8 @@
 // ============================================
 // 🔧 SERVICE WORKER — КЕШ ДЛЯ ОФЛАЙН-РЕЖИМА
 // ============================================
-const CACHE_NAME = 'muscle-map-v172';
-const RUNTIME_CACHE = 'muscle-map-runtime-v172';
+const CACHE_NAME = 'muscle-map-v173';
+const RUNTIME_CACHE = 'muscle-map-runtime-v173';
 
 // Файлы, которые кешируем сразу при установке
 const PRECACHE_URLS = [
@@ -159,7 +159,7 @@ self.addEventListener('install', (event) => {
                 // Загружаем по одному — один битый URL не убьёт весь кэш
                 const results = await Promise.allSettled(
                     PRECACHE_URLS.map(url =>
-                        cache.add(url).catch(err => {
+                        cache.add(new Request(url, { cache: 'reload' })).catch(err => {
                             console.warn('⚠️ Не закэшировано:', url, err.message);
                             throw err;
                         })
@@ -191,7 +191,7 @@ self.addEventListener('activate', (event) => {
             .then((cacheNames) => {
                 return Promise.all(
                     cacheNames
-                        .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
+                        .filter((name) => name.startsWith('muscle-map-') && name !== CACHE_NAME && name !== RUNTIME_CACHE)
                         .map((name) => {
                             console.log('🗑️ Удаляю старый кеш:', name);
                             return caches.delete(name);
@@ -221,7 +221,10 @@ self.addEventListener('fetch', (event) => {
     // СТРАТЕГИЯ: Network-first (свежие данные)
     // ============================================
     event.respondWith(
-        fetch(request)
+        fetch(request, {
+            cache: request.destination === 'document' || ['script', 'style'].includes(request.destination)
+                ? 'no-store' : 'default'
+        })
             .then((response) => {
                 // Кэшируем свежий ответ
                 if (response && response.status === 200 && response.type === 'basic') {

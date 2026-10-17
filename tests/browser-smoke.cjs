@@ -149,10 +149,26 @@ async function main() {
                 await hudToggle.click();
                 await page.locator('#mmAbdomenHud:not([hidden])').waitFor();
                 assert.equal(await page.locator('#mmAbdomenHud [data-abdomen-muscle]').count(), 4);
+                await page.waitForFunction(() => document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line').length === 4);
+                await page.waitForTimeout(930); // Let the initial staggered connector drawing finish.
+                await page.evaluate(() => {
+                    window.__hudInitialLines = [...document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line')];
+                });
                 await page.locator('[data-abdomen-muscle="male_obliquus_internus"]').click();
                 assert.equal(await page.evaluate(() => currentMuscleId), 'male_obliquus_internus');
                 await page.locator('[data-abdomen-muscle="male_transversus_abdominis"]').click();
                 assert.equal(await page.evaluate(() => currentMuscleId), 'male_transversus_abdominis');
+                const stableConnectors = await page.evaluate(() => {
+                    const nodes = [...document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line')];
+                    return {
+                        sameNodes: nodes.length === 4 && nodes.every((node, i) => node === window.__hudInitialLines[i]),
+                        selected: nodes.filter(node => node.classList.contains('is-selected')).map(node => node.dataset.hudMuscle),
+                        rightAngles: nodes.every(node => /^M[\\d. -]+ H[\\d. -]+ V[\\d. -]+ H[\\d. -]+$/.test(node.getAttribute('d')))
+                    };
+                });
+                assert.ok(stableConnectors.sameNodes, 'Switching abdominal muscles must not recreate connectors or replay drawing');
+                assert.deepEqual(stableConnectors.selected, ['male_transversus_abdominis'], 'Only selected connector highlighted');
+                assert.ok(stableConnectors.rightAngles, 'Connectors must use only right-angle H/V SVG segments');
                 assert.equal(await page.evaluate(() => currentView), 'front',
                     'HUD selection must never rotate anatomy');
                 await page.evaluate(() => toggleView());
@@ -230,6 +246,21 @@ async function main() {
                     'Selecting a muscle must not automatically scroll to exercises');
                 assert.ok((await page.locator('#infoContent').innerText()).trim().length > 20,
                     'Selected muscle must reveal exercise details');
+                const navDiagnostics = await page.evaluate(() => {
+                    const tab = document.querySelector('.mm-mobile-bottom-nav [data-mm-target="navPrograms"]');
+                    const bar = tab.closest('.mm-mobile-bottom-nav');
+                    const r = tab.getBoundingClientRect();
+                    const x = r.x + r.width / 2, y = r.y + r.height / 2;
+                    const hit = document.elementFromPoint(x, y);
+                    const css = el => ({position:getComputedStyle(el).position, zIndex:getComputedStyle(el).zIndex,
+                        transform:getComputedStyle(el).transform, pointerEvents:getComputedStyle(el).pointerEvents});
+                    return {scrollX:window.scrollX, scrollY:window.scrollY, innerWidth, innerHeight,
+                        tabRect:{x:r.x,y:r.y,width:r.width,height:r.height}, navCSS:css(bar),
+                        mainCSS:css(document.querySelector('#mainContent')),
+                        hit:hit?.outerHTML?.slice(0,260), hitClasses:hit?.className,
+                        navHasHit:hit===tab || tab.contains(hit)};
+                });
+                console.log('MOBILE_BOTTOM_NAV_DIAGNOSTICS', JSON.stringify(navDiagnostics));
                 await page.locator('.mm-mobile-bottom-nav [data-mm-target="navPrograms"]').click();
             } else {
                 await page.locator('#navPrograms').click();

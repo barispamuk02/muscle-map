@@ -7175,3 +7175,24 @@ body:has(.premium-modal.show) {
 .body-svg-layer svg path.synergist-active {
   fill: #ffb800 !important;
 }
+
+/* Accessible muscle autocomplete on desktop and mobile. */
+.mm-muscle-suggestions {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  z-index: 60; max-height: 320px; overflow-y: auto;
+  border: 1px solid rgba(132,168,219,.25); border-radius: 12px;
+  background: #17243b; box-shadow: 0 12px 32px rgba(0,0,0,.32);
+}
+.mm-muscle-suggestions[hidden] { display: none !important; }
+.mm-muscle-suggestion {
+  display: block; width: 100%; min-height: 44px; padding: 10px 14px;
+  border: 0; background: transparent; color: #edf3ff;
+  text-align: left; font: inherit; cursor: pointer;
+}
+.mm-muscle-suggestion:hover, .mm-muscle-suggestion[aria-selected="true"] {
+  background: rgba(121,172,255,.17);
+}
+
+@media (max-width: 768px) {
+  #searchInput { font-size: 16px !important; }
+}

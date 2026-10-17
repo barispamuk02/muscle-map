@@ -4323,7 +4323,82 @@ function init() {
 
     setTimeout(checkNewAchievements, 1500);
 
-    if (searchInput) searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+    // Suggest muscle names as the visitor types without changing their selection.
+function setupMuscleSuggestions() {
+    if (!searchInput) return;
+    const dropdown = document.createElement('div');
+    dropdown.id = 'muscleSearchSuggestions';
+    dropdown.className = 'mm-muscle-suggestions';
+    dropdown.setAttribute('role', 'listbox');
+    dropdown.hidden = true;
+    searchInput.setAttribute('autocomplete', 'off');
+    searchInput.setAttribute('aria-controls', dropdown.id);
+    searchInput.setAttribute('aria-expanded', 'false');
+    searchInput.parentElement.style.position = 'relative';
+    searchInput.insertAdjacentElement('afterend', dropdown);
+    let options = [];
+    let highlighted = -1;
+    function dismiss() {
+        dropdown.hidden = true;
+        dropdown.replaceChildren();
+        options = [];
+        highlighted = -1;
+        searchInput.setAttribute('aria-expanded', 'false');
+        searchInput.removeAttribute('aria-activedescendant');
+    }
+    function choose(muscle) {
+        searchInput.value = typeof getMuscleName === 'function' ? getMuscleName(muscle) : muscle.name;
+        dismiss();
+        selectMuscle(muscle.id);
+    }
+    function update() {
+        const query = searchInput.value.trim().toLocaleLowerCase();
+        if (!query) { dismiss(); return; }
+        options = Object.values(muscleDatabase)
+            .filter(m => [m.name, m.latin, m.id, typeof getMuscleName === 'function' ? getMuscleName(m) : '']
+                .some(value => String(value || '').toLocaleLowerCase().includes(query)))
+            .sort((a, b) => {
+                const an = (typeof getMuscleName === 'function' ? getMuscleName(a) : a.name).toLocaleLowerCase();
+                const bn = (typeof getMuscleName === 'function' ? getMuscleName(b) : b.name).toLocaleLowerCase();
+                return Number(!an.startsWith(query)) - Number(!bn.startsWith(query)) || an.localeCompare(bn);
+            }).slice(0, 8);
+        dropdown.replaceChildren();
+        highlighted = -1;
+        options.forEach((muscle, i) => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className = 'mm-muscle-suggestion';
+            option.id = 'mm-muscle-suggestion-' + i;
+            option.setAttribute('role', 'option');
+            option.setAttribute('aria-selected', 'false');
+            option.textContent = typeof getMuscleName === 'function' ? getMuscleName(muscle) : muscle.name;
+            option.addEventListener('pointerdown', e => e.preventDefault());
+            option.addEventListener('click', () => choose(muscle));
+            dropdown.appendChild(option);
+        });
+        dropdown.hidden = options.length === 0;
+        searchInput.setAttribute('aria-expanded', String(!dropdown.hidden));
+    }
+    searchInput.addEventListener('input', () => update());
+    searchInput.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { dismiss(); return; }
+        if (dropdown.hidden) return;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            highlighted = (highlighted + (e.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+            [...dropdown.children].forEach((el, i) => el.setAttribute('aria-selected', String(i === highlighted)));
+            searchInput.setAttribute('aria-activedescendant', 'mm-muscle-suggestion-' + highlighted);
+        } else if (e.key === 'Enter' && options.length) {
+            e.preventDefault();
+            choose(options[highlighted < 0 ? 0 : highlighted]);
+        }
+    });
+    searchInput.addEventListener('blur', () => setTimeout(dismiss, 120));
+}
+if (searchInput) {
+    searchInput.addEventListener('input', e => handleSearch(e.target.value));
+    setupMuscleSuggestions();
+}
 if (randomBtn) randomBtn.addEventListener('click', randomMuscle);
 if (shareBtn) shareBtn.addEventListener('click', shareProject);
 
@@ -7215,10 +7290,8 @@ const SVG_MUSCLES_FRONT = [
     '15_Anterior_bundle_of_the_deltoid_muscle',
     '16_Middle_head_of_the_deltoid_muscle',
     '18_BICEPS',
-    '19_TRICEPS',
     '20_Brachialis',
     '21_Wristflexors',
-    '22_Musculi_extensores_carpi',
     '23_quadriceps',
     '25_Adductor_muscles_of_the_thigh',
     '28_Tibialis_anterior_muscle',
@@ -7231,10 +7304,7 @@ const SVG_MUSCLES_BACK = [
     '13_Rhomboid_muscles',
     '16_Middle_head_of_the_deltoid_muscle',
     '17_Posterior_deltoid',
-    '18_BICEPS',
     '19_TRICEPS',
-    '20_Brachialis',
-    '21_Wristflexors',
     '22_Musculi_extensores_carpi',
     '24_Posterior_thigh_muscle_group_(biceps_femoris)',
     '26_Musculus_gluteus_maximus',

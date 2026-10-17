@@ -141,7 +141,10 @@ async function main() {
 
                 // Abdominal HUD should disambiguate overlapping deep muscle paths.
                 const hudToggle = page.locator('#mmAbdomenHudToggle');
-                await hudToggle.waitFor();
+                await hudToggle.waitFor({state: 'attached'});
+                assert.equal(await hudToggle.isVisible(), false, 'HUD launcher stays hidden until abdomen tap');
+                await page.locator('#bodySvgFront path[data-muscle-id="male_rectus_abdominis"]').click({force:true});
+                await hudToggle.waitFor({state: 'visible'});
                 await hudToggle.click();
                 await page.locator('#mmAbdomenHud:not([hidden])').waitFor();
                 assert.equal(await page.locator('#mmAbdomenHud [data-abdomen-muscle]').count(), 4);

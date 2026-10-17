@@ -64,7 +64,20 @@ async function main() {
                     const info = document.getElementById('infoContent');
                     info.scrollIntoView = () => { window.__mobileDetailRevealed = true; };
                 });
+                assert.match(await page.locator('#mmMobileHero h2').innerText(), /Know your muscles|Изучай мышцы/i);
+                assert.ok(await page.locator('#mmMobileHero .mm-hero-accent').isVisible());
+                await page.evaluate(() => {
+                    const path = document.querySelector('.body-svg-layer svg path');
+                    if (path) {
+                        path.classList.add('synergist-active');
+                        window.__amberTestPath = path;
+                    }
+                });
                 await page.locator('#muscleList .list-item').first().click();
+                const amberReset = await page.evaluate(() =>
+                    !window.__amberTestPath || !window.__amberTestPath.classList.contains('synergist-active')
+                );
+                assert.ok(amberReset, 'Selecting a different muscle must clear previous amber glow');
                 await page.waitForFunction(() => window.__mobileDetailRevealed === true, { timeout: 3000 });
                 assert.ok((await page.locator('#infoContent').innerText()).trim().length > 20,
                     'Selected muscle must reveal exercise details');

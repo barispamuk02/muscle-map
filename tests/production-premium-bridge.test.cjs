@@ -13,6 +13,7 @@ function part(start,end){
     return source.slice(a,b);
 }
 const runtime=[
+    'let productionVerifiedPremium = false;',
     part('const BACKEND_URL =','function getUserId()'),
     part('function isPremium()','// Установка статуса Премиум'),
     part('function setPremium(active, days = 30)','// ============================================\n// 🔗 СИНХРОНИЗАЦИЯ PREMIUM С BACKEND'),

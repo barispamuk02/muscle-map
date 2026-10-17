@@ -145,6 +145,17 @@ async function main() {
                         .every(path => path.dataset.muscleId === currentMuscleId)
                 );
                 assert.ok(afterChange, 'Previous red muscle must reset after selecting another');
+                const uiState = await page.evaluate(() => ({
+                    selected: currentMuscleId,
+                    highlighted: [...document.querySelectorAll('.body-svg-layer svg path.active')].map(el => ({
+                        id: el.dataset.muscleId,
+                        side: el.closest('.body-svg-layer')?.id
+                    })),
+                    autoScrollHandler: document.querySelector('#bodyView')?.textContent?.includes('scrollIntoView')
+                }));
+                assert.ok(uiState.highlighted.every(item => item.id === uiState.selected && item.side === 'bodySvgFront'),
+                    'Selected red SVG must be only the current muscle on front view');
+
 
                 const amberReset = await page.evaluate(() =>
                     !window.__amberTestPath || !window.__amberTestPath.classList.contains('synergist-active')

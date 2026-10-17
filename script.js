@@ -7409,6 +7409,7 @@ function updateAbdomenHud() {
     const panel = document.getElementById('mmAbdomenHud');
     const toggle = document.getElementById('mmAbdomenHudToggle');
     if (!panel || !toggle) return;
+    const wasVisible = !panel.hidden;
     const show = currentView === 'front';
     toggle.hidden = !show;
     panel.hidden = !show || !abdomenHudOpen;
@@ -7422,7 +7423,18 @@ function updateAbdomenHud() {
     toggle.textContent = (typeof currentLang !== 'undefined' && currentLang === 'en')
         ? (abdomenHudOpen ? 'Hide abdomen layers' : 'Abdomen layers')
         : (abdomenHudOpen ? 'Скрыть слои живота' : 'Слои живота');
-    if (!panel.hidden) requestAnimationFrame(drawAbdomenHudLines);
+    const lines = document.getElementById('mmAbdomenHudLines');
+    if (lines) {
+        if (panel.hidden) {
+            // Each new HUD opening may draw the connectors; selecting a muscle must not.
+            if (wasVisible) lines.replaceChildren();
+        } else {
+            lines.querySelectorAll('.mm-hud-line').forEach(line => {
+                line.classList.toggle('is-selected', line.dataset.hudMuscle === currentMuscleId);
+            });
+        }
+    }
+    if (!panel.hidden && !wasVisible) requestAnimationFrame(drawAbdomenHudLines);
 }
 function drawAbdomenHudLines() {
     const panel = document.getElementById('mmAbdomenHud');
@@ -7431,7 +7443,6 @@ function drawAbdomenHudLines() {
     if (!panel || !wrapper || !lines || panel.hidden) return;
     const rect = wrapper.getBoundingClientRect();
     lines.setAttribute('viewBox', '0 0 ' + rect.width + ' ' + rect.height);
-    lines.replaceChildren();
     ABDOMEN_HUD_MUSCLES.forEach(muscle => {
         const path = document.querySelector('#bodySvgFront path[data-muscle-id="' + muscle.id + '"]');
         const button = panel.querySelector('[data-abdomen-muscle="' + muscle.id + '"]');
@@ -7447,18 +7458,28 @@ function drawAbdomenHudLines() {
         const x2 = (side === 'left' ? b.right : b.left) - rect.left;
         const y2 = b.top + b.height / 2 - rect.top;
         const elbow = side === 'left' ? Math.min(x1 - 12, x2 + 14) : Math.max(x1 + 12, x2 - 14);
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        let line = lines.querySelector('path[data-hud-muscle="' + muscle.id + '"]');
+        if (!line) {
+            line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            line.dataset.hudMuscle = muscle.id;
+            line.style.setProperty('--hud-order', String(Number(button.dataset.hudIndex) || 0));
+            line.setAttribute('pathLength', '1');
+            line.setAttribute('class', 'mm-hud-line');
+            lines.appendChild(line);
+        }
+        // Updating SVG geometry in place preserves the CSS animation timeline.
         line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' H' + elbow + ' V' + y2 + ' H' + x2);
-        line.style.setProperty('--hud-order', String(Number(button.dataset.hudIndex) || 0));
-        line.setAttribute('pathLength', '1');
-        line.setAttribute('class', 'mm-hud-line' + (muscle.id === currentMuscleId ? ' is-selected' : ''));
-        lines.appendChild(line);
-        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        line.classList.toggle('is-selected', muscle.id === currentMuscleId);
+        let dot = lines.querySelector('circle[data-hud-muscle="' + muscle.id + '"]');
+        if (!dot) {
+            dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            dot.dataset.hudMuscle = muscle.id;
+            dot.setAttribute('r', 2.8);
+            dot.setAttribute('class', 'mm-hud-dot');
+            lines.appendChild(dot);
+        }
         dot.setAttribute('cx', x1);
         dot.setAttribute('cy', y1);
-        dot.setAttribute('r', 2.8);
-        dot.setAttribute('class', 'mm-hud-dot');
-        lines.appendChild(dot);
     });
 }
 function initAbdomenHud() {

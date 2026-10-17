@@ -7317,3 +7317,9 @@ body:has(.premium-modal.show) {
   #bodyContainer .mm-hud-dot,
   #bodyContainer .mm-abdomen-hud-choice { animation: none !important; }
 }
+
+/* Keep the launcher out of view until the first abdomen touch. */
+#mmAbdomenHudToggle:not(.mm-hud-revealed) { display: none !important; }
+#mmAbdomenHudToggle.mm-hud-revealed {
+  animation: mm-hud-label-in 360ms cubic-bezier(.22,1,.36,1) both;
+}

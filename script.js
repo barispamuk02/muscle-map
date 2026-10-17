@@ -327,13 +327,24 @@ function updateBodyImage() {
         ? 'images/body-front_1.png'
         : 'images/body-back_2.png';
     if (bodyImage.getAttribute('src') !== imagePath) {
-        bodyImage.classList.add('fade');
-        setTimeout(() => {
-            bodyImage.src = imagePath;
-            bodyImage.classList.remove('fade');
-            bodyImage.classList.add('fade-in');
-            setTimeout(() => bodyImage.classList.remove('fade-in'), 500);
-        }, 300);
+        const container = bodyImage.parentElement;
+        container.querySelectorAll('.mm-motion-outgoing-image').forEach(node => node.remove());
+        const oldFrame = bodyImage.cloneNode(false);
+        oldFrame.removeAttribute('id');
+        oldFrame.removeAttribute('alt');
+        oldFrame.setAttribute('aria-hidden', 'true');
+        oldFrame.className = 'mm-motion-outgoing-image';
+        container.insertBefore(oldFrame, bodyImage);
+        bodyImage.src = imagePath;
+        bodyImage.classList.remove('mm-motion-incoming');
+        void bodyImage.offsetWidth;
+        bodyImage.classList.add('mm-motion-incoming');
+        const cleanup = () => {
+            oldFrame.remove();
+            bodyImage.classList.remove('mm-motion-incoming');
+        };
+        oldFrame.addEventListener('animationend', cleanup, { once: true });
+        setTimeout(cleanup, 550);
     }
     renderOverlays();
 
@@ -369,7 +380,7 @@ function toggleView() {
         ? `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewBack') : 'Вид сзади'}` 
         : `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewFront') : 'Вид спереди'}`;
     updateBodyImage();
-    setTimeout(() => { isTransitioning = false; }, 600);
+    setTimeout(() => { isTransitioning = false; }, 380);
 }
 
 window.toggleView = toggleView;
@@ -7349,43 +7360,13 @@ function showSvgLayer(view) {
     const front = document.getElementById('bodySvgFront');
     const back = document.getElementById('bodySvgBack');
     if (!front || !back) return;
-
-    if (view === 'front') {
-        // 🔥 Скрываем back ПРИНУДИТЕЛЬНО
-        back.classList.remove('visible');
-        back.style.pointerEvents = 'none';
-        back.style.visibility = 'hidden';
-        back.querySelectorAll('svg, svg path').forEach(el => {
-            el.style.pointerEvents = 'none';
-        });
-
-        // Показываем front
-        setTimeout(() => {
-            front.classList.add('visible');
-            front.style.pointerEvents = '';
-            front.style.visibility = '';
-            front.querySelectorAll('svg, svg path').forEach(el => {
-                el.style.pointerEvents = '';
-            });
-        }, 150);
-    } else {
-        // 🔥 Скрываем front ПРИНУДИТЕЛЬНО
-        front.classList.remove('visible');
-        front.style.pointerEvents = 'none';
-        front.style.visibility = 'hidden';
-        front.querySelectorAll('svg, svg path').forEach(el => {
-            el.style.pointerEvents = 'none';
-        });
-
-        // Показываем back
-        setTimeout(() => {
-            back.classList.add('visible');
-            back.style.pointerEvents = '';
-            back.style.visibility = '';
-            back.querySelectorAll('svg, svg path').forEach(el => {
-                el.style.pointerEvents = '';
-            });
-        }, 150);
+    // No delayed callback may reactivate a previously selected view.
+    for (const [element, side] of [[front, 'front'], [back, 'back']]) {
+        const visible = side === view;
+        element.classList.toggle('visible', visible);
+        element.setAttribute('aria-hidden', String(!visible));
+        element.style.pointerEvents = visible ? '' : 'none';
+        element.style.visibility = '';
     }
 }
 // Инициализация

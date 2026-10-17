@@ -347,6 +347,7 @@ function updateBodyImage() {
         setTimeout(cleanup, 550);
     }
     renderOverlays();
+    syncPrimarySvgSelection();
 
     // ⭐ ФИКС: переключаем SVG-слой синхронно с картинкой
     if (typeof showSvgLayer === 'function') {
@@ -440,18 +441,24 @@ function bindListFilter() {
     });
 }
 
+function syncPrimarySvgSelection() {
+    // One current muscle, one visible anatomical side, including late-loaded SVGs.
+    document.querySelectorAll('.body-svg-layer svg path.active').forEach(path => {
+        path.classList.remove('active');
+    });
+    if (!currentMuscleId) return;
+    const side = currentView === 'front' ? 'bodySvgFront' : 'bodySvgBack';
+    document.querySelectorAll('#' + side + ' svg path[data-muscle-id]').forEach(path => {
+        if (path.dataset.muscleId === currentMuscleId) path.classList.add('active');
+    });
+}
+
 function selectMuscle(id) {
     const muscle = muscleDatabase[id];
     if (!muscle) return;
     resetSynergistSelection();
     currentMuscleId = id;
-    // Sync selected anatomy highlight with the current muscle; remove stale red paths.
-    document.querySelectorAll('.body-svg-layer svg path.active').forEach(path => {
-        path.classList.remove('active');
-    });
-    document.querySelectorAll('.body-svg-layer svg path[data-muscle-id]').forEach(path => {
-        if (path.dataset.muscleId === id) path.classList.add('active');
-    });
+    syncPrimarySvgSelection();
     localStorage.setItem(STORAGE_KEYS.lastSelected, id);
     incrementViews(id);
     currentEquipmentFilter = 'all';
@@ -7381,6 +7388,7 @@ async function initSvgLayers() {
     const backCount = await loadSvgLayer('bodySvgBack', SVG_MUSCLES_BACK);
     console.log(`✅ SVG-слои: front ${frontCount}/${SVG_MUSCLES_FRONT.length}, back ${backCount}/${SVG_MUSCLES_BACK.length}`);
     showSvgLayer(currentView);
+    syncPrimarySvgSelection();
 }
 
 // Хук на переключение вида

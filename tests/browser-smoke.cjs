@@ -28,6 +28,10 @@ async function main() {
     assert.doesNotMatch(sw, /localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
     assert.match(app, /updateViaCache: 'none'/);
     assert.match(app, /controllerchange/);
+    const mobileHome = fs.readFileSync(path.join(root, 'mobile-home.js'), 'utf8');
+    assert.doesNotMatch(mobileHome, /info\.scrollIntoView\(/,
+        'Selecting anatomy or muscle list must not auto-scroll down to exercises');
+
     await new Promise(resolve => serve.listen(0, '127.0.0.1', resolve));
     const port = serve.address().port;
     const origin = 'http://127.0.0.1:' + port;
@@ -145,12 +149,24 @@ async function main() {
                         .every(path => path.dataset.muscleId === currentMuscleId)
                 );
                 assert.ok(afterChange, 'Previous red muscle must reset after selecting another');
+                const uiState = await page.evaluate(() => ({
+                    selected: currentMuscleId,
+                    highlighted: [...document.querySelectorAll('.body-svg-layer svg path.active')].map(el => ({
+                        id: el.dataset.muscleId,
+                        side: el.closest('.body-svg-layer')?.id
+                    })),
+                    autoScrollHandler: document.querySelector('#bodyView')?.textContent?.includes('scrollIntoView')
+                }));
+                assert.ok(uiState.highlighted.every(item => item.id === uiState.selected && item.side === 'bodySvgFront'),
+                    'Selected red SVG must be only the current muscle on front view');
+
 
                 const amberReset = await page.evaluate(() =>
                     !window.__amberTestPath || !window.__amberTestPath.classList.contains('synergist-active')
                 );
                 assert.ok(amberReset, 'Selecting a different muscle must clear previous amber glow');
-                await page.waitForFunction(() => window.__mobileDetailRevealed === true, { timeout: 3000 });
+                assert.equal(await page.evaluate(() => window.__mobileDetailRevealed), false,
+                    'Selecting a muscle must not automatically scroll to exercises');
                 assert.ok((await page.locator('#infoContent').innerText()).trim().length > 20,
                     'Selected muscle must reveal exercise details');
                 await page.locator('.mm-mobile-bottom-nav [data-mm-target="navPrograms"]').click();

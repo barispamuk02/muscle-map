@@ -136,33 +136,8 @@
             if (button) navigate(button.dataset.mmTarget);
         });
     }
-    // Bring the exercise panel into view after selecting a muscle on either the
-    // anatomical overlay or the list. Do not scroll on initial page load.
-    const muscleList = $('muscleList');
-    const muscleMap = $('bodyView');
-    let pendingDetailScroll = null;
-    function revealMuscleDetails() {
-        if (pendingDetailScroll !== null) clearTimeout(pendingDetailScroll);
-        pendingDetailScroll = setTimeout(() => {
-            pendingDetailScroll = null;
-            if (!mobile.matches || showCurrent() !== 'navMuscles') return;
-            const info = $('infoContent');
-            if (!info || !info.textContent.trim()) return;
-            info.scrollIntoView({
-                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-                block: 'start'
-            });
-        }, 140);
-    }
-    if (muscleList) muscleList.addEventListener('click', event => {
-        if (event.target.closest('.list-item')) revealMuscleDetails();
-    });
-    if (muscleMap) muscleMap.addEventListener('click', event => {
-        if (event.target.closest('#viewToggle,.view-toggle-btn')) return;
-        if (event.target.closest('.body-svg-layer,[data-muscle-id],[data-muscle]')) {
-            revealMuscleDetails();
-        }
-    });
+    // Muscle selection must not move the viewport. Visitors scroll to exercises
+    // deliberately; only explicit navigation may change page position.
     backdrop.addEventListener('click', closeMenu);
     document.addEventListener('keydown', event => {
         if (sheet.hidden) return;

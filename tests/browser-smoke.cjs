@@ -73,16 +73,16 @@ async function main() {
                     const exercises = typeof exerciseDatabase === 'undefined' ? [] : exerciseDatabase;
                     const rows = canonical.map(id => {
                         const list = getExercisesForMuscle(id);
-                        const mapped = list.filter(ex => data[(ex.name_en || '').toLowerCase().trim()]);
+                        const mapped = list.filter(ex => resolveExerciseSynergists(ex));
                         const available = [...new Set(mapped.flatMap(ex =>
-                            (data[(ex.name_en || '').toLowerCase().trim()]?.synergists || [])
+                            (resolveExerciseSynergists(ex)?.synergists || [])
                                 .map(s => s.muscleId)
                                 .filter(s => s !== id && valid.has(s))
                         ))];
                         return {
                             id, total: list.length, mapped: mapped.length,
                             custom: list.filter(ex => ex.isCustom).length,
-                            unmappedCustom: list.filter(ex => ex.isCustom && !data[(ex.name_en || '').toLowerCase().trim()]).length,
+                            unmappedCustom: list.filter(ex => ex.isCustom && !resolveExerciseSynergists(ex)).length,
                             synergyCount: available.length, partners: available,
                             rendered: !!renderMuscleSynergists(muscleDatabase[id])
                         };
@@ -104,6 +104,35 @@ async function main() {
                         wrongPrimaryCount:wrongPrimary.length, wrongPrimary:wrongPrimary.slice(0,18)};
                 });
                 console.log('SYNERGIST_COVERAGE_AUDIT', JSON.stringify(coverage));
+                const mappedMuscles = [
+                    'male_pectoralis_minor','male_obliquus_externus','male_obliquus_internus',
+                    'male_transversus_abdominis','male_trapezius_middle',
+                    'male_deltoid_lateral','male_deltoid_posterior','male_brachialis'
+                ];
+                for (const id of mappedMuscles) {
+                    const row = coverage.rows.find(item => item.id === id);
+                    assert.ok(row?.mapped > 0 && row?.synergyCount > 0 && row?.rendered,
+                        'Curated custom synergies should reach muscle and exercises for ' + id);
+                }
+                assert.deepEqual(coverage.unresolved, [], 'Every synergist muscle ID must exist in muscleDatabase');
+                assert.equal(coverage.catalogUnmappedCount, 0,
+                    'Every catalogue exercise should resolve to a named synergy record');
+                await page.evaluate(() => selectMuscle('male_trapezius_middle'));
+                assert.ok(await page.locator('#infoContent .muscle-synergists-block').count(),
+                    'Middle trapezius must show muscle-level partners');
+                const curatedDetail = await page.evaluate(() => {
+                    const ex = getExercisesForMuscle('male_trapezius_middle').find(e => e.name === 'Face Pulls (тяга к лицу)');
+                    const html = renderSynergists(ex);
+                    return {
+                        isCustom: !!ex?.isCustom,
+                        hasRhomboids: html.includes('male_rhomboids'),
+                        hasPosteriorDeltoid: html.includes('male_deltoid_posterior'),
+                        noFakePercent: !/synergist-percent|synergist-bar-fill/.test(html)
+                    };
+                });
+                assert.ok(curatedDetail.isCustom && curatedDetail.hasRhomboids
+                    && curatedDetail.hasPosteriorDeltoid && curatedDetail.noFakePercent,
+                    'Face pulls must show specific synergy partners without invented percentages');
             }
             if (mobile) {
                 await page.locator('#mmMobileHero').waitFor();

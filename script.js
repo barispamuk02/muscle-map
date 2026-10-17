@@ -7446,9 +7446,10 @@ function drawAbdomenHudLines() {
         const side = Number(button.dataset.hudIndex) % 2 === 0 ? 'left' : 'right';
         const x2 = (side === 'left' ? b.right : b.left) - rect.left;
         const y2 = b.top + b.height / 2 - rect.top;
-        const elbow = side === 'left' ? x2 + 10 : x2 - 10;
+        const elbow = side === 'left' ? Math.min(x1 - 12, x2 + 14) : Math.max(x1 + 12, x2 - 14);
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' L' + elbow + ' ' + y2 + ' L' + x2 + ' ' + y2);
+        line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' H' + elbow + ' V' + y2 + ' H' + x2);
+        line.style.setProperty('--hud-order', String(Number(button.dataset.hudIndex) || 0));
         line.setAttribute('class', 'mm-hud-line' + (muscle.id === currentMuscleId ? ' is-selected' : ''));
         lines.appendChild(line);
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');

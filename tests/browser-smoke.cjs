@@ -28,6 +28,10 @@ async function main() {
     assert.doesNotMatch(sw, /localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
     assert.match(app, /updateViaCache: 'none'/);
     assert.match(app, /controllerchange/);
+    const mobileHome = fs.readFileSync(path.join(root, 'mobile-home.js'), 'utf8');
+    assert.doesNotMatch(mobileHome, /info\.scrollIntoView\(/,
+        'Selecting anatomy or muscle list must not auto-scroll down to exercises');
+
     await new Promise(resolve => serve.listen(0, '127.0.0.1', resolve));
     const port = serve.address().port;
     const origin = 'http://127.0.0.1:' + port;

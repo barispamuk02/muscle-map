@@ -4018,8 +4018,10 @@ function renderInfo(muscle) {
 
     const newCard = document.createElement('div');
     newCard.className = 'muscle-card';
-    newCard.style.opacity = '0';
-    newCard.style.transform = 'translateY(24px) scale(0.96)';
+    // Do not hide a new exercise list while waiting for an exit animation.
+    newCard.style.opacity = '1';
+    newCard.style.transform = 'none';
+    newCard.dataset.muscleId = muscle.id;
     newCard.innerHTML = `
         <div class="card-header">
             <div>
@@ -4038,30 +4040,12 @@ function renderInfo(muscle) {
 ${imageBlock}
 ${renderMuscleSynergists(muscle)}
     `;
-      const oldCard = infoContentEl.querySelector('.muscle-card');
-    if (oldCard) {
-        oldCard.style.transition = 'all 0.25s ease-out';
-        oldCard.style.opacity = '0';
-        oldCard.style.transform = 'translateY(-12px) scale(0.97)';
-        setTimeout(() => {
-            oldCard.remove();
-            infoContentEl.appendChild(newCard);
-            bindCardEvents(newCard);
-            requestAnimationFrame(() => {
-                newCard.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                newCard.style.opacity = '1';
-                newCard.style.transform = 'translateY(0) scale(1)';
-            });
-        }, 280);
-    } else {
-        infoContentEl.appendChild(newCard);
-        bindCardEvents(newCard);
-        requestAnimationFrame(() => {
-            newCard.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            newCard.style.opacity = '1';
-            newCard.style.transform = 'translateY(0) scale(1)';
-        });
-    }
+    // Swap the complete exercise card immediately. Previous 280ms delay,
+    // plus a second entry animation, caused visible lag on mobile devices.
+    // Keep this synchronous so the chosen muscle's exercises are available
+    // in the same event turn even if its images are still loading.
+    infoContentEl.replaceChildren(newCard);
+    bindCardEvents(newCard);
 }
 
 function bindCardEvents(container) {
@@ -7405,6 +7389,7 @@ const ABDOMEN_HUD_MUSCLES = [
     { id: 'male_transversus_abdominis', label: { ru: 'Поперечная', en: 'Transversus abdominis' } }
 ];
 let abdomenHudOpen = false;
+let abdomenHudActiveId = null; // Only a user-chosen callout may create a connector.
 function updateAbdomenHud() {
     const panel = document.getElementById('mmAbdomenHud');
     const toggle = document.getElementById('mmAbdomenHudToggle');
@@ -7414,73 +7399,63 @@ function updateAbdomenHud() {
     toggle.hidden = !show;
     panel.hidden = !show || !abdomenHudOpen;
     toggle.setAttribute('aria-expanded', String(show && abdomenHudOpen));
+    const lines = document.getElementById('mmAbdomenHudLines');
+    if (panel.hidden || (abdomenHudActiveId && currentMuscleId !== abdomenHudActiveId)) {
+        abdomenHudActiveId = null;
+        if (lines) lines.replaceChildren();
+    }
     panel.querySelectorAll('[data-abdomen-muscle]').forEach(button => {
         const item = ABDOMEN_HUD_MUSCLES.find(m => m.id === button.dataset.abdomenMuscle);
         const language = typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en' : 'ru';
         if (item) button.textContent = item.label[language];
-        button.setAttribute('aria-pressed', String(button.dataset.abdomenMuscle === currentMuscleId));
+        button.setAttribute('aria-pressed', String(!panel.hidden && button.dataset.abdomenMuscle === abdomenHudActiveId));
     });
     toggle.textContent = (typeof currentLang !== 'undefined' && currentLang === 'en')
         ? (abdomenHudOpen ? 'Hide abdomen layers' : 'Abdomen layers')
         : (abdomenHudOpen ? 'Скрыть слои живота' : 'Слои живота');
-    const lines = document.getElementById('mmAbdomenHudLines');
-    if (lines) {
-        if (panel.hidden) {
-            // Each new HUD opening may draw the connectors; selecting a muscle must not.
-            if (wasVisible) lines.replaceChildren();
-        } else {
-            lines.querySelectorAll('.mm-hud-line').forEach(line => {
-                line.classList.toggle('is-selected', line.dataset.hudMuscle === currentMuscleId);
-            });
-        }
-    }
-    if (!panel.hidden && !wasVisible) requestAnimationFrame(drawAbdomenHudLines);
+    // Opening reveals only four callouts. The line starts when one is pressed.
+    if (!panel.hidden && !wasVisible && lines) lines.replaceChildren();
 }
 function drawAbdomenHudLines() {
     const panel = document.getElementById('mmAbdomenHud');
-    const wrapper = document.querySelector('#bodyContainer');
+    const wrapper = document.getElementById('bodyContainer');
     const lines = document.getElementById('mmAbdomenHudLines');
-    if (!panel || !wrapper || !lines || panel.hidden) return;
+    if (!panel || !wrapper || !lines || panel.hidden || !abdomenHudActiveId) return;
+    const path = document.querySelector('#bodySvgFront path[data-muscle-id="' + abdomenHudActiveId + '"]');
+    const button = panel.querySelector('[data-abdomen-muscle="' + abdomenHudActiveId + '"]');
+    if (!path || !button) return;
     const rect = wrapper.getBoundingClientRect();
+    const muscleRect = path.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    if (!rect.width || !rect.height || !muscleRect.width || !muscleRect.height) return;
     lines.setAttribute('viewBox', '0 0 ' + rect.width + ' ' + rect.height);
-    ABDOMEN_HUD_MUSCLES.forEach(muscle => {
-        const path = document.querySelector('#bodySvgFront path[data-muscle-id="' + muscle.id + '"]');
-        const button = panel.querySelector('[data-abdomen-muscle="' + muscle.id + '"]');
-        if (!path || !button) return;
-        // Use actual rendered path bounds. Duplicate deep contours therefore share an
-        // anchor deliberately; do not imply independent anatomical shapes.
-        const a = path.getBoundingClientRect();
-        const b = button.getBoundingClientRect();
-        if (!a.width || !a.height) return;
-        const x1 = a.left + a.width / 2 - rect.left;
-        const y1 = a.top + a.height / 2 - rect.top;
-        const side = Number(button.dataset.hudIndex) % 2 === 0 ? 'left' : 'right';
-        const x2 = (side === 'left' ? b.right : b.left) - rect.left;
-        const y2 = b.top + b.height / 2 - rect.top;
-        const elbow = side === 'left' ? Math.min(x1 - 12, x2 + 14) : Math.max(x1 + 12, x2 - 14);
-        let line = lines.querySelector('path[data-hud-muscle="' + muscle.id + '"]');
-        if (!line) {
-            line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            line.dataset.hudMuscle = muscle.id;
-            line.style.setProperty('--hud-order', String(Number(button.dataset.hudIndex) || 0));
-            line.setAttribute('pathLength', '1');
-            line.setAttribute('class', 'mm-hud-line');
-            lines.appendChild(line);
-        }
-        // Updating SVG geometry in place preserves the CSS animation timeline.
-        line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' H' + elbow + ' V' + y2 + ' H' + x2);
-        line.classList.toggle('is-selected', muscle.id === currentMuscleId);
-        let dot = lines.querySelector('circle[data-hud-muscle="' + muscle.id + '"]');
-        if (!dot) {
-            dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            dot.dataset.hudMuscle = muscle.id;
-            dot.setAttribute('r', 2.8);
-            dot.setAttribute('class', 'mm-hud-dot');
-            lines.appendChild(dot);
-        }
-        dot.setAttribute('cx', x1);
-        dot.setAttribute('cy', y1);
-    });
+    // The leader starts at the selected label and follows H/V/H segments
+    // to an anchor on the existing SVG muscle. No fabricated anatomy.
+    const side = Number(button.dataset.hudIndex) % 2 === 0 ? 'left' : 'right';
+    const x1 = (side === 'left' ? buttonRect.right : buttonRect.left) - rect.left;
+    const y1 = buttonRect.top + buttonRect.height / 2 - rect.top;
+    const x2 = muscleRect.left + muscleRect.width / 2 - rect.left;
+    const y2 = muscleRect.top + muscleRect.height / 2 - rect.top;
+    const elbow = x1 + (x2 - x1) * 0.46;
+    const d = 'M' + x1 + ' ' + y1 + ' H' + elbow + ' V' + y2 + ' H' + x2;
+    let line = lines.querySelector('.mm-hud-line');
+    let dot = lines.querySelector('.mm-hud-dot');
+    if (!line || line.dataset.hudMuscle !== abdomenHudActiveId) {
+        // A newly selected label owns a fresh single-stroke animation.
+        line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        line.dataset.hudMuscle = abdomenHudActiveId;
+        line.setAttribute('pathLength', '1');
+        line.setAttribute('class', 'mm-hud-line is-selected');
+        dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.dataset.hudMuscle = abdomenHudActiveId;
+        dot.setAttribute('r', 3.5);
+        dot.setAttribute('class', 'mm-hud-dot');
+        lines.replaceChildren(line, dot);
+    }
+    // Resizes adjust geometry in place, never replaying a stroke.
+    line.setAttribute('d', d);
+    dot.setAttribute('cx', x2);
+    dot.setAttribute('cy', y2);
 }
 function initAbdomenHud() {
     const wrapper = document.querySelector('#bodyContainer');
@@ -7505,8 +7480,13 @@ function initAbdomenHud() {
         button.className = 'mm-abdomen-hud-choice';
         button.dataset.abdomenMuscle = muscle.id;
         button.addEventListener('click', () => {
-            selectMuscle(muscle.id);
+            const sameChoice = abdomenHudActiveId === muscle.id;
+            abdomenHudActiveId = muscle.id;
+            if (!sameChoice || currentMuscleId !== muscle.id) selectMuscle(muscle.id);
             updateAbdomenHud();
+            // Schedule geometry after selection DOM updates. The new line
+            // animates from the selected callout towards the muscle only once.
+            requestAnimationFrame(drawAbdomenHudLines);
         });
         panel.appendChild(button);
     });

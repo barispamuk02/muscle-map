@@ -77,6 +77,25 @@ async function main() {
                 assert.deepEqual(state.visible, ['bodySvgFront'], 'Only front SVG should remain active');
                 assert.match(state.image, /body-front_1.png/, 'Front image must match SVG layer');
                 assert.equal(state.outgoing, 0, 'Old image frame must be cleaned up');
+                // Simulate impatient taps after SVG initialization; no ignored clicks.
+                await page.evaluate(() => {
+                    toggleView();
+                    toggleView();
+                    toggleView();
+                });
+                const repeated = await page.evaluate(() => ({
+                    view: currentView,
+                    image: document.getElementById('bodyImage').getAttribute('src'),
+                    active: [...document.querySelectorAll('.body-svg-layer.visible')].map(e => e.id),
+                    animation: getComputedStyle(document.querySelector('.body-svg-layer svg path')).animationName
+                }));
+                assert.equal(repeated.view, 'back', 'Three rapid taps must count as three view changes');
+                assert.match(repeated.image, /body-back_2.png/);
+                assert.deepEqual(repeated.active, ['bodySvgBack']);
+                assert.equal(repeated.animation, 'none', 'SVG paths must not pulse continuously');
+                await page.waitForTimeout(600);
+                await page.evaluate(() => toggleView());
+
 
 
                 // Real tap on a muscle must lead visitors to the exercise panel.

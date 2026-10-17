@@ -150,6 +150,14 @@ async function main() {
                 await page.locator('#mmAbdomenHud:not([hidden])').waitFor();
                 assert.equal(await page.locator('#mmAbdomenHud [data-abdomen-muscle]').count(), 4);
                 await page.waitForFunction(() => document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line').length === 4);
+                if (mobile) {
+                    const fit = await page.evaluate(() => ({
+                        layoutWidth: window.innerWidth,
+                        documentWidth: document.documentElement.scrollWidth
+                    }));
+                    assert.ok(fit.layoutWidth <= 390 && fit.documentWidth <= 390,
+                        'Abdominal HUD side labels must not widen the 390px mobile viewport: ' + JSON.stringify(fit));
+                }
                 await page.waitForTimeout(930); // Let the initial staggered connector drawing finish.
                 await page.evaluate(() => {
                     window.__hudInitialLines = [...document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line')];

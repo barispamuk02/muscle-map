@@ -83,6 +83,21 @@ const localCandidate = process.env.LOCAL_CANDIDATE === 'true';
         console.error(label+'_PRODUCTION_HOME=FAIL');
         process.exitCode=1;
       } else console.log(label+'_PRODUCTION_HOME=PASS');
+      if(localCandidate){
+        const ui=await page.evaluate(()=>{
+          switchToPrograms();
+          currentProgramId='mass3';
+          renderPrograms();
+          return {freeDays:document.querySelectorAll('.program-day').length,
+            buttons:document.querySelectorAll('.program-progression-open').length,
+            content:document.querySelectorAll('.program-progression-phase').length};
+        });
+        console.log(label+'_PROGRAM_UI='+JSON.stringify(ui));
+        if(ui.freeDays<3 || ui.buttons!==1 || ui.content!==0){
+          console.error(label+'_PREMIUM_PROGRAM_CANDIDATE=FAIL');
+          process.exitCode=1;
+        } else console.log(label+'_PREMIUM_PROGRAM_CANDIDATE=PASS');
+      }
       await context.close();
     }
   }finally{await browser.close();}

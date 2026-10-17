@@ -66,6 +66,8 @@ function icon(name, size = 24, className = '') {
 // СОСТОЯНИЕ
 // ============================================
 let currentMuscleId = null;
+let synergistHighlightTimer = null;
+let synergistHighlightVersion = 0;
 let currentView = 'front';
 let isTransitioning = false;
 // Initialize before any top-level Premium UI checks execute.
@@ -7301,8 +7303,6 @@ async function loadSvgLayer(layerId, muscles) {
 // ============================================
 // 🎯 ПОДСВЕТКА СИНЕРГИСТОВ
 // ============================================
-let synergistHighlightTimer = null;
-let synergistHighlightVersion = 0;
 function resetSynergistSelection() {
     synergistHighlightVersion++;
     if (synergistHighlightTimer !== null) {

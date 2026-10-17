@@ -372,7 +372,7 @@ function renderOverlays() {
 }
 
 function toggleView() {
-    if (isTransitioning) return;
+    // Every tap is honored. The latest view wins even during a transition.
     isTransitioning = true;
     currentView = currentView === 'front' ? 'back' : 'front';
     const btn = document.getElementById('viewToggle');
@@ -380,7 +380,7 @@ function toggleView() {
         ? `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewBack') : 'Вид сзади'}` 
         : `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewFront') : 'Вид спереди'}`;
     updateBodyImage();
-    setTimeout(() => { isTransitioning = false; }, 380);
+    isTransitioning = false;
 }
 
 window.toggleView = toggleView;
@@ -7373,7 +7373,7 @@ async function initSvgLayers() {
     const frontCount = await loadSvgLayer('bodySvgFront', SVG_MUSCLES_FRONT);
     const backCount = await loadSvgLayer('bodySvgBack', SVG_MUSCLES_BACK);
     console.log(`✅ SVG-слои: front ${frontCount}/${SVG_MUSCLES_FRONT.length}, back ${backCount}/${SVG_MUSCLES_BACK.length}`);
-    showSvgLayer('front');
+    showSvgLayer(currentView);
 }
 
 // Хук на переключение вида

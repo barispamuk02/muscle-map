@@ -149,6 +149,23 @@ async function main() {
                         .every(path => path.dataset.muscleId === currentMuscleId)
                 );
                 assert.ok(afterChange, 'Previous red muscle must reset after selecting another');
+                // Tibialis asset contains inline fill:#ff4757: it must not stay red after changing selection.
+                await page.evaluate(() => selectMuscle('male_tibialis_anterior'));
+                await page.waitForTimeout(360);
+                const selectedFill = await page.evaluate(() =>
+                    getComputedStyle(document.querySelector('#bodySvgFront path[data-muscle-id="male_tibialis_anterior"]')).fill
+                );
+                await page.evaluate(() => selectMuscle('male_pectoralis_major'));
+                await page.waitForTimeout(360);
+                const tibialis = await page.evaluate(() => {
+                    const p = document.querySelector('#bodySvgFront path[data-muscle-id="male_tibialis_anterior"]');
+                    return { found: !!p, inactiveFill: p && getComputedStyle(p).fill, active: p?.classList.contains('active') };
+                });
+                assert.ok(tibialis.found, 'Front tibialis SVG path must load');
+                assert.equal(selectedFill, 'rgb(255, 71, 87)', 'Selected tibialis is red');
+                assert.notEqual(tibialis.inactiveFill, 'rgb(255, 71, 87)', 'Deselected tibialis must lose inline red fill');
+                assert.equal(tibialis.active, false, 'Tibialis must lose active class');
+
                 const uiState = await page.evaluate(() => ({
                     selected: currentMuscleId,
                     highlighted: [...document.querySelectorAll('.body-svg-layer svg path.active')].map(el => ({

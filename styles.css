@@ -7163,3 +7163,15 @@ body:has(.premium-modal.show) {
 @media (prefers-reduced-motion: reduce) {
   .body-svg-layer svg path, .body-overlay.active { transition: none !important; }
 }
+
+/* Fix original SVG assets embedding inline fill:#ff4757.
+   Neutral at rest; primary red and synergist amber remain explicit states. */
+.body-svg-layer svg path:not(.active):not(.synergist-active) {
+  fill: #aa5c66 !important;
+}
+.body-svg-layer svg path.active:not(.synergist-active) {
+  fill: #ff4757 !important;
+}
+.body-svg-layer svg path.synergist-active {
+  fill: #ffb800 !important;
+}

@@ -3874,6 +3874,7 @@ function renderExerciseCard(ex) {
                         <p>${getExerciseDescriptionUniversal(ex) || t('exercises.noDescription')}</p>
                         ${ex.sets ? `<p><strong>${t('exercises.sets')}:</strong> ${ex.isCustom ? translateSets(ex.sets) : ex.sets}</p>` : ''}
                     </div>
+                    ${renderSynergists(ex)}
                     <div class="exercise-actions">
     <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
         ${done 
@@ -8559,12 +8560,23 @@ function renderStreakHeatmap(days = 30) {
 // 🎯 СИНЕРГИСТЫ — вспомогательные мышцы
 // ============================================
 
-function renderSynergists(ex) {
-    if (typeof synergistsData === 'undefined') return '';
-    
+function resolveExerciseSynergists(ex) {
+    if (!ex) return null;
+    if (ex.isCustom) {
+        const ids = (typeof customExerciseSynergists !== 'undefined'
+            ? customExerciseSynergists[ex.muscleId]?.[ex.name] : null) || [];
+        if (!ids.length) return null; // No guess for movements without reviewed links.
+        return {
+            primary: { muscleId: ex.muscleId, percent: null },
+            synergists: ids.map(muscleId => ({muscleId, percent: null})),
+            qualitative: true
+        };
+    }
     const key = (ex.name_en || '').toLowerCase().trim();
-    const data = synergistsData[key];
-    
+    return typeof synergistsData !== 'undefined' ? (synergistsData[key] || null) : null;
+}
+function renderSynergists(ex) {
+    const data = resolveExerciseSynergists(ex);
     if (!data) return '';
     
     const primary = data.primary;
@@ -8577,10 +8589,7 @@ function renderSynergists(ex) {
                 <span data-svg="biceps-flexed" data-svg-size="12"></span>
                 ${(typeof getMuscleName === 'function') ? getMuscleName(primaryMuscle) : primaryMuscle.name}
             </span>
-            <div class="synergist-bar">
-                <div class="synergist-bar-fill" style="width: ${primary.percent}%"></div>
-            </div>
-            <span class="synergist-percent">${primary.percent}%</span>
+            <span class="synergist-role">${typeof currentLang !== 'undefined' && currentLang === 'en' ? 'Primary' : 'Основная'}</span>
         </a>
     ` : '';
     
@@ -8594,10 +8603,7 @@ function renderSynergists(ex) {
                     <span data-svg="dumbbell" data-svg-size="12"></span>
                     ${(typeof getMuscleName === 'function') ? getMuscleName(muscle) : muscle.name}
                 </span>
-                <div class="synergist-bar">
-                    <div class="synergist-bar-fill" style="width: ${s.percent}%"></div>
-                </div>
-                <span class="synergist-percent">${s.percent}%</span>
+                <span class="synergist-role">${typeof currentLang !== 'undefined' && currentLang === 'en' ? 'Assists / stabilizes' : 'Помогает / стабилизирует'}</span>
             </a>
         `;
     }).join('');
@@ -8611,6 +8617,9 @@ function renderSynergists(ex) {
                 ${primaryHtml}
                 ${synergistsHtml}
             </div>
+            <p class="synergist-qualitative-note">${typeof currentLang !== 'undefined' && currentLang === 'en'
+                ? 'Muscle roles vary with exercise technique. Not measured activation percentages.'
+                : 'Роли зависят от техники. Проценты активности мышц здесь не измерялись.'}</p>
         </div>
     `;
 }
@@ -8632,8 +8641,7 @@ function renderMuscleSynergists(muscle) {
     const synergists = [];
     
     exercises.forEach(ex => {
-        const key = (ex.name_en || '').toLowerCase().trim();
-        const data = synergistsData[key];
+        const data = resolveExerciseSynergists(ex);
         if (!data || !data.synergists) return;
         
         data.synergists.forEach(s => {

@@ -7221,7 +7221,6 @@ const SVG_MUSCLES_FRONT = [
     '22_Musculi_extensores_carpi',
     '23_quadriceps',
     '25_Adductor_muscles_of_the_thigh',
-    '27_Triceps_surae_muscle_(gastrocnemius)',
     '28_Tibialis_anterior_muscle',
 ];
 

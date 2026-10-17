@@ -20,6 +20,14 @@ const serve = http.createServer((request, response) => {
 });
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function main() {
+    // Update safety guardrails: no automatic storage deletion and no eager reload.
+    const sw = fs.readFileSync(path.join(root, 'service-worker.js'), 'utf8');
+    const app = fs.readFileSync(path.join(root, 'script.js'), 'utf8');
+    assert.match(sw, /cache: request\.destination === 'document'/);
+    assert.match(sw, /name\.startsWith\('muscle-map-'\)/);
+    assert.doesNotMatch(sw, /localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
+    assert.match(app, /updateViaCache: 'none'/);
+    assert.match(app, /controllerchange/);
     await new Promise(resolve => serve.listen(0, '127.0.0.1', resolve));
     const port = serve.address().port;
     const origin = 'http://127.0.0.1:' + port;

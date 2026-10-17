@@ -217,6 +217,21 @@ async function main() {
                 assert.equal(first.muscle, 'male_obliquus_internus');
                 assert.ok(first.rightAngles && first.labelStartsLine, 'Selected line must start at callout and use H/V/H segments');
                 assert.ok(first.animated, 'A newly selected line should have a one-shot drawing animation');
+                // Reduced-motion visitors must never receive forced HUD drawing, launcher, or label animations.
+                await page.emulateMedia({ reducedMotion: 'reduce' });
+                const reducedAnimations = await page.evaluate(() => ({
+                    launcher: getComputedStyle(document.querySelector('#mmAbdomenHudToggle')).animationName,
+                    label: getComputedStyle(document.querySelector('#mmAbdomenHud .mm-abdomen-hud-choice')).animationName,
+                    line: getComputedStyle(document.querySelector('#mmAbdomenHudLines .mm-hud-line')).animationName,
+                    offset: getComputedStyle(document.querySelector('#mmAbdomenHudLines .mm-hud-line')).strokeDashoffset
+                }));
+                assert.deepEqual(
+                    [reducedAnimations.launcher, reducedAnimations.label, reducedAnimations.line],
+                    ['none', 'none', 'none'],
+                    'prefers-reduced-motion must suppress every HUD entrance and stroke animation'
+                );
+                assert.equal(reducedAnimations.offset, '0', 'Reduced motion must show full connector without drawing');
+                await page.emulateMedia({ reducedMotion: 'no-preference' });
                 await page.locator('[data-abdomen-muscle="male_obliquus_internus"]').click();
                 assert.equal(await page.evaluate(() =>
                     document.querySelector('#mmAbdomenHudLines .mm-hud-line') === window.__hudFirstLine),
@@ -234,6 +249,21 @@ async function main() {
                 assert.deepEqual(switched.selected, ['male_transversus_abdominis']);
                 assert.ok(switched.newNode, 'Switching to a different callout draws a new path');
                 assert.equal(switched.exerciseId, 'male_transversus_abdominis');
+                // Stress rapid muscle selections: the final exercise card must never be replaced by a stale timer.
+                await page.evaluate(() => {
+                    ['male_rectus_abdominis','male_obliquus_externus','male_obliquus_internus','male_transversus_abdominis']
+                        .forEach(id => selectMuscle(id));
+                });
+                const noStaleCard = await page.evaluate(() => ({
+                    selected: currentMuscleId,
+                    cards: [...document.querySelectorAll('#infoContent .muscle-card')].map(el => el.dataset.muscleId)
+                }));
+                assert.equal(noStaleCard.selected, 'male_transversus_abdominis');
+                assert.deepEqual(noStaleCard.cards, ['male_transversus_abdominis'], 'Rapid selection must render exactly one latest card');
+                await page.waitForTimeout(450);
+                assert.deepEqual(await page.evaluate(() =>
+                    [...document.querySelectorAll('#infoContent .muscle-card')].map(el => el.dataset.muscleId)),
+                    ['male_transversus_abdominis'], 'No old delayed card can overwrite latest muscle');
                 assert.equal(await page.evaluate(() => currentView), 'front',
                     'HUD selection must never rotate anatomy');
                 await page.evaluate(() => toggleView());

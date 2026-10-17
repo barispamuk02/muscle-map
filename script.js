@@ -7450,6 +7450,7 @@ function drawAbdomenHudLines() {
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' H' + elbow + ' V' + y2 + ' H' + x2);
         line.style.setProperty('--hud-order', String(Number(button.dataset.hudIndex) || 0));
+        line.setAttribute('pathLength', '1');
         line.setAttribute('class', 'mm-hud-line' + (muscle.id === currentMuscleId ? ' is-selected' : ''));
         lines.appendChild(line);
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -7494,6 +7495,13 @@ function initAbdomenHud() {
     wrapper.appendChild(lines);
     viewButton.insertAdjacentElement('afterend', toggle);
     wrapper.appendChild(panel);
+    const abdomenIds = new Set(ABDOMEN_HUD_MUSCLES.map(m => m.id));
+    wrapper.addEventListener('click', event => {
+        const path = event.target.closest && event.target.closest('path[data-muscle-id]');
+        if (!path || !abdomenIds.has(path.dataset.muscleId) || currentView !== 'front') return;
+        // First touch on the abdominal region reveals the HUD launcher.
+        toggle.classList.add('mm-hud-revealed');
+    });
     toggle.addEventListener('click', () => {
         abdomenHudOpen = !abdomenHudOpen;
         updateAbdomenHud();

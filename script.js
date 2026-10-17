@@ -455,13 +455,7 @@ function selectMuscle(id) {
     localStorage.setItem(STORAGE_KEYS.lastSelected, id);
     incrementViews(id);
     currentEquipmentFilter = 'all';
-        if (muscle.side && muscle.side !== 'both' && muscle.side !== currentView) {
-        currentView = muscle.side;
-        const btn = document.getElementById('viewToggle');
-        if (btn) btn.innerHTML = currentView === 'front' 
-            ? `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewBack') : 'Вид сзади'}` 
-            : `<span data-svg="refresh-cw" data-svg-size="16"></span> ${(typeof t === 'function') ? t('muscles.viewFront') : 'Вид спереди'}`;
-    }
+    // Only the Front/Back button may change currentView. A muscle tap never rotates the anatomy.
     renderList(Object.values(muscleDatabase));
     renderInfo(muscle);
     updateBodyImage();
@@ -7307,8 +7301,14 @@ async function loadSvgLayer(layerId, muscles) {
         const path = svg.querySelector('path');
         if (path && muscleId) {
             path.dataset.muscleId = muscleId;
-            path.addEventListener('click', () => {
-                if (typeof selectMuscle === 'function') selectMuscle(muscleId);
+            path.addEventListener('click', event => {
+                // Protect against stale/overlapping back-side SVG paths receiving taps.
+                if (layerId !== (currentView === 'front' ? 'bodySvgFront' : 'bodySvgBack')) return;
+                if (!layer.classList.contains('visible')) return;
+                const muscle = muscleDatabase[muscleId];
+                if (!muscle || (muscle.side && muscle.side !== 'both' && muscle.side !== currentView)) return;
+                event.stopPropagation();
+                selectMuscle(muscleId);
             });
         }
         realIndex++;

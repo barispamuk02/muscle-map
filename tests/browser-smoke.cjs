@@ -104,6 +104,39 @@ async function main() {
                         wrongPrimaryCount:wrongPrimary.length, wrongPrimary:wrongPrimary.slice(0,18)};
                 });
                 console.log('SYNERGIST_COVERAGE_AUDIT', JSON.stringify(coverage));
+                // Anatomical source corrections, including stable legacy completion ID.
+                const corrected = await page.evaluate(() => {
+                    const rearRaise = exerciseDatabase.filter(ex => ex.id === '2292');
+                    const posterior = getExercisesForMuscle('male_deltoid_posterior');
+                    const anterior = getExercisesForMuscle('male_deltoid_anterior');
+                    const middle = getExercisesForMuscle('male_trapezius_middle');
+                    const upper = getExercisesForMuscle('male_trapezius_upper');
+                    const historicalId = 'custom_male_trapezius_middle_primary_7';
+                    return {
+                        rearRaiseCount: rearRaise.length,
+                        rearRaiseId: rearRaise[0]?.muscleId,
+                        rearRaiseInPosterior: posterior.some(ex => ex.id === '2292'),
+                        rearRaiseInAnterior: anterior.some(ex => ex.id === '2292'),
+                        shrugsInMiddle: middle.some(ex => ex.name === 'Шраги' && ex.isCustom),
+                        migratedShrugs: upper.filter(ex => ex.name === 'Шраги' && ex.isCustom)
+                            .map(ex => ({id:ex.id, muscleId:ex.muscleId})),
+                        legacyIdCount: Object.keys(muscleDatabase)
+                            .flatMap(id => getExercisesForMuscle(id))
+                            .filter(ex => ex.id === historicalId).length
+                    };
+                });
+                assert.equal(corrected.rearRaiseCount, 1);
+                assert.equal(corrected.rearRaiseId, 'male_deltoid_posterior');
+                assert.equal(corrected.rearRaiseInPosterior, true);
+                assert.equal(corrected.rearRaiseInAnterior, false);
+                assert.equal(corrected.shrugsInMiddle, false);
+                assert.deepEqual(corrected.migratedShrugs, [
+                    {id:'custom_male_trapezius_middle_primary_7', muscleId:'male_trapezius_upper'}
+                ], 'Manual shrugs must belong to upper trapezius while preserving prior completion ID');
+                assert.equal(corrected.legacyIdCount, 1, 'Historical completion ID must remain unique');
+                assert.equal(coverage.wrongPrimaryCount, 0,
+                    'Catalogue exercise target muscle must agree with its mapped primary muscle');
+                console.log('EXERCISE_ANATOMY_CORRECTIONS_OK', JSON.stringify(corrected));
                 const mappedMuscles = [
                     'male_pectoralis_minor','male_obliquus_externus','male_obliquus_internus',
                     'male_transversus_abdominis','male_trapezius_middle',

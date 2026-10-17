@@ -290,3 +290,44 @@
   #infoContent { scroll-margin-top: 16px; scroll-margin-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
   .mm-mobile-menu:focus-within { outline: none; }
 }
+
+/* Mobile polish v3: thumb reach, visual hierarchy, smaller-screen resilience. */
+@media (max-width: 768px) {
+  body.mm-home .mm-mobile-hero { padding: 16px 16px 3px; }
+  .mm-mobile-hero h2 { font-size: clamp(22px, 6.4vw, 29px); line-height: 1.15; margin: 8px 0 6px; letter-spacing: -.55px; }
+  .mm-mobile-hero p { font-size: 13px; line-height: 1.5; max-width: 34ch; }
+  body.mm-home .search-section { padding: 11px 14px 3px; }
+  body.mm-home #searchInput { width: 100%; min-height: 48px; border-radius: 14px; }
+  body.mm-home #viewMuscles > .body-view {
+    margin: 9px 14px 8px; padding: 14px 10px 15px !important;
+    border-radius: 20px; border-color: rgba(112,166,247,.29);
+    background: radial-gradient(ellipse at 50% 34%,rgba(62,105,184,.22),transparent 70%),#10192c;
+  }
+  body.mm-home #viewMuscles .body-image-container {
+    width: min(68vw, 250px) !important; max-width: min(68vw, 250px) !important;
+  }
+  body.mm-home #viewMuscles .view-toggle-btn { min-height: 44px; padding-inline: 16px; }
+  body.mm-home .mm-mobile-shortcuts { margin: 6px 14px 15px; gap: 10px; }
+  .mm-mobile-shortcuts button { min-height: 50px; font-size: 13px; border-radius: 14px; }
+  body.mm-home #viewMuscles > .muscle-list { margin-inline: 14px; }
+  body.mm-home #viewMuscles > .info-panel { margin-inline: 14px; }
+  .mm-mobile-bottom-nav { padding-left: max(5px,env(safe-area-inset-left,0px)); padding-right: max(5px,env(safe-area-inset-right,0px)); }
+  .mm-mobile-bottom-nav button { min-height: 54px; font-size: 11px; }
+  .mm-mobile-bottom-nav button .mm-tab-icon, .mm-mobile-bottom-nav button .mm-tab-icon svg { width: 23px; height: 23px; }
+  .mm-mobile-menu { max-height: min(72dvh,580px); overflow-y: auto; overscroll-behavior: contain; }
+  #infoContent { scroll-margin-top: 12px; }
+}
+@media (max-width: 360px) {
+  .header { padding-inline: 10px !important; gap: 6px !important; }
+  .header .header-content h1::after { font-size: 18px; letter-spacing: -.5px; }
+  .header .header-actions { gap: 5px !important; }
+  .header .header-actions > .btn-lang, .header .header-actions > .btn-theme { min-width: 38px !important; min-height: 42px !important; padding: 6px !important; }
+  .mm-mobile-hero h2 { font-size: 22px; }
+  .mm-mobile-bottom-nav button { font-size: 10px; }
+  body.mm-home #viewMuscles .body-image-container { width: min(68vw,225px) !important; max-width: min(68vw,225px) !important; }
+}
+@media (max-width: 768px) and (max-height: 680px) {
+  body.mm-home .mm-mobile-hero { padding-top: 10px; }
+  .mm-mobile-hero h2 { margin-top: 5px; }
+  body.mm-home #viewMuscles > .body-view { padding-block: 10px !important; }
+}

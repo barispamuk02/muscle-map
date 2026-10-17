@@ -230,7 +230,8 @@ async function main() {
                     ['none', 'none', 'none'],
                     'prefers-reduced-motion must suppress every HUD entrance and stroke animation'
                 );
-                assert.equal(reducedAnimations.offset, '0', 'Reduced motion must show full connector without drawing');
+                assert.equal(Number.parseFloat(reducedAnimations.offset), 0,
+                    'Reduced motion must show the full connector, regardless of computed CSS length units');
                 await page.emulateMedia({ reducedMotion: 'no-preference' });
                 await page.locator('[data-abdomen-muscle="male_obliquus_internus"]').click();
                 assert.equal(await page.evaluate(() =>

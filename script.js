@@ -7126,6 +7126,7 @@ console.log('✅ Премиум-раздел готов!');
 // 📱 PWA — РЕГИСТРАЦИЯ SERVICE WORKER
 // ============================================
 if ('serviceWorker' in navigator) {
+    let reloadAfterApprovedUpdate = false;
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js', { updateViaCache: 'none' })
             .then((registration) => {
@@ -7144,6 +7145,7 @@ if ('serviceWorker' in navigator) {
                         if (worker.state !== 'installed' || !navigator.serviceWorker.controller) return;
                         // Never automatically reload during workout editing.
                         if (confirm('✨ Доступно обновление Muscle Map!\n\nСохраните незавершённый ввод, затем нажмите OK для обновления.')) {
+                            reloadAfterApprovedUpdate = true;
                             worker.postMessage({ type: 'SKIP_WAITING' });
                             // controllerchange below is the only place that reloads.
                         }
@@ -7154,7 +7156,7 @@ if ('serviceWorker' in navigator) {
     });
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
+        if (refreshing || !reloadAfterApprovedUpdate) return;
         refreshing = true;
         window.location.reload();
     });

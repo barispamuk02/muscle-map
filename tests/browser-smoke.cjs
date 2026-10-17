@@ -141,6 +141,22 @@ async function main() {
                 assert.ok(curatedDetail.isCustom && curatedDetail.hasRhomboids
                     && curatedDetail.hasPosteriorDeltoid && curatedDetail.noFakePercent,
                     'Face pulls must show specific synergy partners without invented percentages');
+                const facePullCard = page.locator('#infoContent [data-ex-id="custom_male_trapezius_middle_primary_4"]');
+                await facePullCard.locator('.exercise-header').click();
+                await page.waitForFunction(() => {
+                    const ids = [...document.querySelectorAll('.body-svg-layer svg path.synergist-active')].map(x => x.dataset.muscleId);
+                    return ids.includes('male_rhomboids') && ids.includes('male_deltoid_posterior');
+                });
+                await facePullCard.locator('.synergist-item[data-muscle-id="male_rhomboids"]').click();
+                const destination = await page.evaluate(() => ({
+                    selected: currentMuscleId,
+                    card: document.querySelector('#infoContent .muscle-card')?.dataset.muscleId,
+                    exercises: document.querySelectorAll('#infoContent .exercise-card').length
+                }));
+                assert.equal(destination.selected, 'male_rhomboids');
+                assert.equal(destination.card, 'male_rhomboids');
+                assert.ok(destination.exercises > 0, 'Linked muscle must have a populated exercise list');
+                console.log('CUSTOM_SYNERGIST_NAVIGATION_OK', JSON.stringify(destination));
             }
             if (mobile) {
                 await page.locator('#mmMobileHero').waitFor();

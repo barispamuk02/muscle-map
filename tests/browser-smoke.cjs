@@ -149,7 +149,8 @@ async function main() {
                 await hudToggle.click();
                 await page.locator('#mmAbdomenHud:not([hidden])').waitFor();
                 assert.equal(await page.locator('#mmAbdomenHud [data-abdomen-muscle]').count(), 4);
-                await page.waitForFunction(() => document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line').length === 4);
+                assert.equal(await page.locator('#mmAbdomenHudLines .mm-hud-line').count(), 0,
+                    'Opening HUD must show four labels without drawing any line');
                 if (mobile) {
                     for (const width of [320, 360, 390, 412]) {
                         await page.setViewportSize({width, height: 844});
@@ -165,29 +166,64 @@ async function main() {
                         }));
                         assert.ok(fit.layoutWidth <= width && fit.documentWidth <= width
                             && fit.labels.every(({left, right}) => left >= -1 && right <= width + 1),
-                            'HUD callouts must remain inside the ' + width + 'px mobile viewport: ' + JSON.stringify(fit));
+                            'HUD callouts must fit the ' + width + 'px viewport: ' + JSON.stringify(fit));
                     }
                     await page.setViewportSize({width: 390, height: 844});
                 }
-                await page.waitForTimeout(930); // Let the initial staggered connector drawing finish.
-                await page.evaluate(() => {
-                    window.__hudInitialLines = [...document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line')];
-                });
-                await page.locator('[data-abdomen-muscle="male_obliquus_internus"]').click();
-                assert.equal(await page.evaluate(() => currentMuscleId), 'male_obliquus_internus');
-                await page.locator('[data-abdomen-muscle="male_transversus_abdominis"]').click();
-                assert.equal(await page.evaluate(() => currentMuscleId), 'male_transversus_abdominis');
-                const stableConnectors = await page.evaluate(() => {
-                    const nodes = [...document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line')];
+                await page.waitForTimeout(500); // Ensure label entrance has settled.
+                const response = await page.evaluate(() => {
+                    const t0 = performance.now();
+                    document.querySelector('[data-abdomen-muscle="male_obliquus_internus"]').click();
                     return {
-                        sameNodes: nodes.length === 4 && nodes.every((node, i) => node === window.__hudInitialLines[i]),
-                        selected: nodes.filter(node => node.classList.contains('is-selected')).map(node => node.dataset.hudMuscle),
-                        rightAngles: nodes.every(node => /^M[-0-9. ]+ H[-0-9. ]+ V[-0-9. ]+ H[-0-9. ]+$/.test(node.getAttribute('d')))
+                        elapsedMs: performance.now() - t0,
+                        selected: currentMuscleId,
+                        shown: document.querySelector('#infoContent .muscle-card')?.dataset.muscleId,
+                        exerciseCount: document.querySelectorAll('#infoContent .exercise-card').length
                     };
                 });
-                assert.ok(stableConnectors.sameNodes, 'Switching abdominal muscles must not recreate connectors or replay drawing');
-                assert.deepEqual(stableConnectors.selected, ['male_transversus_abdominis'], 'Only selected connector highlighted');
-                assert.ok(stableConnectors.rightAngles, 'Connectors must use only right-angle H/V SVG segments');
+                assert.equal(response.selected, 'male_obliquus_internus');
+                assert.equal(response.shown, 'male_obliquus_internus',
+                    'Exercise panel must update synchronously, not after an exit-animation timer');
+                assert.ok(response.exerciseCount > 0, 'New muscle exercises must exist immediately');
+                assert.ok(response.elapsedMs < 2000,
+                    'Exercise rendering must not block the browser for seconds: ' + JSON.stringify(response));
+                console.log('HUD_EXERCISE_RENDER', JSON.stringify(response));
+                await page.waitForFunction(() => document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line').length === 1);
+                const first = await page.evaluate(() => {
+                    const line = document.querySelector('#mmAbdomenHudLines .mm-hud-line');
+                    window.__hudFirstLine = line;
+                    const button = document.querySelector('[data-abdomen-muscle="male_obliquus_internus"]');
+                    const root = document.querySelector('#bodyContainer').getBoundingClientRect();
+                    const bounds = button.getBoundingClientRect();
+                    const d = line.getAttribute('d');
+                    const coords = /^M([-0-9.]+) ([-0-9.]+) H[-0-9.]+ V[-0-9.]+ H[-0-9.]+$/.exec(d);
+                    return {
+                        muscle: line.dataset.hudMuscle,
+                        rightAngles: !!coords,
+                        labelStartsLine: coords && Math.abs(Number(coords[1]) - (bounds.right - root.left)) < 2,
+                        animated: getComputedStyle(line).animationName === 'mm-hud-draw'
+                    };
+                });
+                assert.equal(first.muscle, 'male_obliquus_internus');
+                assert.ok(first.rightAngles && first.labelStartsLine, 'Selected line must start at callout and use H/V/H segments');
+                assert.ok(first.animated, 'A newly selected line should have a one-shot drawing animation');
+                await page.locator('[data-abdomen-muscle="male_obliquus_internus"]').click();
+                assert.equal(await page.evaluate(() =>
+                    document.querySelector('#mmAbdomenHudLines .mm-hud-line') === window.__hudFirstLine),
+                    true, 'Pressing the same callout must not restart its stroke');
+                await page.locator('[data-abdomen-muscle="male_transversus_abdominis"]').click();
+                await page.waitForFunction(() =>
+                    document.querySelector('#mmAbdomenHudLines .mm-hud-line')?.dataset.hudMuscle === 'male_transversus_abdominis');
+                const switched = await page.evaluate(() => ({
+                    lines: document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line').length,
+                    selected: [...document.querySelectorAll('#mmAbdomenHud [aria-pressed="true"]')].map(el=>el.dataset.abdomenMuscle),
+                    newNode: document.querySelector('#mmAbdomenHudLines .mm-hud-line') !== window.__hudFirstLine,
+                    exerciseId: document.querySelector('#infoContent .muscle-card')?.dataset.muscleId
+                }));
+                assert.equal(switched.lines, 1, 'Exactly one connector should be displayed');
+                assert.deepEqual(switched.selected, ['male_transversus_abdominis']);
+                assert.ok(switched.newNode, 'Switching to a different callout draws a new path');
+                assert.equal(switched.exerciseId, 'male_transversus_abdominis');
                 assert.equal(await page.evaluate(() => currentView), 'front',
                     'HUD selection must never rotate anatomy');
                 await page.evaluate(() => toggleView());

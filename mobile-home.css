@@ -284,3 +284,9 @@
 @media (prefers-reduced-motion: reduce) {
   .mm-mobile-bottom-nav, .mm-mobile-hero { animation: none !important; transition: none !important; }
 }
+
+/* Keep selected exercise details clear of fixed navigation and header on mobile. */
+@media (max-width: 768px) {
+  #infoContent { scroll-margin-top: 16px; scroll-margin-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .mm-mobile-menu:focus-within { outline: none; }
+}

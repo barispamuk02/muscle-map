@@ -7500,6 +7500,7 @@ function initAbdomenHud() {
     ABDOMEN_HUD_MUSCLES.forEach((muscle, index) => {
         const button = document.createElement('button');
         button.dataset.hudIndex = String(index);
+        button.style.setProperty('--hud-order', String(index));
         button.type = 'button';
         button.className = 'mm-abdomen-hud-choice';
         button.dataset.abdomenMuscle = muscle.id;

@@ -163,7 +163,7 @@ async function main() {
                     return {
                         sameNodes: nodes.length === 4 && nodes.every((node, i) => node === window.__hudInitialLines[i]),
                         selected: nodes.filter(node => node.classList.contains('is-selected')).map(node => node.dataset.hudMuscle),
-                        rightAngles: nodes.every(node => /^M[\\d. -]+ H[\\d. -]+ V[\\d. -]+ H[\\d. -]+$/.test(node.getAttribute('d')))
+                        rightAngles: nodes.every(node => /^M[-0-9. ]+ H[-0-9. ]+ V[-0-9. ]+ H[-0-9. ]+$/.test(node.getAttribute('d')))
                     };
                 });
                 assert.ok(stableConnectors.sameNodes, 'Switching abdominal muscles must not recreate connectors or replay drawing');

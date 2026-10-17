@@ -72,12 +72,16 @@
     document.body.appendChild(backdrop);
     document.body.appendChild(sheet);
 
+    let menuReturnFocus = null;
     function closeMenu() {
+        const wasOpen = !sheet.hidden;
         sheet.hidden = true;
         backdrop.hidden = true;
         document.body.classList.remove('mm-mobile-menu-open');
+        if (wasOpen && menuReturnFocus?.isConnected) menuReturnFocus.focus();
     }
     function openMenu() {
+        menuReturnFocus = document.activeElement;
         backdrop.hidden = false;
         sheet.hidden = false;
         document.body.classList.add('mm-mobile-menu-open');
@@ -132,18 +136,45 @@
             if (button) navigate(button.dataset.mmTarget);
         });
     }
-    // Selecting a muscle from the long list should reveal its exercise details.
+    // Bring the exercise panel into view after selecting a muscle on either the
+    // anatomical overlay or the list. Do not scroll on initial page load.
     const muscleList = $('muscleList');
-    if (muscleList) muscleList.addEventListener('click', event => {
-        if (!event.target.closest('.list-item') || !mobile.matches) return;
-        setTimeout(() => {
+    const muscleMap = $('bodyView');
+    let pendingDetailScroll = null;
+    function revealMuscleDetails() {
+        if (pendingDetailScroll !== null) clearTimeout(pendingDetailScroll);
+        pendingDetailScroll = setTimeout(() => {
+            pendingDetailScroll = null;
+            if (!mobile.matches || showCurrent() !== 'navMuscles') return;
             const info = $('infoContent');
-            if (info) info.scrollIntoView({behavior:'smooth', block:'start'});
-        }, 80);
+            if (!info || !info.textContent.trim()) return;
+            info.scrollIntoView({
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                block: 'start'
+            });
+        }, 140);
+    }
+    if (muscleList) muscleList.addEventListener('click', event => {
+        if (event.target.closest('.list-item')) revealMuscleDetails();
+    });
+    if (muscleMap) muscleMap.addEventListener('click', event => {
+        if (event.target.closest('#viewToggle,.view-toggle-btn')) return;
+        if (event.target.closest('.body-svg-layer,[data-muscle-id],[data-muscle]')) {
+            revealMuscleDetails();
+        }
     });
     backdrop.addEventListener('click', closeMenu);
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && !sheet.hidden) closeMenu();
+        if (sheet.hidden) return;
+        if (event.key === 'Escape') { closeMenu(); return; }
+        if (event.key !== 'Tab') return;
+        const controls = [...sheet.querySelectorAll('button:not([disabled])')];
+        if (!controls.length) return;
+        if (event.shiftKey && document.activeElement === controls[0]) {
+            event.preventDefault(); controls[controls.length - 1].focus();
+        } else if (!event.shiftKey && document.activeElement === controls[controls.length - 1]) {
+            event.preventDefault(); controls[0].focus();
+        }
     });
     document.addEventListener('click', event => {
         if (event.target.closest('#navMuscles,#navMyWorkout,#navPrograms,#navRecovery,#navNutrition,#langToggle')) {

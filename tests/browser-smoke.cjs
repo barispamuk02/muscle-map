@@ -41,6 +41,17 @@ async function main() {
                 await page.locator('#mmMobileHero').waitFor();
                 await page.locator('.mm-mobile-bottom-nav').waitFor();
                 assert.ok(await page.locator('.mm-mobile-bottom-nav button').count() >= 5);
+                // Real tap on a muscle must lead visitors to the exercise panel.
+                await page.waitForSelector('#muscleList .list-item', { timeout: 15000 });
+                await page.evaluate(() => {
+                    window.__mobileDetailRevealed = false;
+                    const info = document.getElementById('infoContent');
+                    info.scrollIntoView = () => { window.__mobileDetailRevealed = true; };
+                });
+                await page.locator('#muscleList .list-item').first().click();
+                await page.waitForFunction(() => window.__mobileDetailRevealed === true, { timeout: 3000 });
+                assert.ok((await page.locator('#infoContent').innerText()).trim().length > 20,
+                    'Selected muscle must reveal exercise details');
                 await page.locator('.mm-mobile-bottom-nav [data-mm-target="navPrograms"]').click();
             } else {
                 await page.locator('#navPrograms').click();

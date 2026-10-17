@@ -1668,7 +1668,7 @@ const synergistsData = {
         "percent": 10
       },
       {
-        "muscleId": "male_calves",
+        "muscleId": "male_calf",
         "percent": 5
       }
     ]
@@ -11236,7 +11236,7 @@ const synergistsData = {
         "percent": 10
       },
       {
-        "muscleId": "male_deltoid posterior",
+        "muscleId": "male_deltoid_posterior",
         "percent": 5
       }
     ]

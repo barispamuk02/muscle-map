@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '22'
       - name: Run deterministic audit
-        run: node scripts/audit-exercises.cjs --json reports/exercises-audit.json --markdown reports/exercises-audit.md --fail-on-errors
+        run: node scripts/audit-exercises.cjs --json reports/exercises-audit.json --markdown reports/exercises-audit.md --review-csv reports/exercises-review-index.csv --fail-on-errors
       - name: Test audited invariants
         run: node --test tests/exercise-audit.test.cjs
       - name: Add Markdown summary to GitHub check
@@ -40,4 +40,5 @@ jobs:
           path: |
             reports/exercises-audit.json
             reports/exercises-audit.md
+            reports/exercises-review-index.csv
           if-no-files-found: warn

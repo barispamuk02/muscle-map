@@ -13,6 +13,10 @@ test('all GIFs accounted for; orphan assets are quarantined, not auto-published'
   assert.equal(r.summary.orphanGifFiles,29);
   assert.equal(r.summary.orphanWithThumbnail,29);
   assert.equal(r.summary.brokenGifRefs,0);
+  assert.equal(r.summary.manualWithoutGif,26,'Manual exercise cards without illustrations are independently inventoried');
+  assert.equal(r.manualWithoutGif.length,26);
+  assert.ok(r.manualWithoutGif.every(x=>x.id&&x.name&&x.muscleId),'Each incomplete card must be identifiable');
+
   assert.ok(r.unlinked.every(x=>x.publication==='not_connected'));
   const ids=new Set(r.unlinked.map(x=>x.id));
   assert.equal(ids.size,29,'Each orphan needs its own source ID');

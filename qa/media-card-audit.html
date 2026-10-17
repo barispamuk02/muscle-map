@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Muscle Map | Media card audit</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,Arial,sans-serif;background:#101828;color:#ebf3fc}*{box-sizing:border-box}
+body{max-width:1120px;margin:auto;padding:22px 16px 60px}
+h1{font-size:clamp(24px,5vw,36px);margin:0 0 9px}p{line-height:1.48;color:#b9c8dc}
+.notice{border:1px solid #43516a;border-radius:12px;padding:12px;margin:15px 0;background:#1a273b}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0}
+button,input{font:inherit}
+button{border:1px solid #50627d;color:#eef5ff;background:#243650;padding:9px 12px;border-radius:10px;cursor:pointer;min-height:44px}
+button[aria-pressed="true"]{background:#784056;border-color:#fb91ad}
+input{min-height:44px;border-radius:9px;padding:10px;min-width:210px;background:#19263a;color:white;border:1px solid #50627d}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{border:1px solid #354763;background:#1b2a3e;border-radius:13px;overflow:hidden}
+.media{height:190px;background:#111e2e;display:grid;place-items:center}
+.media img{max-width:100%;max-height:185px;object-fit:contain}
+.body{padding:12px;display:grid;gap:6px}
+.name{font-weight:700;font-size:15px;min-height:38px;line-height:1.25}
+.small{font-size:12px;color:#afc4db}
+.status{font-size:11px;color:#ffc7a1}
+.card button{width:100%}.counter{color:#cbd6e6;font-size:13px}
+</style>
+</head><body>
+<h1>Muscle Map: проверка GIF и карточек</h1>
+<p>Внутренняя тестовая галерея. Это не каталог новых упражнений и не страница для пользователей.</p>
+<div class="notice"><strong>Правило проверки</strong><p>Совпадения ID, названия и файла GIF недостаточно для публикации. Нужны осмотр движения, верная мышца, согласованные инструкции и права на использование медиа Gym visual. В Muscle Map эти записи не опубликованы.</p></div>
+<div class="toolbar">
+<button data-group="cardio" aria-pressed="true">Кардио (29)</button>
+<button data-group="neck" aria-pressed="false">Шея (6)</button>
+<button data-group="stretch" aria-pressed="false">Растяжки (2)</button>
+<input id="filter" placeholder="ID или название" aria-label="Поиск упражнений">
+<span class="counter" id="counter"></span>
+</div><main class="grid" id="cards"></main>
+<script>
+const entries=[{"id":"0501","name":"jack burpee","target":"cardiovascular system","category":"cardio","gif":"videos/0501-mr7pkqP.gif","image":"images/exercises/0501-mr7pkqP.jpg","status":"requires_anatomy_and_license_review"},{"id":"0630","name":"mountain climber","target":"cardiovascular system","category":"cardio","gif":"videos/0630-RJgzwny.gif","image":"images/exercises/0630-RJgzwny.jpg","status":"requires_anatomy_and_license_review"},{"id":"0684","name":"run (equipment)","target":"cardiovascular system","category":"cardio","gif":"videos/0684-y5p0H8a.gif","image":"images/exercises/0684-y5p0H8a.jpg","status":"requires_anatomy_and_license_review"},{"id":"0685","name":"run","target":"cardiovascular system","category":"cardio","gif":"videos/0685-oLrKqDH.gif","image":"images/exercises/0685-oLrKqDH.jpg","status":"requires_anatomy_and_license_review"},{"id":"0798","name":"stationary bike walk","target":"cardiovascular system","category":"cardio","gif":"videos/0798-a8VDgLw.gif","image":"images/exercises/0798-a8VDgLw.jpg","status":"requires_anatomy_and_license_review"},{"id":"1160","name":"burpee","target":"cardiovascular system","category":"cardio","gif":"videos/1160-dK9394r.gif","image":"images/exercises/1160-dK9394r.jpg","status":"requires_anatomy_and_license_review"},{"id":"1201","name":"dumbbell burpee","target":"cardiovascular system","category":"cardio","gif":"videos/1201-0JtKWum.gif","image":"images/exercises/1201-0JtKWum.jpg","status":"requires_anatomy_and_license_review"},{"id":"2138","name":"stationary bike run v. 3","target":"cardiovascular system","category":"cardio","gif":"videos/2138-H1PESYI.gif","image":"images/exercises/2138-H1PESYI.jpg","status":"requires_anatomy_and_license_review"},{"id":"2141","name":"walk elliptical cross trainer","target":"cardiovascular system","category":"cardio","gif":"videos/2141-rjtuP6X.gif","image":"images/exercises/2141-rjtuP6X.jpg","status":"requires_anatomy_and_license_review"},{"id":"2311","name":"walking on stepmill","target":"cardiovascular system","category":"cardio","gif":"videos/2311-j9Q5crt.gif","image":"images/exercises/2311-j9Q5crt.jpg","status":"requires_anatomy_and_license_review"},{"id":"2331","name":"cycle cross trainer","target":"cardiovascular system","category":"cardio","gif":"videos/2331-XSCHmiI.gif","image":"images/exercises/2331-XSCHmiI.jpg","status":"requires_anatomy_and_license_review"},{"id":"2612","name":"jump rope","target":"cardiovascular system","category":"cardio","gif":"videos/2612-e1e76I2.gif","image":"images/exercises/2612-e1e76I2.jpg","status":"requires_anatomy_and_license_review"},{"id":"3219","name":"scissor jumps (male)","target":"cardiovascular system","category":"cardio","gif":"videos/3219-Eh2v5Iu.gif","image":"images/exercises/3219-Eh2v5Iu.jpg","status":"requires_anatomy_and_license_review"},{"id":"3220","name":"astride jumps (male)","target":"cardiovascular system","category":"cardio","gif":"videos/3220-f9lVSSI.gif","image":"images/exercises/3220-f9lVSSI.jpg","status":"requires_anatomy_and_license_review"},{"id":"3221","name":"half knee bends (male)","target":"cardiovascular system","category":"cardio","gif":"videos/3221-ia6kIIl.gif","image":"images/exercises/3221-ia6kIIl.jpg","status":"requires_anatomy_and_license_review"},{"id":"3222","name":"semi squat jump (male)","target":"cardiovascular system","category":"cardio","gif":"videos/3222-6FMU51h.gif","image":"images/exercises/3222-6FMU51h.jpg","status":"requires_anatomy_and_license_review"},{"id":"3223","name":"star jump (male)","target":"cardiovascular system","category":"cardio","gif":"videos/3223-HtfCpfi.gif","image":"images/exercises/3223-HtfCpfi.jpg","status":"requires_anatomy_and_license_review"},{"id":"3224","name":"jack jump (male)","target":"cardiovascular system","category":"cardio","gif":"videos/3224-1g5bPpA.gif","image":"images/exercises/3224-1g5bPpA.jpg","status":"requires_anatomy_and_license_review"},{"id":"3318","name":"swing 360","target":"cardiovascular system","category":"cardio","gif":"videos/3318-tnaj0mT.gif","image":"images/exercises/3318-tnaj0mT.jpg","status":"requires_anatomy_and_license_review"},{"id":"3360","name":"bear crawl","target":"cardiovascular system","category":"cardio","gif":"videos/3360-0Yz8WdV.gif","image":"images/exercises/3360-0Yz8WdV.jpg","status":"requires_anatomy_and_license_review"},{"id":"3361","name":"skater hops","target":"cardiovascular system","category":"cardio","gif":"videos/3361-zfNHMN9.gif","image":"images/exercises/3361-zfNHMN9.jpg","status":"requires_anatomy_and_license_review"},{"id":"3636","name":"high knee against wall","target":"cardiovascular system","category":"cardio","gif":"videos/3636-ealLwvX.gif","image":"images/exercises/3636-ealLwvX.jpg","status":"requires_anatomy_and_license_review"},{"id":"3637","name":"wheel run","target":"cardiovascular system","category":"cardio","gif":"videos/3637-km2Ljzj.gif","image":"images/exercises/3637-km2Ljzj.jpg","status":"requires_anatomy_and_license_review"},{"id":"3638","name":"push to run","target":"cardiovascular system","category":"cardio","gif":"videos/3638-PrQbjvB.gif","image":"images/exercises/3638-PrQbjvB.jpg","status":"requires_anatomy_and_license_review"},{"id":"3655","name":"walking high knees lunge","target":"cardiovascular system","category":"cardio","gif":"videos/3655-J9zIWig.gif","image":"images/exercises/3655-J9zIWig.jpg","status":"requires_anatomy_and_license_review"},{"id":"3656","name":"short stride run","target":"cardiovascular system","category":"cardio","gif":"videos/3656-CcWEoWV.gif","image":"images/exercises/3656-CcWEoWV.jpg","status":"requires_anatomy_and_license_review"},{"id":"3666","name":"walking on incline treadmill","target":"cardiovascular system","category":"cardio","gif":"videos/3666-rjiM4L3.gif","image":"images/exercises/3666-rjiM4L3.jpg","status":"requires_anatomy_and_license_review"},{"id":"3671","name":"ski step","target":"cardiovascular system","category":"cardio","gif":"videos/3671-5MRH8H2.gif","image":"images/exercises/3671-5MRH8H2.jpg","status":"requires_anatomy_and_license_review"},{"id":"3672","name":"back and forth step","target":"cardiovascular system","category":"cardio","gif":"videos/3672-fNGumX0.gif","image":"images/exercises/3672-fNGumX0.jpg","status":"requires_anatomy_and_license_review"},{"id":"custom_neck_1","name":"Разгибание шеи сидя на наклонной скамье","category":"neck","gif":"videos/custom/neck_1.gif","image":"","status":"needs-primary-muscle-review"},{"id":"custom_neck_2","name":"Боковое сгибание шеи лёжа на боку","category":"neck","gif":"videos/custom/neck_2.gif","image":"","status":"needs-primary-muscle-review"},{"id":"custom_neck_3","name":"Сгибание шеи лёжа на спине","category":"neck","gif":"videos/custom/neck_3.gif","image":"","status":"needs-primary-muscle-review"},{"id":"custom_neck_4","name":"Разгибание шеи сидя на скамье 45°","category":"neck","gif":"videos/custom/neck_4.gif","image":"","status":"needs-primary-muscle-review"},{"id":"custom_neck_5","name":"Сгибание шеи сидя","category":"neck","gif":"videos/custom/neck_5.gif","image":"","status":"needs-primary-muscle-review"},{"id":"custom_neck_6","name":"Разгибание шеи лёжа животом на скамье 45°","category":"neck","gif":"videos/custom/neck_6.gif","image":"","status":"needs-primary-muscle-review"},{"id":"1403","name":"neck side stretch","category":"stretch","gif":"videos/1403-x2chWLO.gif","image":"images/exercises/1403-x2chWLO.jpg","status":"source_target_levator_scapulae"},{"id":"0716","name":"side push neck stretch","category":"stretch","gif":"videos/0716-oQRJYkC.gif","image":"images/exercises/0716-oQRJYkC.jpg","status":"source_target_levator_scapulae"}];
+let group="cardio";const root=document.getElementById("cards");
+const counter=document.getElementById("counter");
+const clean=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function render(){
+  const query=document.getElementById("filter").value.trim().toLowerCase();
+  const records=entries.filter(x=>x.category===group&&[x.id,x.name,x.target].some(v=>String(v||"").toLowerCase().includes(query)));
+  root.innerHTML=records.map(x=>'<article class="card"><div class="media"><img loading="lazy" src="../'+clean(x.image||'')+'" alt="'+clean(x.name)+'" '+(!x.image?'style="display:none"':'')+'></div><div class="body"><div class="name">'+clean(x.name)+'</div><div class="small">ID: '+clean(x.id)+'</div><div class="small">'+clean(x.target||'Существующая ручная карточка')+'</div><div class="status">Статус: '+clean(x.status)+'</div><button data-id="'+clean(x.id)+'" aria-label="Просмотреть GIF: '+clean(x.name)+'">▶ Просмотреть GIF</button></div></article>').join('');
+  counter.textContent=records.length+' карточек';
+}
+document.querySelectorAll("[data-group]").forEach(b=>b.addEventListener("click",()=>{
+  group=b.dataset.group;document.querySelectorAll("[data-group]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));render();
+}));
+root.addEventListener("click",e=>{
+  const button=e.target.closest("button[data-id]");if(!button)return;
+  const entry=entries.find(x=>x.id===button.dataset.id);const pic=button.closest(".card").querySelector(".media");
+  const shown=button.dataset.playing==="1";
+  pic.replaceChildren();
+  const image=document.createElement("img");image.alt=entry.name;image.loading="eager";
+  image.src="../"+(shown?(entry.image||entry.gif):entry.gif);
+  image.onerror=()=>{image.alt="Не удалось загрузить медиа";};
+  pic.appendChild(image);button.dataset.playing=shown?"0":"1";
+  button.textContent=shown?"▶ Просмотреть GIF":"■ Остановить предпросмотр";
+});
+document.getElementById("filter").addEventListener("input",render);render();
+</script>
+</body></html>

@@ -7083,3 +7083,37 @@ body:has(.premium-modal.show) {
 .program-progression-phase p { margin: 8px 0; }
 .program-progression-phase small, .program-progression-results > small { line-height: 1.5; color: #bdc4e0; }
 @media(max-width:640px) { .program-progression { padding: 15px; } .program-progression-open { width: 100%; } }
+
+/* Motion Design A: unified front/back crossfade, both breakpoints. */
+.body-image-container { isolation: isolate; }
+.body-image-container > .mm-motion-outgoing-image {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; border-radius: 8px; z-index: 5;
+  pointer-events: none; animation: mmManikinOut 360ms cubic-bezier(.22,1,.36,1) both;
+}
+.body-image-container img#bodyImage.mm-motion-incoming {
+  animation: mmManikinIn 360ms cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes mmManikinOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(.985); }
+}
+@keyframes mmManikinIn {
+  from { opacity: 0; transform: scale(1.012); }
+  to { opacity: 1; transform: scale(1); }
+}
+/* Override historical hard display:none on hidden SVG paths. */
+.body-image-container .body-svg-layer:not(.visible),
+.body-image-container .body-svg-layer:not(.visible) svg,
+.body-image-container .body-svg-layer:not(.visible) svg path {
+  display: block !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+.body-image-container .body-svg-layer { transition: opacity 300ms cubic-bezier(.22,1,.36,1), visibility 0s linear 300ms; }
+.body-image-container .body-svg-layer.visible { transition: opacity 300ms cubic-bezier(.22,1,.36,1), visibility 0s; }
+@media (prefers-reduced-motion: reduce) {
+  .body-image-container > .mm-motion-outgoing-image,
+  .body-image-container img#bodyImage.mm-motion-incoming { animation-duration: 1ms !important; }
+  .body-image-container .body-svg-layer { transition-duration: 1ms !important; }
+}

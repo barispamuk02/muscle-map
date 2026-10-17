@@ -56,6 +56,20 @@ async function main() {
                 assert.ok(mobileLayout.anatomyWithinScreen, 'Anatomy card must fit mobile viewport');
                 assert.ok(mobileLayout.touchTargets, 'Bottom tabs must have comfortable touch heights');
                 assert.ok(mobileLayout.searchReadable, 'Search font must avoid mobile auto zoom');
+                // Rapid front/back interactions must never reactivate stale SVG layers.
+                await page.locator('#viewToggle').click();
+                await page.waitForTimeout(420);
+                await page.locator('#viewToggle').click();
+                await page.waitForTimeout(420);
+                const state = await page.evaluate(() => ({
+                    visible: [...document.querySelectorAll('.body-svg-layer.visible')].map(e => e.id),
+                    outgoing: document.querySelectorAll('.mm-motion-outgoing-image').length,
+                    image: document.getElementById('bodyImage').getAttribute('src')
+                }));
+                assert.deepEqual(state.visible, ['bodySvgFront'], 'Only front SVG should remain active');
+                assert.match(state.image, /body-front_1.png/, 'Front image must match SVG layer');
+                assert.equal(state.outgoing, 0, 'Old image frame must be cleaned up');
+
 
                 // Real tap on a muscle must lead visitors to the exercise panel.
                 await page.waitForSelector('#muscleList .list-item', { timeout: 15000 });

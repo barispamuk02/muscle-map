@@ -144,11 +144,21 @@ async function main() {
                 await hudToggle.waitFor({state: 'attached'});
                 await hudToggle.evaluate(el => el.classList.remove('mm-hud-revealed'));
                 assert.equal(await hudToggle.isVisible(), false, 'HUD launcher stays hidden until abdomen tap');
+                // Keyboard entry must reveal the otherwise touch-only HUD control.
+                await page.locator('#viewToggle').focus();
+                await page.keyboard.press('Tab');
+                assert.equal(await hudToggle.isVisible(), true, 'Keyboard Tab reveals the HUD launcher');
+                assert.equal(await page.evaluate(() => document.activeElement?.id), 'mmAbdomenHudToggle',
+                    'HUD launcher must be keyboard-focusable immediately after view toggle');
+                await hudToggle.evaluate(el => el.classList.remove('mm-hud-revealed'));
+                assert.equal(await hudToggle.isVisible(), false, 'Touch state stays hidden before abdomen tap');
                 await page.locator('#bodySvgFront path[data-muscle-id="male_rectus_abdominis"]').click({force:true});
                 await hudToggle.waitFor({state: 'visible'});
                 await hudToggle.click();
                 await page.locator('#mmAbdomenHud:not([hidden])').waitFor();
                 assert.equal(await page.locator('#mmAbdomenHud [data-abdomen-muscle]').count(), 4);
+                assert.equal(await page.locator('#mmAbdomenHud').getAttribute('aria-label'), 'Мышцы живота',
+                    'Russian users need a localized accessible group label');
                 assert.equal(await page.locator('#mmAbdomenHudLines .mm-hud-line').count(), 0,
                     'Opening HUD must show four labels without drawing any line');
                 if (mobile) {

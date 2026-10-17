@@ -112,6 +112,12 @@ for(const [muscleId,groups] of Object.entries(custom)){
             customIds.add(id);
             if(!String(ex.description||'').trim())
                 add('warning','CUSTOM_DESCRIPTION_MISSING',id,'Custom exercise has no description');
+            // An extension GIF in the SCM card needs physical motion/anatomy review:
+            // posterior cervical extensors may be the actual primary movers.
+            if(muscleId==='male_sternocleidomastoid' && /Разгибание шеи/i.test(String(ex.name||'')))
+                add('review','SCM_NECK_EXTENSION_ROLE_REVIEW',id,
+                    'Neck extension in SCM card: inspect the GIF before assigning target muscle.',
+                    {name:ex.name,gif:ex.gif||''});
             if(ex.gif&&!exists(ex.gif))add('warning','CUSTOM_MEDIA_MISSING',id,'gif: '+ex.gif);
             const links=curated[muscleId]?.[ex.name]||[];
             if(links.length)stats.curatedCustomCount++;

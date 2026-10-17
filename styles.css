@@ -7068,3 +7068,18 @@ body:has(.premium-modal.show) {
         scroll-snap-align: start;
     }
 }
+
+/* Protected weekly progressions: program overview stays Free, paid phases are API-only. */
+.program-progression { margin: 24px 0 4px; padding: 22px; border: 1px solid rgba(255,215,99,.35); border-radius: 14px; background: linear-gradient(130deg,rgba(255,213,95,.09),rgba(50,68,119,.1)); color: #ecf0ff; }
+.program-progression h3 { margin: 0 0 10px; font-size: 18px; color: #ffe6a1; }
+.program-progression p { margin: 0 0 14px; color: #c4c9e3; line-height: 1.6; }
+.program-progression-open, .program-progression-results button { border-radius: 10px; padding: 12px 18px; border: 1px solid #dfb856; background: #342c24; color: #ffe6a1; font: inherit; cursor: pointer; min-height: 44px; }
+.program-progression-open:hover, .program-progression-results button:hover { background: #4a3d2c; }
+.program-progression-open:disabled { opacity: .65; cursor: wait; }
+.program-progression-feedback { min-height: 22px; margin: 10px 0; font-size: 14px; color: #e6d7a5; }
+.program-progression-results { display: grid; gap: 12px; }
+.program-progression-phase { border-left: 3px solid #a88b4b; background: rgba(0,0,0,.15); border-radius: 6px; padding: 14px; }
+.program-progression-phase strong { color: #f2dca2; }
+.program-progression-phase p { margin: 8px 0; }
+.program-progression-phase small, .program-progression-results > small { line-height: 1.5; color: #bdc4e0; }
+@media(max-width:640px) { .program-progression { padding: 15px; } .program-progression-open { width: 100%; } }

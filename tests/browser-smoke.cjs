@@ -41,6 +41,22 @@ async function main() {
                 await page.locator('#mmMobileHero').waitFor();
                 await page.locator('.mm-mobile-bottom-nav').waitFor();
                 assert.ok(await page.locator('.mm-mobile-bottom-nav button').count() >= 5);
+                const mobileLayout = await page.evaluate(() => {
+                    const hero = document.getElementById('mmMobileHero').getBoundingClientRect();
+                    const anatomy = document.querySelector('#viewMuscles > .body-view').getBoundingClientRect();
+                    const targets = [...document.querySelectorAll('.mm-mobile-bottom-nav button')].map(b => b.getBoundingClientRect());
+                    return {
+                        heroVisible: hero.height > 40,
+                        anatomyWithinScreen: anatomy.left >= 0 && anatomy.right <= window.innerWidth + 1,
+                        touchTargets: targets.every(t => t.height >= 44),
+                        searchReadable: parseFloat(getComputedStyle(document.getElementById('searchInput')).fontSize) >= 16
+                    };
+                });
+                assert.ok(mobileLayout.heroVisible, 'Mobile hero must be visible');
+                assert.ok(mobileLayout.anatomyWithinScreen, 'Anatomy card must fit mobile viewport');
+                assert.ok(mobileLayout.touchTargets, 'Bottom tabs must have comfortable touch heights');
+                assert.ok(mobileLayout.searchReadable, 'Search font must avoid mobile auto zoom');
+
                 // Real tap on a muscle must lead visitors to the exercise panel.
                 await page.waitForSelector('#muscleList .list-item', { timeout: 15000 });
                 await page.evaluate(() => {

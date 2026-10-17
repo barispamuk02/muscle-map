@@ -137,6 +137,41 @@ async function main() {
                 assert.equal(coverage.wrongPrimaryCount, 0,
                     'Catalogue exercise target muscle must agree with its mapped primary muscle');
                 console.log('EXERCISE_ANATOMY_CORRECTIONS_OK', JSON.stringify(corrected));
+                // Owner's decision: keep all six handmade neck exercises, retire
+                // precisely two neck stretches from public discovery without
+                // deleting source records, IDs or historical diary name lookup.
+                const neckPublic = await page.evaluate(() => {
+                    const activeNeck = getExercisesForMuscle('male_sternocleidomastoid').filter(x=>x.isCustom);
+                    const upper = getExercisesForMuscle('male_trapezius_upper');
+                    const legacy = ['1403','0716'].map(id => ({
+                        id, stillStored: !!exerciseDatabase.find(ex=>ex.id===id),
+                        stillResolvable: !!getExerciseNameById(id),
+                        inPublicList: upper.some(ex=>ex.id===id)
+                    }));
+                    const chooser = getAllExerciseNames();
+                    const hiddenNames = ['1403','0716'].map(id=>
+                        translateExerciseName(exerciseDatabase.find(ex=>ex.id===id)));
+                    return {
+                        neckNames: activeNeck.map(ex=>ex.name),
+                        neckGifs: activeNeck.map(ex=>ex.gif),
+                        retired: legacy,
+                        hiddenInWorkoutChooser: hiddenNames.every(name=>!chooser.includes(name)),
+                        othersStillVisible: exerciseDatabase.some(ex=>/stretch/i.test(ex.name_en)&&
+                            !PUBLIC_HIDDEN_EXERCISE_IDS.has(ex.id)&&
+                            getExercisesForMuscle(ex.muscleId).some(candidate=>candidate.id===ex.id))
+                    };
+                });
+                assert.equal(neckPublic.neckNames.length,6,'Preserve all six original neck exercises');
+                assert.deepEqual(neckPublic.neckGifs.map(x=>x.split('/').pop()),
+                    ['neck_1.gif','neck_2.gif','neck_3.gif','neck_4.gif','neck_5.gif','neck_6.gif'],
+                    'Keep original handmade neck animations intact');
+                assert.ok(neckPublic.retired.every(x=>x.stillStored&&x.stillResolvable&&!x.inPublicList),
+                    'Only selected neck stretches leave discovery; existing source IDs remain');
+                assert.equal(neckPublic.hiddenInWorkoutChooser,true,
+                    'Retired stretches cannot be added from tracker chooser');
+                assert.equal(neckPublic.othersStillVisible,true,
+                    'Other muscle stretching exercises are not accidentally removed');
+                console.log('NECK_SCOPE_ACCEPTANCE_OK',JSON.stringify(neckPublic));
                 const mappedMuscles = [
                     'male_pectoralis_minor','male_obliquus_externus','male_obliquus_internus',
                     'male_transversus_abdominis','male_trapezius_middle',

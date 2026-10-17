@@ -7404,6 +7404,8 @@ function updateAbdomenHud() {
         abdomenHudActiveId = null;
         if (lines) lines.replaceChildren();
     }
+    panel.setAttribute('aria-label', (typeof currentLang !== 'undefined' && currentLang === 'en')
+        ? 'Abdominal muscles' : 'Мышцы живота');
     panel.querySelectorAll('[data-abdomen-muscle]').forEach(button => {
         const item = ABDOMEN_HUD_MUSCLES.find(m => m.id === button.dataset.abdomenMuscle);
         const language = typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en' : 'ru';
@@ -7497,6 +7499,13 @@ function initAbdomenHud() {
     wrapper.appendChild(lines);
     viewButton.insertAdjacentElement('afterend', toggle);
     wrapper.appendChild(panel);
+    // Keyboard users can reach the launcher in DOM order: View -> HUD toggle.
+    // Touch visitors continue to see it only after choosing the abdomen.
+    viewButton.addEventListener('keydown', event => {
+        if (event.key === 'Tab' && !event.shiftKey && currentView === 'front') {
+            toggle.classList.add('mm-hud-revealed');
+        }
+    });
     const abdomenIds = new Set(ABDOMEN_HUD_MUSCLES.map(m => m.id));
     wrapper.addEventListener('click', event => {
         const path = event.target.closest && event.target.closest('path[data-muscle-id]');

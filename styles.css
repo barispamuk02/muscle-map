@@ -7218,3 +7218,37 @@ body:has(.premium-modal.show) {
     filter: none !important;
   }
 }
+
+/* Anatomy HUD: connector lines indicate an existing SVG region, not new geometry. */
+#bodyView .body-wrapper { position: relative; }
+.mm-abdomen-hud-toggle {
+  border: 1px solid rgba(114,173,241,.45); border-radius: 10px;
+  background: rgba(31,65,107,.45); color: #e5f2ff;
+  font: inherit; font-size: 13px; min-height: 44px; padding: 9px 14px;
+  cursor: pointer; z-index: 7; position: relative;
+}
+.mm-abdomen-hud-toggle[hidden], .mm-abdomen-hud[hidden] { display: none !important; }
+.mm-abdomen-hud { display: grid; grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px; width: min(100%, 360px); position: relative; z-index: 7; }
+.mm-abdomen-hud-choice {
+  background: #1a2c44; border: 1px solid rgba(125,163,204,.42);
+  color: #ebf3ff; border-radius: 9px; padding: 9px 6px; min-height: 44px;
+  font: inherit; font-size: 12px; cursor: pointer; text-align: center;
+}
+.mm-abdomen-hud-choice[aria-pressed="true"] { border-color: #ff6677; color: #fff; background: #793444; }
+.mm-abdomen-hud-choice:focus-visible, .mm-abdomen-hud-toggle:focus-visible {
+  outline: 2px solid #8ccaff; outline-offset: 2px;
+}
+.mm-abdomen-hud-lines { position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none; z-index: 6; }
+.mm-hud-line { stroke: rgba(121,201,255,.68); stroke-width: 1.5;
+  vector-effect: non-scaling-stroke; fill: none; }
+.mm-hud-line.is-selected { stroke: #ff6677; stroke-width: 2; }
+.mm-hud-dot { fill: #97c8f7; }
+@media (max-width: 768px) {
+  .mm-abdomen-hud { max-width: 280px; }
+  .mm-abdomen-hud-choice { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-hud-line, .mm-abdomen-hud-choice { transition: none !important; }
+}

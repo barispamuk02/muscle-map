@@ -348,6 +348,7 @@ function updateBodyImage() {
     }
     renderOverlays();
     syncPrimarySvgSelection();
+    updateAbdomenHud();
 
     // ⭐ ФИКС: переключаем SVG-слой синхронно с картинкой
     if (typeof showSvgLayer === 'function') {
@@ -459,6 +460,7 @@ function selectMuscle(id) {
     resetSynergistSelection();
     currentMuscleId = id;
     syncPrimarySvgSelection();
+    updateAbdomenHud();
     localStorage.setItem(STORAGE_KEYS.lastSelected, id);
     incrementViews(id);
     currentEquipmentFilter = 'all';
@@ -7393,6 +7395,112 @@ async function loadSvgLayer(layerId, muscles) {
     return contents.filter(s => s).length;
 }
 // ============================================
+// ANATOMY HUD: explicit choice for overlapping abdominal SVG contours.
+// Source SVGs 9/10 are identical; labels disambiguate without faking anatomy.
+// ============================================
+const ABDOMEN_HUD_MUSCLES = [
+    { id: 'male_rectus_abdominis', label: { ru: 'Прямая мышца', en: 'Rectus abdominis' } },
+    { id: 'male_obliquus_externus', label: { ru: 'Наружная косая', en: 'External oblique' } },
+    { id: 'male_obliquus_internus', label: { ru: 'Внутренняя косая', en: 'Internal oblique' } },
+    { id: 'male_transversus_abdominis', label: { ru: 'Поперечная', en: 'Transversus abdominis' } }
+];
+let abdomenHudOpen = false;
+function updateAbdomenHud() {
+    const panel = document.getElementById('mmAbdomenHud');
+    const toggle = document.getElementById('mmAbdomenHudToggle');
+    if (!panel || !toggle) return;
+    const show = currentView === 'front';
+    toggle.hidden = !show;
+    panel.hidden = !show || !abdomenHudOpen;
+    toggle.setAttribute('aria-expanded', String(show && abdomenHudOpen));
+    panel.querySelectorAll('[data-abdomen-muscle]').forEach(button => {
+        const item = ABDOMEN_HUD_MUSCLES.find(m => m.id === button.dataset.abdomenMuscle);
+        const language = typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en' : 'ru';
+        if (item) button.textContent = item.label[language];
+        button.setAttribute('aria-pressed', String(button.dataset.abdomenMuscle === currentMuscleId));
+    });
+    toggle.textContent = (typeof currentLang !== 'undefined' && currentLang === 'en')
+        ? (abdomenHudOpen ? 'Hide abdomen layers' : 'Abdomen layers')
+        : (abdomenHudOpen ? 'Скрыть слои живота' : 'Слои живота');
+    if (!panel.hidden) requestAnimationFrame(drawAbdomenHudLines);
+}
+function drawAbdomenHudLines() {
+    const panel = document.getElementById('mmAbdomenHud');
+    const wrapper = document.querySelector('#bodyView .body-wrapper');
+    const lines = document.getElementById('mmAbdomenHudLines');
+    if (!panel || !wrapper || !lines || panel.hidden) return;
+    const rect = wrapper.getBoundingClientRect();
+    lines.setAttribute('viewBox', '0 0 ' + rect.width + ' ' + rect.height);
+    lines.replaceChildren();
+    ABDOMEN_HUD_MUSCLES.forEach(muscle => {
+        const path = document.querySelector('#bodySvgFront path[data-muscle-id="' + muscle.id + '"]');
+        const button = panel.querySelector('[data-abdomen-muscle="' + muscle.id + '"]');
+        if (!path || !button) return;
+        // Use actual rendered path bounds. Duplicate deep contours therefore share an
+        // anchor deliberately; do not imply independent anatomical shapes.
+        const a = path.getBoundingClientRect();
+        const b = button.getBoundingClientRect();
+        if (!a.width || !a.height) return;
+        const x1 = a.left + a.width / 2 - rect.left;
+        const y1 = a.top + a.height / 2 - rect.top;
+        const x2 = b.left + b.width / 2 - rect.left;
+        const y2 = b.top - rect.top;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' L' + x2 + ' ' + y2);
+        line.setAttribute('class', 'mm-hud-line' + (muscle.id === currentMuscleId ? ' is-selected' : ''));
+        lines.appendChild(line);
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', x1);
+        dot.setAttribute('cy', y1);
+        dot.setAttribute('r', 2.8);
+        dot.setAttribute('class', 'mm-hud-dot');
+        lines.appendChild(dot);
+    });
+}
+function initAbdomenHud() {
+    const wrapper = document.querySelector('#bodyView .body-wrapper');
+    const viewButton = document.getElementById('viewToggle');
+    if (!wrapper || !viewButton || document.getElementById('mmAbdomenHud')) return;
+    wrapper.style.position = 'relative';
+    const toggle = document.createElement('button');
+    toggle.id = 'mmAbdomenHudToggle';
+    toggle.type = 'button';
+    toggle.className = 'mm-abdomen-hud-toggle';
+    toggle.setAttribute('aria-controls', 'mmAbdomenHud');
+    const panel = document.createElement('div');
+    panel.id = 'mmAbdomenHud';
+    panel.className = 'mm-abdomen-hud';
+    panel.setAttribute('role', 'group');
+    panel.setAttribute('aria-label', 'Abdominal muscle layers');
+    ABDOMEN_HUD_MUSCLES.forEach(muscle => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'mm-abdomen-hud-choice';
+        button.dataset.abdomenMuscle = muscle.id;
+        button.addEventListener('click', () => {
+            selectMuscle(muscle.id);
+            updateAbdomenHud();
+        });
+        panel.appendChild(button);
+    });
+    const lines = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    lines.id = 'mmAbdomenHudLines';
+    lines.setAttribute('aria-hidden', 'true');
+    lines.setAttribute('class', 'mm-abdomen-hud-lines');
+    wrapper.appendChild(lines);
+    viewButton.insertAdjacentElement('afterend', toggle);
+    toggle.insertAdjacentElement('afterend', panel);
+    toggle.addEventListener('click', () => {
+        abdomenHudOpen = !abdomenHudOpen;
+        updateAbdomenHud();
+    });
+    window.addEventListener('resize', () => {
+        if (abdomenHudOpen && currentView === 'front') requestAnimationFrame(drawAbdomenHudLines);
+    });
+    updateAbdomenHud();
+}
+
+// ============================================
 // 🎯 ПОДСВЕТКА СИНЕРГИСТОВ
 // ============================================
 function resetSynergistSelection() {
@@ -7458,6 +7566,8 @@ async function initSvgLayers() {
     console.log(`✅ SVG-слои: front ${frontCount}/${SVG_MUSCLES_FRONT.length}, back ${backCount}/${SVG_MUSCLES_BACK.length}`);
     showSvgLayer(currentView);
     syncPrimarySvgSelection();
+    initAbdomenHud();
+    updateAbdomenHud();
 }
 
 // Хук на переключение вида

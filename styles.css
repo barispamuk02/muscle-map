@@ -7293,6 +7293,7 @@ body:has(.premium-modal.show) {
 /* HUD motion: GPU-friendly opacity/transform and SVG stroke drawing.
    Every connector uses H/V segments exclusively, so turns are 90 degrees. */
 #bodyContainer .mm-hud-line {
+  transition: stroke 240ms cubic-bezier(.22,1,.36,1), stroke-width 240ms cubic-bezier(.22,1,.36,1);
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   animation: mm-hud-draw 620ms cubic-bezier(.22,1,.36,1) both;

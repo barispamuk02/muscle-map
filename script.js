@@ -445,6 +445,13 @@ function selectMuscle(id) {
     if (!muscle) return;
     resetSynergistSelection();
     currentMuscleId = id;
+    // Sync selected anatomy highlight with the current muscle; remove stale red paths.
+    document.querySelectorAll('.body-svg-layer svg path.active').forEach(path => {
+        path.classList.remove('active');
+    });
+    document.querySelectorAll('.body-svg-layer svg path[data-muscle-id]').forEach(path => {
+        if (path.dataset.muscleId === id) path.classList.add('active');
+    });
     localStorage.setItem(STORAGE_KEYS.lastSelected, id);
     incrementViews(id);
     currentEquipmentFilter = 'all';

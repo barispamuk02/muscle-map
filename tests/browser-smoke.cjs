@@ -115,6 +115,23 @@ async function main() {
                     }
                 });
                 await page.locator('#muscleList .list-item').first().click();
+                const primary = await page.evaluate(() => {
+                    const paths = [...document.querySelectorAll('.body-svg-layer svg path.active')];
+                    return {
+                        ids: paths.map(path => path.dataset.muscleId),
+                        selected: currentMuscleId,
+                        noPulse: paths.every(path => getComputedStyle(path).animationName === 'none')
+                    };
+                });
+                assert.ok(primary.ids.every(id => id === primary.selected), 'Red SVG must match selected muscle');
+                assert.ok(primary.noPulse, 'Primary highlight must not animate endlessly');
+                await page.locator('#muscleList .list-item').nth(1).click();
+                const afterChange = await page.evaluate(() =>
+                    [...document.querySelectorAll('.body-svg-layer svg path.active')]
+                        .every(path => path.dataset.muscleId === currentMuscleId)
+                );
+                assert.ok(afterChange, 'Previous red muscle must reset after selecting another');
+
                 const amberReset = await page.evaluate(() =>
                     !window.__amberTestPath || !window.__amberTestPath.classList.contains('synergist-active')
                 );

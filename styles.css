@@ -7141,3 +7141,25 @@ body:has(.premium-modal.show) {
 @media (prefers-reduced-motion: reduce) {
   .body-svg-layer svg path { transition: none !important; }
 }
+
+/* Motion Design B: soft, one-shot primary muscle activation on mobile + desktop. */
+.body-svg-layer svg path {
+  transition: opacity 280ms cubic-bezier(.22,1,.36,1), fill 280ms cubic-bezier(.22,1,.36,1) !important;
+}
+.body-svg-layer svg path.active:not(.synergist-active) {
+  opacity: 1 !important;
+  fill: #ff4757 !important;
+  animation: none !important;
+  filter: drop-shadow(0 0 5px rgba(255,71,87,.40)) !important;
+}
+.body-svg-layer svg path.active:not(.synergist-active):hover {
+  filter: drop-shadow(0 0 7px rgba(255,71,87,.52)) !important;
+}
+.body-overlay.active {
+  animation: none !important;
+  transition: opacity 280ms cubic-bezier(.22,1,.36,1), filter 280ms cubic-bezier(.22,1,.36,1);
+  filter: drop-shadow(0 0 7px rgba(255,71,87,.40));
+}
+@media (prefers-reduced-motion: reduce) {
+  .body-svg-layer svg path, .body-overlay.active { transition: none !important; }
+}

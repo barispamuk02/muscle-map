@@ -165,7 +165,8 @@ async function main() {
                     !window.__amberTestPath || !window.__amberTestPath.classList.contains('synergist-active')
                 );
                 assert.ok(amberReset, 'Selecting a different muscle must clear previous amber glow');
-                await page.waitForFunction(() => window.__mobileDetailRevealed === true, { timeout: 3000 });
+                assert.equal(await page.evaluate(() => window.__mobileDetailRevealed), false,
+                    'Selecting a muscle must not automatically scroll to exercises');
                 assert.ok((await page.locator('#infoContent').innerText()).trim().length > 20,
                     'Selected muscle must reveal exercise details');
                 await page.locator('.mm-mobile-bottom-nav [data-mm-target="navPrograms"]').click();

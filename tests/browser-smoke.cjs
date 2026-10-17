@@ -139,6 +139,23 @@ async function main() {
                 assert.equal(await page.locator('#muscleSearchSuggestions').getAttribute('hidden'), '',
                     'Autocomplete closes after selection');
 
+                // Abdominal HUD should disambiguate overlapping deep muscle paths.
+                const hudToggle = page.locator('#mmAbdomenHudToggle');
+                await hudToggle.waitFor();
+                await hudToggle.click();
+                await page.locator('#mmAbdomenHud:not([hidden])').waitFor();
+                assert.equal(await page.locator('#mmAbdomenHud [data-abdomen-muscle]').count(), 4);
+                await page.locator('[data-abdomen-muscle="male_obliquus_internus"]').click();
+                assert.equal(await page.evaluate(() => currentMuscleId), 'male_obliquus_internus');
+                await page.locator('[data-abdomen-muscle="male_transversus_abdominis"]').click();
+                assert.equal(await page.evaluate(() => currentMuscleId), 'male_transversus_abdominis');
+                assert.equal(await page.evaluate(() => currentView), 'front',
+                    'HUD selection must never rotate anatomy');
+                await page.evaluate(() => toggleView());
+                assert.equal(await page.locator('#mmAbdomenHud').isVisible(), false,
+                    'Abdominal HUD must disappear on rear anatomy');
+                await page.evaluate(() => toggleView());
+
                 // Real tap on a muscle must lead visitors to the exercise panel.
                 await page.waitForSelector('#muscleList .list-item', { timeout: 15000 });
                 await page.evaluate(() => {

@@ -13222,7 +13222,7 @@ const exerciseDatabase = [
     "name_en": "dumbbell rear delt raise",
     "equipment": "dumbbell",
     "target": "delts",
-    "muscleId": "male_deltoid_anterior",
+    "muscleId": "male_deltoid_posterior",
     "bodyPart": "shoulders",
     "image": "images/exercises/2292-mu5Guxt.jpg",
     "gif": "videos/2292-mu5Guxt.gif",

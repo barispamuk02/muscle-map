@@ -1,0 +1,44 @@
+name: Exercise data audit
+on:
+  pull_request:
+    paths:
+      - 'exercise-data.js'
+      - 'muscle-data.js'
+      - 'synergists-data.js'
+      - 'custom-synergists-data.js'
+      - 'custom-exercises.js'
+      - 'exercise-name-ru.js'
+      - 'scripts/audit-exercises.cjs'
+      - 'tests/exercise-audit.test.cjs'
+      - '.github/workflows/exercise-data-audit.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run deterministic audit
+        run: node scripts/audit-exercises.cjs --json reports/exercises-audit.json --markdown reports/exercises-audit.md --review-csv reports/exercises-review-index.csv --fail-on-errors
+      - name: Test audited invariants
+        run: node --test tests/exercise-audit.test.cjs
+      - name: Add Markdown summary to GitHub check
+        if: always()
+        run: |
+          if [ -f reports/exercises-audit.md ]; then
+            cat reports/exercises-audit.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload detailed reports (all findings)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exercises-quality-audit
+          path: |
+            reports/exercises-audit.json
+            reports/exercises-audit.md
+            reports/exercises-review-index.csv
+          if-no-files-found: warn

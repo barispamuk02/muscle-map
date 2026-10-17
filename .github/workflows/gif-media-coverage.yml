@@ -1,0 +1,45 @@
+name: GIF media coverage audit
+on:
+  pull_request:
+    paths:
+      - 'exercise-data.js'
+      - 'custom-exercises.js'
+      - 'scripts/audit-gif-coverage.cjs'
+      - 'tests/gif-media-audit.test.cjs'
+      - '.github/workflows/gif-media-coverage.yml'
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download pinned MIT-licensed metadata only (no additional media)
+        run: |
+          curl --fail --location --retry 2 --max-time 100 --silent --show-error \
+            https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/7455efae41b330c265e7cd4b78dfa848e7ce5ebd/data/exercises.json \
+            -o /tmp/source-exercises.json
+          node -e "const a=require('/tmp/source-exercises.json');if(!Array.isArray(a)||a.length!==1324)process.exit(1)"
+      - name: Run media and source-ID inventory
+        run: node scripts/audit-gif-coverage.cjs --upstream /tmp/source-exercises.json --json reports/gif-media-audit.json --markdown reports/gif-media-audit.md --fail-on-broken
+      - name: Assert every orphan is identified
+        run: node --test tests/gif-media-audit.test.cjs
+      - name: Publish summary
+        if: always()
+        run: |
+          if [ -f reports/gif-media-audit.md ]; then
+            cat reports/gif-media-audit.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Archive missing-card inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unlinked-gif-medialibrary
+          path: |
+            reports/gif-media-audit.json
+            reports/gif-media-audit.md
+          if-no-files-found: warn

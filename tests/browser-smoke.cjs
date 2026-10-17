@@ -64,6 +64,168 @@ async function main() {
             await page.waitForFunction(() => typeof getWorkoutLog === 'function' && typeof openPremium === 'function', {timeout: 25000});
             const exerciseCount = await page.evaluate(() => typeof exerciseDatabase !== 'undefined' ? exerciseDatabase.length : 0);
             assert.ok(exerciseCount >= 1200, 'Full exercise catalogue must load');
+            if (!mobile) {
+                // Audit coverage through the EXACT runtime getExercisesForMuscle path.
+                const coverage = await page.evaluate(() => {
+                    const canonical = Object.keys(muscleDatabase);
+                    const valid = new Set(canonical);
+                    const data = typeof synergistsData === 'undefined' ? {} : synergistsData;
+                    const exercises = typeof exerciseDatabase === 'undefined' ? [] : exerciseDatabase;
+                    const rows = canonical.map(id => {
+                        const list = getExercisesForMuscle(id);
+                        const mapped = list.filter(ex => resolveExerciseSynergists(ex));
+                        const available = [...new Set(mapped.flatMap(ex =>
+                            (resolveExerciseSynergists(ex)?.synergists || [])
+                                .map(s => s.muscleId)
+                                .filter(s => s !== id && valid.has(s))
+                        ))];
+                        return {
+                            id, total: list.length, mapped: mapped.length,
+                            custom: list.filter(ex => ex.isCustom).length,
+                            unmappedCustom: list.filter(ex => ex.isCustom && !resolveExerciseSynergists(ex)).length,
+                            synergyCount: available.length, partners: available,
+                            rendered: !!renderMuscleSynergists(muscleDatabase[id])
+                        };
+                    });
+                    const unresolved = Object.entries(data).flatMap(([name,details]) => [
+                        ...(details.primary ? [{id:details.primary.muscleId,role:'primary'}] : []),
+                        ...(details.synergists || []).map(x => ({id:x.muscleId,role:'synergist'}))
+                    ].filter(x => !valid.has(x.id)).map(x => ({exercise:name,...x})));
+                    const catalogUnmapped = exercises.filter(ex => !data[(ex.name_en || '').toLowerCase().trim()])
+                        .map(ex => ({name:ex.name_en || ex.name, muscle:ex.muscleId}));
+                    const wrongPrimary = exercises.filter(ex => {
+                        const row = data[(ex.name_en || '').toLowerCase().trim()];
+                        return row?.primary?.muscleId && row.primary.muscleId !== ex.muscleId;
+                    }).map(ex => ({exercise:ex.name_en, catalog:ex.muscleId,
+                        synergy: data[(ex.name_en || '').toLowerCase().trim()].primary.muscleId}));
+                    return {recordCount:Object.keys(data).length, catalogCount:exercises.length,
+                        muscleCount:canonical.length, rows, unresolved,
+                        catalogUnmappedCount:catalogUnmapped.length, catalogUnmapped:catalogUnmapped.slice(0,22),
+                        wrongPrimaryCount:wrongPrimary.length, wrongPrimary:wrongPrimary.slice(0,18)};
+                });
+                console.log('SYNERGIST_COVERAGE_AUDIT', JSON.stringify(coverage));
+                // Anatomical source corrections, including stable legacy completion ID.
+                const corrected = await page.evaluate(() => {
+                    const rearRaise = exerciseDatabase.filter(ex => ex.id === '2292');
+                    const posterior = getExercisesForMuscle('male_deltoid_posterior');
+                    const anterior = getExercisesForMuscle('male_deltoid_anterior');
+                    const middle = getExercisesForMuscle('male_trapezius_middle');
+                    const upper = getExercisesForMuscle('male_trapezius_upper');
+                    const historicalId = 'custom_male_trapezius_middle_primary_7';
+                    return {
+                        rearRaiseCount: rearRaise.length,
+                        rearRaiseId: rearRaise[0]?.muscleId,
+                        rearRaiseInPosterior: posterior.some(ex => ex.id === '2292'),
+                        rearRaiseInAnterior: anterior.some(ex => ex.id === '2292'),
+                        shrugsInMiddle: middle.some(ex => ex.name === 'Шраги' && ex.isCustom),
+                        migratedShrugs: upper.filter(ex => ex.name === 'Шраги' && ex.isCustom)
+                            .map(ex => ({id:ex.id, muscleId:ex.muscleId})),
+                        legacyIdCount: Object.keys(muscleDatabase)
+                            .flatMap(id => getExercisesForMuscle(id))
+                            .filter(ex => ex.id === historicalId).length
+                    };
+                });
+                assert.equal(corrected.rearRaiseCount, 1);
+                assert.equal(corrected.rearRaiseId, 'male_deltoid_posterior');
+                assert.equal(corrected.rearRaiseInPosterior, true);
+                assert.equal(corrected.rearRaiseInAnterior, false);
+                assert.equal(corrected.shrugsInMiddle, false);
+                assert.deepEqual(corrected.migratedShrugs, [
+                    {id:'custom_male_trapezius_middle_primary_7', muscleId:'male_trapezius_upper'}
+                ], 'Manual shrugs must belong to upper trapezius while preserving prior completion ID');
+                assert.equal(corrected.legacyIdCount, 1, 'Historical completion ID must remain unique');
+                assert.equal(coverage.wrongPrimaryCount, 0,
+                    'Catalogue exercise target muscle must agree with its mapped primary muscle');
+                console.log('EXERCISE_ANATOMY_CORRECTIONS_OK', JSON.stringify(corrected));
+                // Owner's decision: keep all six handmade neck exercises, retire
+                // precisely two neck stretches from public discovery without
+                // deleting source records, IDs or historical diary name lookup.
+                const neckPublic = await page.evaluate(() => {
+                    const activeNeck = getExercisesForMuscle('male_sternocleidomastoid').filter(x=>x.isCustom);
+                    const upper = getExercisesForMuscle('male_trapezius_upper');
+                    const legacy = ['1403','0716'].map(id => ({
+                        id, stillStored: !!exerciseDatabase.find(ex=>ex.id===id),
+                        stillResolvable: !!getExerciseNameById(id),
+                        inPublicList: upper.some(ex=>ex.id===id)
+                    }));
+                    const chooser = getAllExerciseNames();
+                    const hiddenNames = ['1403','0716'].map(id=>
+                        translateExerciseName(exerciseDatabase.find(ex=>ex.id===id)));
+                    return {
+                        neckNames: activeNeck.map(ex=>ex.name),
+                        neckGifs: activeNeck.map(ex=>ex.gif),
+                        retired: legacy,
+                        hiddenInWorkoutChooser: hiddenNames.every(name=>!chooser.includes(name)),
+                        othersStillVisible: exerciseDatabase.some(ex=>/stretch/i.test(ex.name_en)&&
+                            !PUBLIC_HIDDEN_EXERCISE_IDS.has(ex.id)&&
+                            getExercisesForMuscle(ex.muscleId).some(candidate=>candidate.id===ex.id))
+                    };
+                });
+                assert.equal(neckPublic.neckNames.length,6,'Preserve all six original neck exercises');
+                assert.deepEqual(neckPublic.neckGifs.map(x=>x.split('/').pop()),
+                    ['neck_1.gif','neck_2.gif','neck_3.gif','neck_4.gif','neck_5.gif','neck_6.gif'],
+                    'Keep original handmade neck animations intact');
+                assert.ok(neckPublic.retired.every(x=>x.stillStored&&x.stillResolvable&&!x.inPublicList),
+                    'Only selected neck stretches leave discovery; existing source IDs remain');
+                assert.equal(neckPublic.hiddenInWorkoutChooser,true,
+                    'Retired stretches cannot be added from tracker chooser');
+                assert.equal(neckPublic.othersStillVisible,true,
+                    'Other muscle stretching exercises are not accidentally removed');
+                console.log('NECK_SCOPE_ACCEPTANCE_OK',JSON.stringify(neckPublic));
+                const mappedMuscles = [
+                    'male_pectoralis_minor','male_obliquus_externus','male_obliquus_internus',
+                    'male_transversus_abdominis','male_trapezius_middle',
+                    'male_deltoid_lateral','male_deltoid_posterior','male_brachialis'
+                ];
+                for (const id of mappedMuscles) {
+                    const row = coverage.rows.find(item => item.id === id);
+                    assert.ok(row?.mapped > 0 && row?.synergyCount > 0 && row?.rendered,
+                        'Curated custom synergies should reach muscle and exercises for ' + id);
+                }
+                assert.deepEqual(coverage.unresolved, [], 'Every synergist muscle ID must exist in muscleDatabase');
+                const missingDestinationExercises = coverage.rows.flatMap(row =>
+                    row.partners.filter(id => {
+                        const destination = coverage.rows.find(candidate => candidate.id === id);
+                        return !destination || destination.total === 0;
+                    }).map(id => ({source: row.id, target: id}))
+                );
+                assert.deepEqual(missingDestinationExercises, [],
+                    'Every displayed partner must have an exercise list users can open');
+                assert.equal(coverage.catalogUnmappedCount, 0,
+                    'Every catalogue exercise should resolve to a named synergy record');
+                await page.evaluate(() => selectMuscle('male_trapezius_middle'));
+                assert.ok(await page.locator('#infoContent .muscle-synergists-block').count(),
+                    'Middle trapezius must show muscle-level partners');
+                const curatedDetail = await page.evaluate(() => {
+                    const ex = getExercisesForMuscle('male_trapezius_middle').find(e => e.name === 'Face Pulls (тяга к лицу)');
+                    const html = renderSynergists(ex);
+                    return {
+                        isCustom: !!ex?.isCustom,
+                        hasRhomboids: html.includes('male_rhomboids'),
+                        hasPosteriorDeltoid: html.includes('male_deltoid_posterior'),
+                        noFakePercent: !/synergist-percent|synergist-bar-fill/.test(html)
+                    };
+                });
+                assert.ok(curatedDetail.isCustom && curatedDetail.hasRhomboids
+                    && curatedDetail.hasPosteriorDeltoid && curatedDetail.noFakePercent,
+                    'Face pulls must show specific synergy partners without invented percentages');
+                const facePullCard = page.locator('#infoContent [data-ex-id="custom_male_trapezius_middle_primary_4"]');
+                await facePullCard.locator('.exercise-header').click();
+                await page.waitForFunction(() => {
+                    const ids = [...document.querySelectorAll('.body-svg-layer svg path.synergist-active')].map(x => x.dataset.muscleId);
+                    return ids.includes('male_rhomboids') && ids.includes('male_deltoid_posterior');
+                });
+                await facePullCard.locator('.synergist-item[data-muscle-id="male_rhomboids"]').click();
+                const destination = await page.evaluate(() => ({
+                    selected: currentMuscleId,
+                    card: document.querySelector('#infoContent .muscle-card')?.dataset.muscleId,
+                    exercises: document.querySelectorAll('#infoContent .exercise-card').length
+                }));
+                assert.equal(destination.selected, 'male_rhomboids');
+                assert.equal(destination.card, 'male_rhomboids');
+                assert.ok(destination.exercises > 0, 'Linked muscle must have a populated exercise list');
+                console.log('CUSTOM_SYNERGIST_NAVIGATION_OK', JSON.stringify(destination));
+            }
             if (mobile) {
                 await page.locator('#mmMobileHero').waitFor();
                 await page.locator('.mm-mobile-bottom-nav').waitFor();
@@ -141,14 +303,130 @@ async function main() {
 
                 // Abdominal HUD should disambiguate overlapping deep muscle paths.
                 const hudToggle = page.locator('#mmAbdomenHudToggle');
-                await hudToggle.waitFor();
+                await hudToggle.waitFor({state: 'attached'});
+                await hudToggle.evaluate(el => el.classList.remove('mm-hud-revealed'));
+                assert.equal(await hudToggle.isVisible(), false, 'HUD launcher stays hidden until abdomen tap');
+                // Keyboard entry must reveal the otherwise touch-only HUD control.
+                await page.locator('#viewToggle').focus();
+                await page.keyboard.press('Tab');
+                assert.equal(await hudToggle.isVisible(), true, 'Keyboard Tab reveals the HUD launcher');
+                assert.equal(await page.evaluate(() => document.activeElement?.id), 'mmAbdomenHudToggle',
+                    'HUD launcher must be keyboard-focusable immediately after view toggle');
+                await hudToggle.evaluate(el => el.classList.remove('mm-hud-revealed'));
+                assert.equal(await hudToggle.isVisible(), false, 'Touch state stays hidden before abdomen tap');
+                await page.locator('#bodySvgFront path[data-muscle-id="male_rectus_abdominis"]').click({force:true});
+                await hudToggle.waitFor({state: 'visible'});
                 await hudToggle.click();
                 await page.locator('#mmAbdomenHud:not([hidden])').waitFor();
                 assert.equal(await page.locator('#mmAbdomenHud [data-abdomen-muscle]').count(), 4);
+                assert.equal(await page.locator('#mmAbdomenHud').getAttribute('aria-label'), 'Мышцы живота',
+                    'Russian users need a localized accessible group label');
+                assert.equal(await page.locator('#mmAbdomenHudLines .mm-hud-line').count(), 0,
+                    'Opening HUD must show four labels without drawing any line');
+                if (mobile) {
+                    for (const width of [320, 360, 390, 412]) {
+                        await page.setViewportSize({width, height: 844});
+                        await page.waitForTimeout(90);
+                        const fit = await page.evaluate(() => ({
+                            layoutWidth: window.innerWidth,
+                            documentWidth: document.documentElement.scrollWidth,
+                            labels: [...document.querySelectorAll('#mmAbdomenHud .mm-abdomen-hud-choice')]
+                                .map(node => {
+                                    const {left, right} = node.getBoundingClientRect();
+                                    return {left, right};
+                                })
+                        }));
+                        assert.ok(fit.layoutWidth <= width && fit.documentWidth <= width
+                            && fit.labels.every(({left, right}) => left >= -1 && right <= width + 1),
+                            'HUD callouts must fit the ' + width + 'px viewport: ' + JSON.stringify(fit));
+                    }
+                    await page.setViewportSize({width: 390, height: 844});
+                }
+                await page.waitForTimeout(500); // Ensure label entrance has settled.
+                const response = await page.evaluate(() => {
+                    const t0 = performance.now();
+                    document.querySelector('[data-abdomen-muscle="male_obliquus_internus"]').click();
+                    return {
+                        elapsedMs: performance.now() - t0,
+                        selected: currentMuscleId,
+                        shown: document.querySelector('#infoContent .muscle-card')?.dataset.muscleId,
+                        exerciseCount: document.querySelectorAll('#infoContent .exercise-card').length
+                    };
+                });
+                assert.equal(response.selected, 'male_obliquus_internus');
+                assert.equal(response.shown, 'male_obliquus_internus',
+                    'Exercise panel must update synchronously, not after an exit-animation timer');
+                assert.ok(response.exerciseCount > 0, 'New muscle exercises must exist immediately');
+                assert.ok(response.elapsedMs < 2000,
+                    'Exercise rendering must not block the browser for seconds: ' + JSON.stringify(response));
+                console.log('HUD_EXERCISE_RENDER', JSON.stringify(response));
+                await page.waitForFunction(() => document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line').length === 1);
+                const first = await page.evaluate(() => {
+                    const line = document.querySelector('#mmAbdomenHudLines .mm-hud-line');
+                    window.__hudFirstLine = line;
+                    const button = document.querySelector('[data-abdomen-muscle="male_obliquus_internus"]');
+                    const root = document.querySelector('#bodyContainer').getBoundingClientRect();
+                    const bounds = button.getBoundingClientRect();
+                    const d = line.getAttribute('d');
+                    const coords = /^M([-0-9.]+) ([-0-9.]+) H[-0-9.]+ V[-0-9.]+ H[-0-9.]+$/.exec(d);
+                    return {
+                        muscle: line.dataset.hudMuscle,
+                        rightAngles: !!coords,
+                        labelStartsLine: coords && Math.abs(Number(coords[1]) - (bounds.right - root.left)) < 2,
+                        animated: getComputedStyle(line).animationName === 'mm-hud-draw'
+                    };
+                });
+                assert.equal(first.muscle, 'male_obliquus_internus');
+                assert.ok(first.rightAngles && first.labelStartsLine, 'Selected line must start at callout and use H/V/H segments');
+                assert.ok(first.animated, 'A newly selected line should have a one-shot drawing animation');
+                // Reduced-motion visitors must never receive forced HUD drawing, launcher, or label animations.
+                await page.emulateMedia({ reducedMotion: 'reduce' });
+                const reducedAnimations = await page.evaluate(() => ({
+                    launcher: getComputedStyle(document.querySelector('#mmAbdomenHudToggle')).animationName,
+                    label: getComputedStyle(document.querySelector('#mmAbdomenHud .mm-abdomen-hud-choice')).animationName,
+                    line: getComputedStyle(document.querySelector('#mmAbdomenHudLines .mm-hud-line')).animationName,
+                    offset: getComputedStyle(document.querySelector('#mmAbdomenHudLines .mm-hud-line')).strokeDashoffset
+                }));
+                assert.deepEqual(
+                    [reducedAnimations.launcher, reducedAnimations.label, reducedAnimations.line],
+                    ['none', 'none', 'none'],
+                    'prefers-reduced-motion must suppress every HUD entrance and stroke animation'
+                );
+                assert.equal(Number.parseFloat(reducedAnimations.offset), 0,
+                    'Reduced motion must show the full connector, regardless of computed CSS length units');
+                await page.emulateMedia({ reducedMotion: 'no-preference' });
                 await page.locator('[data-abdomen-muscle="male_obliquus_internus"]').click();
-                assert.equal(await page.evaluate(() => currentMuscleId), 'male_obliquus_internus');
+                assert.equal(await page.evaluate(() =>
+                    document.querySelector('#mmAbdomenHudLines .mm-hud-line') === window.__hudFirstLine),
+                    true, 'Pressing the same callout must not restart its stroke');
                 await page.locator('[data-abdomen-muscle="male_transversus_abdominis"]').click();
-                assert.equal(await page.evaluate(() => currentMuscleId), 'male_transversus_abdominis');
+                await page.waitForFunction(() =>
+                    document.querySelector('#mmAbdomenHudLines .mm-hud-line')?.dataset.hudMuscle === 'male_transversus_abdominis');
+                const switched = await page.evaluate(() => ({
+                    lines: document.querySelectorAll('#mmAbdomenHudLines .mm-hud-line').length,
+                    selected: [...document.querySelectorAll('#mmAbdomenHud [aria-pressed="true"]')].map(el=>el.dataset.abdomenMuscle),
+                    newNode: document.querySelector('#mmAbdomenHudLines .mm-hud-line') !== window.__hudFirstLine,
+                    exerciseId: document.querySelector('#infoContent .muscle-card')?.dataset.muscleId
+                }));
+                assert.equal(switched.lines, 1, 'Exactly one connector should be displayed');
+                assert.deepEqual(switched.selected, ['male_transversus_abdominis']);
+                assert.ok(switched.newNode, 'Switching to a different callout draws a new path');
+                assert.equal(switched.exerciseId, 'male_transversus_abdominis');
+                // Stress rapid muscle selections: the final exercise card must never be replaced by a stale timer.
+                await page.evaluate(() => {
+                    ['male_rectus_abdominis','male_obliquus_externus','male_obliquus_internus','male_transversus_abdominis']
+                        .forEach(id => selectMuscle(id));
+                });
+                const noStaleCard = await page.evaluate(() => ({
+                    selected: currentMuscleId,
+                    cards: [...document.querySelectorAll('#infoContent .muscle-card')].map(el => el.dataset.muscleId)
+                }));
+                assert.equal(noStaleCard.selected, 'male_transversus_abdominis');
+                assert.deepEqual(noStaleCard.cards, ['male_transversus_abdominis'], 'Rapid selection must render exactly one latest card');
+                await page.waitForTimeout(450);
+                assert.deepEqual(await page.evaluate(() =>
+                    [...document.querySelectorAll('#infoContent .muscle-card')].map(el => el.dataset.muscleId)),
+                    ['male_transversus_abdominis'], 'No old delayed card can overwrite latest muscle');
                 assert.equal(await page.evaluate(() => currentView), 'front',
                     'HUD selection must never rotate anatomy');
                 await page.evaluate(() => toggleView());
@@ -226,6 +504,21 @@ async function main() {
                     'Selecting a muscle must not automatically scroll to exercises');
                 assert.ok((await page.locator('#infoContent').innerText()).trim().length > 20,
                     'Selected muscle must reveal exercise details');
+                const navDiagnostics = await page.evaluate(() => {
+                    const tab = document.querySelector('.mm-mobile-bottom-nav [data-mm-target="navPrograms"]');
+                    const bar = tab.closest('.mm-mobile-bottom-nav');
+                    const r = tab.getBoundingClientRect();
+                    const x = r.x + r.width / 2, y = r.y + r.height / 2;
+                    const hit = document.elementFromPoint(x, y);
+                    const css = el => ({position:getComputedStyle(el).position, zIndex:getComputedStyle(el).zIndex,
+                        transform:getComputedStyle(el).transform, pointerEvents:getComputedStyle(el).pointerEvents});
+                    return {scrollX:window.scrollX, scrollY:window.scrollY, innerWidth, innerHeight,
+                        tabRect:{x:r.x,y:r.y,width:r.width,height:r.height}, navCSS:css(bar),
+                        mainCSS:css(document.querySelector('#mainContent')),
+                        hit:hit?.outerHTML?.slice(0,260), hitClasses:hit?.className,
+                        navHasHit:hit===tab || tab.contains(hit)};
+                });
+                console.log('MOBILE_BOTTOM_NAV_DIAGNOSTICS', JSON.stringify(navDiagnostics));
                 await page.locator('.mm-mobile-bottom-nav [data-mm-target="navPrograms"]').click();
             } else {
                 await page.locator('#navPrograms').click();
@@ -262,6 +555,22 @@ async function main() {
             assert.equal(await page.locator('#premiumModal.show').count(), 0, 'Premium modal should close');
             assert.deepEqual(errors, [], (mobile ? 'Mobile' : 'Desktop') + ' JavaScript errors');
             console.log((mobile ? 'MOBILE' : 'DESKTOP') + '_BROWSER_REGRESSION_OK', JSON.stringify({ exerciseCount, diarySet: result.sets }));
+            // Independently inspect GIF mapping in the non-public QA gallery.
+            const reviewPage = await context.newPage();
+            await reviewPage.goto(origin + '/qa/media-card-audit.html', { waitUntil: 'domcontentloaded' });
+            await reviewPage.waitForFunction(() => document.querySelectorAll('#cards .card').length === 29);
+            assert.equal(await reviewPage.locator('#cards .card').count(), 29,
+                'Every orphan cardio GIF must have a review-only card');
+            await reviewPage.locator('#cards .card button[data-id]').first().click();
+            assert.match(await reviewPage.locator('#cards .card .media img').first().getAttribute('src'), /\.gif$/,
+                'GIF preview must be opt-in and load the real asset');
+            await reviewPage.locator('button[data-group="neck"]').click();
+            assert.equal(await reviewPage.locator('#cards .card').count(), 6,
+                'All six existing neck manual exercise animations must be in QA');
+            await reviewPage.locator('button[data-group="stretch"]').click();
+            assert.equal(await reviewPage.locator('#cards .card').count(), 2,
+                'Both existing levator scapulae stretch media references must be in QA');
+            await reviewPage.close();
             await context.close();
         }
     } finally {

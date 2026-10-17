@@ -474,6 +474,13 @@ function selectMuscle(id) {
 // ============================================
 // УПРАЖНЕНИЯ
 // ============================================
+// Explicitly retired from PUBLIC discovery only. Preserve source records and stable IDs
+// so earlier saved diary/history entries can still be resolved.
+const PUBLIC_HIDDEN_EXERCISE_IDS = new Set(['1403', '0716']);
+function isExercisePublic(ex) {
+    return !!ex && !PUBLIC_HIDDEN_EXERCISE_IDS.has(String(ex.id));
+}
+
 function getExercisesForMuscle(muscleId) {
     if (typeof customExercises !== 'undefined' && customExercises[muscleId]) {
         const custom = customExercises[muscleId];
@@ -482,7 +489,7 @@ function getExercisesForMuscle(muscleId) {
                 if (custom.primary) {
             custom.primary.forEach((ex, idx) => {
                 all.push({
-                    id: 'custom_' + muscleId + '_primary_' + idx,
+                    id: ex.stableId || 'custom_' + muscleId + '_primary_' + idx,
                     name: ex.name,
                     name_en: '',
                     equipment: 'custom',
@@ -499,7 +506,7 @@ function getExercisesForMuscle(muscleId) {
         if (custom.secondary) {
             custom.secondary.forEach((ex, idx) => {
                 all.push({
-                    id: 'custom_' + muscleId + '_secondary_' + idx,
+                    id: ex.stableId || 'custom_' + muscleId + '_secondary_' + idx,
                     name: ex.name,
                     name_en: '',
                     equipment: 'custom',
@@ -515,7 +522,7 @@ function getExercisesForMuscle(muscleId) {
         }
 
         if (all.length > 0 && typeof exerciseDatabase !== 'undefined') {
-            const fromDb = exerciseDatabase.filter(ex => ex.muscleId === muscleId);
+            const fromDb = exerciseDatabase.filter(ex => ex.muscleId === muscleId && isExercisePublic(ex));
             return [...all, ...fromDb];
         }
 
@@ -523,7 +530,7 @@ function getExercisesForMuscle(muscleId) {
     }
 
     if (typeof exerciseDatabase === 'undefined') return [];
-    const all = exerciseDatabase.filter(ex => ex.muscleId === muscleId);
+    const all = exerciseDatabase.filter(ex => ex.muscleId === muscleId && isExercisePublic(ex));
     const priority = all.filter(ex => {
         const n = (ex.name_en || '').toLowerCase();
         return !n.includes('close grip') && !n.includes('wide grip') && !n.includes('narrow')
@@ -3874,6 +3881,7 @@ function renderExerciseCard(ex) {
                         <p>${getExerciseDescriptionUniversal(ex) || t('exercises.noDescription')}</p>
                         ${ex.sets ? `<p><strong>${t('exercises.sets')}:</strong> ${ex.isCustom ? translateSets(ex.sets) : ex.sets}</p>` : ''}
                     </div>
+                    ${renderSynergists(ex)}
                     <div class="exercise-actions">
     <button class="btn-complete ${done ? 'done' : ''}" data-complete-id="${ex.id}">
         ${done 
@@ -4018,8 +4026,10 @@ function renderInfo(muscle) {
 
     const newCard = document.createElement('div');
     newCard.className = 'muscle-card';
-    newCard.style.opacity = '0';
-    newCard.style.transform = 'translateY(24px) scale(0.96)';
+    // Do not hide a new exercise list while waiting for an exit animation.
+    newCard.style.opacity = '1';
+    newCard.style.transform = 'none';
+    newCard.dataset.muscleId = muscle.id;
     newCard.innerHTML = `
         <div class="card-header">
             <div>
@@ -4038,30 +4048,12 @@ function renderInfo(muscle) {
 ${imageBlock}
 ${renderMuscleSynergists(muscle)}
     `;
-      const oldCard = infoContentEl.querySelector('.muscle-card');
-    if (oldCard) {
-        oldCard.style.transition = 'all 0.25s ease-out';
-        oldCard.style.opacity = '0';
-        oldCard.style.transform = 'translateY(-12px) scale(0.97)';
-        setTimeout(() => {
-            oldCard.remove();
-            infoContentEl.appendChild(newCard);
-            bindCardEvents(newCard);
-            requestAnimationFrame(() => {
-                newCard.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                newCard.style.opacity = '1';
-                newCard.style.transform = 'translateY(0) scale(1)';
-            });
-        }, 280);
-    } else {
-        infoContentEl.appendChild(newCard);
-        bindCardEvents(newCard);
-        requestAnimationFrame(() => {
-            newCard.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            newCard.style.opacity = '1';
-            newCard.style.transform = 'translateY(0) scale(1)';
-        });
-    }
+    // Swap the complete exercise card immediately. Previous 280ms delay,
+    // plus a second entry animation, caused visible lag on mobile devices.
+    // Keep this synchronous so the chosen muscle's exercises are available
+    // in the same event turn even if its images are still loading.
+    infoContentEl.replaceChildren(newCard);
+    bindCardEvents(newCard);
 }
 
 function bindCardEvents(container) {
@@ -4436,7 +4428,7 @@ function handleUrlParams() {
     // Открыть упражнение по параметру
     if (exerciseId && typeof exerciseDatabase !== 'undefined') {
         const ex = exerciseDatabase.find(e => e.id === exerciseId);
-        if (ex) {
+        if (isExercisePublic(ex)) {
             console.log('🌐 URL param: exercise =', exerciseId);
 
             // Сначала открыть мышцу
@@ -5603,7 +5595,7 @@ function findAlternatives(ex, reason, userEquip) {
     // Собираем кандидатов
     let candidates = exerciseDatabase.filter(cand => {
         // 1. Не исходное
-        if (cand.id === ex.id) return false;
+        if (cand.id === ex.id || !isExercisePublic(cand)) return false;
 
         // 2. Данные синергистов
         const candSyn = synergistsData[cand.name_en];
@@ -6074,6 +6066,7 @@ function getAllExerciseNames() {
     // 2. ВСЕ упражнения из базы — переведённые через translateExerciseName
     if (typeof exerciseDatabase !== 'undefined') {
         exerciseDatabase.forEach(e => {
+            if (!isExercisePublic(e)) return;
             const translated = translateExerciseName(e);
             if (translated) names.add(translated);
         });
@@ -7405,60 +7398,78 @@ const ABDOMEN_HUD_MUSCLES = [
     { id: 'male_transversus_abdominis', label: { ru: 'Поперечная', en: 'Transversus abdominis' } }
 ];
 let abdomenHudOpen = false;
+let abdomenHudActiveId = null; // Only a user-chosen callout may create a connector.
 function updateAbdomenHud() {
     const panel = document.getElementById('mmAbdomenHud');
     const toggle = document.getElementById('mmAbdomenHudToggle');
     if (!panel || !toggle) return;
+    const wasVisible = !panel.hidden;
     const show = currentView === 'front';
     toggle.hidden = !show;
     panel.hidden = !show || !abdomenHudOpen;
     toggle.setAttribute('aria-expanded', String(show && abdomenHudOpen));
+    const lines = document.getElementById('mmAbdomenHudLines');
+    if (panel.hidden || (abdomenHudActiveId && currentMuscleId !== abdomenHudActiveId)) {
+        abdomenHudActiveId = null;
+        if (lines) lines.replaceChildren();
+    }
+    panel.setAttribute('aria-label', (typeof currentLang !== 'undefined' && currentLang === 'en')
+        ? 'Abdominal muscles' : 'Мышцы живота');
     panel.querySelectorAll('[data-abdomen-muscle]').forEach(button => {
         const item = ABDOMEN_HUD_MUSCLES.find(m => m.id === button.dataset.abdomenMuscle);
         const language = typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en' : 'ru';
         if (item) button.textContent = item.label[language];
-        button.setAttribute('aria-pressed', String(button.dataset.abdomenMuscle === currentMuscleId));
+        button.setAttribute('aria-pressed', String(!panel.hidden && button.dataset.abdomenMuscle === abdomenHudActiveId));
     });
     toggle.textContent = (typeof currentLang !== 'undefined' && currentLang === 'en')
         ? (abdomenHudOpen ? 'Hide abdomen layers' : 'Abdomen layers')
         : (abdomenHudOpen ? 'Скрыть слои живота' : 'Слои живота');
-    if (!panel.hidden) requestAnimationFrame(drawAbdomenHudLines);
+    // Opening reveals only four callouts. The line starts when one is pressed.
+    if (!panel.hidden && !wasVisible && lines) lines.replaceChildren();
 }
 function drawAbdomenHudLines() {
     const panel = document.getElementById('mmAbdomenHud');
-    const wrapper = document.querySelector('#bodyView .body-wrapper');
+    const wrapper = document.getElementById('bodyContainer');
     const lines = document.getElementById('mmAbdomenHudLines');
-    if (!panel || !wrapper || !lines || panel.hidden) return;
+    if (!panel || !wrapper || !lines || panel.hidden || !abdomenHudActiveId) return;
+    const path = document.querySelector('#bodySvgFront path[data-muscle-id="' + abdomenHudActiveId + '"]');
+    const button = panel.querySelector('[data-abdomen-muscle="' + abdomenHudActiveId + '"]');
+    if (!path || !button) return;
     const rect = wrapper.getBoundingClientRect();
+    const muscleRect = path.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    if (!rect.width || !rect.height || !muscleRect.width || !muscleRect.height) return;
     lines.setAttribute('viewBox', '0 0 ' + rect.width + ' ' + rect.height);
-    lines.replaceChildren();
-    ABDOMEN_HUD_MUSCLES.forEach(muscle => {
-        const path = document.querySelector('#bodySvgFront path[data-muscle-id="' + muscle.id + '"]');
-        const button = panel.querySelector('[data-abdomen-muscle="' + muscle.id + '"]');
-        if (!path || !button) return;
-        // Use actual rendered path bounds. Duplicate deep contours therefore share an
-        // anchor deliberately; do not imply independent anatomical shapes.
-        const a = path.getBoundingClientRect();
-        const b = button.getBoundingClientRect();
-        if (!a.width || !a.height) return;
-        const x1 = a.left + a.width / 2 - rect.left;
-        const y1 = a.top + a.height / 2 - rect.top;
-        const x2 = b.left + b.width / 2 - rect.left;
-        const y2 = b.top - rect.top;
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' L' + x2 + ' ' + y2);
-        line.setAttribute('class', 'mm-hud-line' + (muscle.id === currentMuscleId ? ' is-selected' : ''));
-        lines.appendChild(line);
-        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', x1);
-        dot.setAttribute('cy', y1);
-        dot.setAttribute('r', 2.8);
+    // The leader starts at the selected label and follows H/V/H segments
+    // to an anchor on the existing SVG muscle. No fabricated anatomy.
+    const side = Number(button.dataset.hudIndex) % 2 === 0 ? 'left' : 'right';
+    const x1 = (side === 'left' ? buttonRect.right : buttonRect.left) - rect.left;
+    const y1 = buttonRect.top + buttonRect.height / 2 - rect.top;
+    const x2 = muscleRect.left + muscleRect.width / 2 - rect.left;
+    const y2 = muscleRect.top + muscleRect.height / 2 - rect.top;
+    const elbow = x1 + (x2 - x1) * 0.46;
+    const d = 'M' + x1 + ' ' + y1 + ' H' + elbow + ' V' + y2 + ' H' + x2;
+    let line = lines.querySelector('.mm-hud-line');
+    let dot = lines.querySelector('.mm-hud-dot');
+    if (!line || line.dataset.hudMuscle !== abdomenHudActiveId) {
+        // A newly selected label owns a fresh single-stroke animation.
+        line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        line.dataset.hudMuscle = abdomenHudActiveId;
+        line.setAttribute('pathLength', '1');
+        line.setAttribute('class', 'mm-hud-line is-selected');
+        dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.dataset.hudMuscle = abdomenHudActiveId;
+        dot.setAttribute('r', 3.5);
         dot.setAttribute('class', 'mm-hud-dot');
-        lines.appendChild(dot);
-    });
+        lines.replaceChildren(line, dot);
+    }
+    // Resizes adjust geometry in place, never replaying a stroke.
+    line.setAttribute('d', d);
+    dot.setAttribute('cx', x2);
+    dot.setAttribute('cy', y2);
 }
 function initAbdomenHud() {
-    const wrapper = document.querySelector('#bodyView .body-wrapper');
+    const wrapper = document.querySelector('#bodyContainer');
     const viewButton = document.getElementById('viewToggle');
     if (!wrapper || !viewButton || document.getElementById('mmAbdomenHud')) return;
     wrapper.style.position = 'relative';
@@ -7472,14 +7483,21 @@ function initAbdomenHud() {
     panel.className = 'mm-abdomen-hud';
     panel.setAttribute('role', 'group');
     panel.setAttribute('aria-label', 'Abdominal muscle layers');
-    ABDOMEN_HUD_MUSCLES.forEach(muscle => {
+    ABDOMEN_HUD_MUSCLES.forEach((muscle, index) => {
         const button = document.createElement('button');
+        button.dataset.hudIndex = String(index);
+        button.style.setProperty('--hud-order', String(index));
         button.type = 'button';
         button.className = 'mm-abdomen-hud-choice';
         button.dataset.abdomenMuscle = muscle.id;
         button.addEventListener('click', () => {
-            selectMuscle(muscle.id);
+            const sameChoice = abdomenHudActiveId === muscle.id;
+            abdomenHudActiveId = muscle.id;
+            if (!sameChoice || currentMuscleId !== muscle.id) selectMuscle(muscle.id);
             updateAbdomenHud();
+            // Schedule geometry after selection DOM updates. The new line
+            // animates from the selected callout towards the muscle only once.
+            requestAnimationFrame(drawAbdomenHudLines);
         });
         panel.appendChild(button);
     });
@@ -7489,7 +7507,21 @@ function initAbdomenHud() {
     lines.setAttribute('class', 'mm-abdomen-hud-lines');
     wrapper.appendChild(lines);
     viewButton.insertAdjacentElement('afterend', toggle);
-    toggle.insertAdjacentElement('afterend', panel);
+    wrapper.appendChild(panel);
+    // Keyboard users can reach the launcher in DOM order: View -> HUD toggle.
+    // Touch visitors continue to see it only after choosing the abdomen.
+    viewButton.addEventListener('keydown', event => {
+        if (event.key === 'Tab' && !event.shiftKey && currentView === 'front') {
+            toggle.classList.add('mm-hud-revealed');
+        }
+    });
+    const abdomenIds = new Set(ABDOMEN_HUD_MUSCLES.map(m => m.id));
+    wrapper.addEventListener('click', event => {
+        const path = event.target.closest && event.target.closest('path[data-muscle-id]');
+        if (!path || !abdomenIds.has(path.dataset.muscleId) || currentView !== 'front') return;
+        // First touch on the abdominal region reveals the HUD launcher.
+        toggle.classList.add('mm-hud-revealed');
+    }, true);
     toggle.addEventListener('click', () => {
         abdomenHudOpen = !abdomenHudOpen;
         updateAbdomenHud();
@@ -7519,16 +7551,16 @@ function scheduleSynergistHighlight(exNameEn) {
         if (version === synergistHighlightVersion) highlightSynergists(exNameEn);
     }, 100);
 }
-function highlightSynergists(exNameEn) {
-    // Сброс предыдущей подсветки
+function highlightSynergists(exerciseOrName) {
+    // Exercise database still sends English keys. Manually curated exercises
+    // send a full object so no fabricated English name is required.
     document.querySelectorAll('.body-svg-layer svg path.synergist-active')
         .forEach(p => p.classList.remove('synergist-active'));
 
-    if (!exNameEn) return;
-    if (typeof synergistsData === 'undefined') return;
-
-    const syn = synergistsData[exNameEn];
-    if (!syn || !syn.synergists || syn.synergists.length === 0) return;
+    if (!exerciseOrName) return;
+    const syn = resolveExerciseSynergists(typeof exerciseOrName === 'string'
+        ? {name_en: exerciseOrName} : exerciseOrName);
+    if (!syn?.synergists?.length) return;
 
     // Подсвечиваем каждого синергиста
     syn.synergists.forEach(s => {
@@ -8536,12 +8568,23 @@ function renderStreakHeatmap(days = 30) {
 // 🎯 СИНЕРГИСТЫ — вспомогательные мышцы
 // ============================================
 
-function renderSynergists(ex) {
-    if (typeof synergistsData === 'undefined') return '';
-    
+function resolveExerciseSynergists(ex) {
+    if (!ex) return null;
+    if (ex.isCustom) {
+        const ids = (typeof customExerciseSynergists !== 'undefined'
+            ? customExerciseSynergists[ex.muscleId]?.[ex.name] : null) || [];
+        if (!ids.length) return null; // No guess for movements without reviewed links.
+        return {
+            primary: { muscleId: ex.muscleId, percent: null },
+            synergists: ids.map(muscleId => ({muscleId, percent: null})),
+            qualitative: true
+        };
+    }
     const key = (ex.name_en || '').toLowerCase().trim();
-    const data = synergistsData[key];
-    
+    return typeof synergistsData !== 'undefined' ? (synergistsData[key] || null) : null;
+}
+function renderSynergists(ex) {
+    const data = resolveExerciseSynergists(ex);
     if (!data) return '';
     
     const primary = data.primary;
@@ -8554,10 +8597,7 @@ function renderSynergists(ex) {
                 <span data-svg="biceps-flexed" data-svg-size="12"></span>
                 ${(typeof getMuscleName === 'function') ? getMuscleName(primaryMuscle) : primaryMuscle.name}
             </span>
-            <div class="synergist-bar">
-                <div class="synergist-bar-fill" style="width: ${primary.percent}%"></div>
-            </div>
-            <span class="synergist-percent">${primary.percent}%</span>
+            <span class="synergist-role">${typeof currentLang !== 'undefined' && currentLang === 'en' ? 'Primary' : 'Основная'}</span>
         </a>
     ` : '';
     
@@ -8571,10 +8611,7 @@ function renderSynergists(ex) {
                     <span data-svg="dumbbell" data-svg-size="12"></span>
                     ${(typeof getMuscleName === 'function') ? getMuscleName(muscle) : muscle.name}
                 </span>
-                <div class="synergist-bar">
-                    <div class="synergist-bar-fill" style="width: ${s.percent}%"></div>
-                </div>
-                <span class="synergist-percent">${s.percent}%</span>
+                <span class="synergist-role">${typeof currentLang !== 'undefined' && currentLang === 'en' ? 'Assists / stabilizes' : 'Помогает / стабилизирует'}</span>
             </a>
         `;
     }).join('');
@@ -8588,6 +8625,9 @@ function renderSynergists(ex) {
                 ${primaryHtml}
                 ${synergistsHtml}
             </div>
+            <p class="synergist-qualitative-note">${typeof currentLang !== 'undefined' && currentLang === 'en'
+                ? 'Muscle roles vary with exercise technique. Not measured activation percentages.'
+                : 'Роли зависят от техники. Проценты активности мышц здесь не измерялись.'}</p>
         </div>
     `;
 }
@@ -8609,8 +8649,7 @@ function renderMuscleSynergists(muscle) {
     const synergists = [];
     
     exercises.forEach(ex => {
-        const key = (ex.name_en || '').toLowerCase().trim();
-        const data = synergistsData[key];
+        const data = resolveExerciseSynergists(ex);
         if (!data || !data.synergists) return;
         
         data.synergists.forEach(s => {
@@ -9244,6 +9283,10 @@ document.addEventListener('click', (e) => {
     // Если ОТКРЫВАЕТСЯ — подсвечиваем через задержку
     if (card.dataset.exNameEn) {
         scheduleSynergistHighlight(card.dataset.exNameEn);
+    } else if (card.dataset.exId?.startsWith('custom_')) {
+        const ex = getExercisesForMuscle(currentMuscleId)
+            .find(item => item.id === card.dataset.exId);
+        if (ex && resolveExerciseSynergists(ex)) scheduleSynergistHighlight(ex);
     }
 });
 // ============================================

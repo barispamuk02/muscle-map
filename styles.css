@@ -7252,3 +7252,114 @@ body:has(.premium-modal.show) {
 @media (prefers-reduced-motion: reduce) {
   .mm-hud-line, .mm-abdomen-hud-choice { transition: none !important; }
 }
+
+/* Anatomy HUD v3: one selected 90-degree leader, launched from a callout.
+   Four floating capsule controls appear first; no connectors until selection. */
+#bodyContainer .mm-abdomen-hud {
+  position: absolute; inset: 0; width: 100%; max-width: none;
+  display: block; pointer-events: none; z-index: 8;
+}
+#bodyContainer .mm-abdomen-hud-choice {
+  position: absolute;
+  width: clamp(102px, 33vw, 142px);
+  min-height: 44px;
+  padding: 9px 12px;
+  pointer-events: auto;
+  font: inherit; font-size: 12px; font-weight: 650;
+  letter-spacing: -.015em; line-height: 1.22;
+  color: #d9e9fb;
+  background: linear-gradient(145deg, rgba(26,45,70,.98), rgba(15,27,45,.98));
+  border: 1px solid rgba(144,186,226,.32);
+  border-radius: 999px;
+  box-shadow: 0 4px 13px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.07);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overflow-wrap: anywhere;
+  transition: background-color 230ms ease, border-color 230ms ease,
+              box-shadow 230ms ease, color 230ms ease;
+  animation: mm-hud-label-in 480ms cubic-bezier(.16,1,.3,1) both;
+  animation-delay: calc(50ms + var(--hud-order, 0) * 85ms);
+}
+#bodyContainer .mm-abdomen-hud-choice:nth-child(1) { right: calc(100% + 9px); top: 30%; }
+#bodyContainer .mm-abdomen-hud-choice:nth-child(2) { left: calc(100% + 9px); top: 35%; }
+#bodyContainer .mm-abdomen-hud-choice:nth-child(3) { right: calc(100% + 9px); top: 44%; }
+#bodyContainer .mm-abdomen-hud-choice:nth-child(4) { left: calc(100% + 9px); top: 49%; }
+#bodyContainer .mm-abdomen-hud-choice[aria-pressed="true"] {
+  color: #fff; border-color: rgba(255,116,140,.92);
+  background: linear-gradient(145deg, #67384c, #3d2a42);
+  box-shadow: 0 0 0 2px rgba(255,95,127,.12), 0 4px 18px rgba(255,95,127,.17);
+}
+#bodyContainer .mm-abdomen-hud-lines { z-index: 7; }
+#bodyContainer .mm-hud-line {
+  stroke: #ffa1b3;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: mm-hud-draw 680ms cubic-bezier(.45,0,.12,1) both;
+}
+#bodyContainer .mm-hud-dot {
+  fill: #ff889f;
+  animation: mm-hud-dot-in 260ms ease-out 510ms both;
+}
+@keyframes mm-hud-draw {
+  from { stroke-dashoffset: 1; opacity: .65; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes mm-hud-label-in {
+  from { opacity: 0; transform: translateY(8px) scale(.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes mm-hud-dot-in {
+  from { opacity: 0; transform: scale(.7); transform-origin: center; }
+  to { opacity: 1; transform: scale(1); transform-origin: center; }
+}
+@media (max-width: 768px) {
+  #bodyContainer .mm-abdomen-hud-choice {
+    width: clamp(52px, 15vw, 64px);
+    padding: 8px 3px;
+    font-size: 10px; font-weight: 650;
+    line-height: 1.13; min-height: 48px;
+    border-radius: 19px;
+  }
+  #bodyContainer .mm-abdomen-hud-choice:nth-child(odd) { right: calc(100% + 3px); }
+  #bodyContainer .mm-abdomen-hud-choice:nth-child(even) { left: calc(100% + 3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #bodyContainer .mm-hud-line, #bodyContainer .mm-hud-dot,
+  #bodyContainer .mm-abdomen-hud-choice {
+    animation: none !important; transition: none !important;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Keep the launcher out of view until the first abdomen touch. */
+#mmAbdomenHudToggle:not(.mm-hud-revealed) { display: none !important; }
+#mmAbdomenHudToggle.mm-hud-revealed {
+  animation: mm-hud-label-in 360ms cubic-bezier(.22,1,.36,1) both;
+}
+
+/* No reveal motion for visitors who request reduced animation. */
+@media (prefers-reduced-motion: reduce) {
+  #mmAbdomenHudToggle.mm-hud-revealed { animation: none !important; }
+}
+
+/* Qualitative, evidence-informed muscle partners: never imply measured percentages. */
+.synergist-role {
+  font-size: 11px;
+  color: #9fb7d5;
+  text-align: right;
+  flex: 0 0 auto;
+}
+.synergist-item.primary .synergist-role { color: #ff9da8; }
+.synergist-qualitative-note {
+  font-size: 11px;
+  line-height: 1.35;
+  margin: 8px 2px 0;
+  color: #9cafc8;
+}
+@media (max-width: 600px) {
+  .synergist-item { flex-wrap: wrap; column-gap: 6px; }
+  .synergist-role { font-size: 10px; }
+}

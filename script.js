@@ -7426,7 +7426,7 @@ function updateAbdomenHud() {
 }
 function drawAbdomenHudLines() {
     const panel = document.getElementById('mmAbdomenHud');
-    const wrapper = document.querySelector('#bodyView .body-wrapper');
+    const wrapper = document.querySelector('#bodyContainer');
     const lines = document.getElementById('mmAbdomenHudLines');
     if (!panel || !wrapper || !lines || panel.hidden) return;
     const rect = wrapper.getBoundingClientRect();
@@ -7443,10 +7443,12 @@ function drawAbdomenHudLines() {
         if (!a.width || !a.height) return;
         const x1 = a.left + a.width / 2 - rect.left;
         const y1 = a.top + a.height / 2 - rect.top;
-        const x2 = b.left + b.width / 2 - rect.left;
-        const y2 = b.top - rect.top;
+        const side = Number(button.dataset.hudIndex) % 2 === 0 ? 'left' : 'right';
+        const x2 = (side === 'left' ? b.right : b.left) - rect.left;
+        const y2 = b.top + b.height / 2 - rect.top;
+        const elbow = side === 'left' ? x2 + 10 : x2 - 10;
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' L' + x2 + ' ' + y2);
+        line.setAttribute('d', 'M' + x1 + ' ' + y1 + ' L' + elbow + ' ' + y2 + ' L' + x2 + ' ' + y2);
         line.setAttribute('class', 'mm-hud-line' + (muscle.id === currentMuscleId ? ' is-selected' : ''));
         lines.appendChild(line);
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -7458,7 +7460,7 @@ function drawAbdomenHudLines() {
     });
 }
 function initAbdomenHud() {
-    const wrapper = document.querySelector('#bodyView .body-wrapper');
+    const wrapper = document.querySelector('#bodyContainer');
     const viewButton = document.getElementById('viewToggle');
     if (!wrapper || !viewButton || document.getElementById('mmAbdomenHud')) return;
     wrapper.style.position = 'relative';
@@ -7472,8 +7474,9 @@ function initAbdomenHud() {
     panel.className = 'mm-abdomen-hud';
     panel.setAttribute('role', 'group');
     panel.setAttribute('aria-label', 'Abdominal muscle layers');
-    ABDOMEN_HUD_MUSCLES.forEach(muscle => {
+    ABDOMEN_HUD_MUSCLES.forEach((muscle, index) => {
         const button = document.createElement('button');
+        button.dataset.hudIndex = String(index);
         button.type = 'button';
         button.className = 'mm-abdomen-hud-choice';
         button.dataset.abdomenMuscle = muscle.id;
@@ -7489,7 +7492,7 @@ function initAbdomenHud() {
     lines.setAttribute('class', 'mm-abdomen-hud-lines');
     wrapper.appendChild(lines);
     viewButton.insertAdjacentElement('afterend', toggle);
-    toggle.insertAdjacentElement('afterend', panel);
+    wrapper.appendChild(panel);
     toggle.addEventListener('click', () => {
         abdomenHudOpen = !abdomenHudOpen;
         updateAbdomenHud();

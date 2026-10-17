@@ -28,6 +28,12 @@ async function main() {
     assert.doesNotMatch(sw, /localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
     assert.match(app, /updateViaCache: 'none'/);
     assert.match(app, /controllerchange/);
+    const style = fs.readFileSync(path.join(root, 'styles.css'), 'utf8');
+    assert.match(style, /-webkit-tap-highlight-color: transparent !important/,
+        'SVG anatomy tap feedback should not draw browser rectangles');
+    assert.match(style, /\(hover: none\) and \(pointer: coarse\)/,
+        'Touch-only sticky hover protection must be enabled');
+
     const frontDefinition = app.split('const SVG_MUSCLES_FRONT = [')[1].split('];')[0];
     const backDefinition = app.split('const SVG_MUSCLES_BACK = [')[1].split('];')[0];
     assert.doesNotMatch(frontDefinition, /27_Triceps_surae_muscle/, 'Back-only calf must not be on front SVG');

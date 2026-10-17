@@ -331,3 +331,25 @@
   .mm-mobile-hero h2 { margin-top: 5px; }
   body.mm-home #viewMuscles > .body-view { padding-block: 10px !important; }
 }
+
+/* Typography polish: mobile application hierarchy (RU/EN). */
+@media (max-width:768px) {
+  .mm-mobile-hero h2 {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: clamp(24px, 6.7vw, 29px);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -.9px;
+    text-wrap: balance;
+    margin: 9px 0 8px;
+  }
+  .mm-mobile-hero h2 span { display:block; }
+  .mm-mobile-hero h2 .mm-hero-accent { color:#79acff; margin-top: 3px; }
+  .mm-mobile-hero p { font-size:13px; line-height:1.5; color:#b9c8e1; }
+  body.mm-home #viewMuscles > .body-view::before { font-size:11px; font-weight:750; letter-spacing:.9px; }
+  body.mm-home #viewMuscles > .body-view::after { font-size:12px; line-height:1.5; color:#adbfda; }
+  body.mm-home #viewMuscles > .info-panel { overflow-wrap:anywhere; }
+  body.mm-home #viewMuscles > .info-panel .muscle-name { font-weight:750; line-height:1.2; letter-spacing:-.45px; }
+  .mm-mobile-shortcuts button { font-weight:700; letter-spacing:-.1px; }
+  .mm-mobile-bottom-nav button { font-weight:600; line-height:1.15; }
+}

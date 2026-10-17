@@ -66,6 +66,8 @@ function icon(name, size = 24, className = '') {
 // СОСТОЯНИЕ
 // ============================================
 let currentMuscleId = null;
+let synergistHighlightTimer = null;
+let synergistHighlightVersion = 0;
 let currentView = 'front';
 let isTransitioning = false;
 // Initialize before any top-level Premium UI checks execute.
@@ -430,6 +432,7 @@ function bindListFilter() {
 function selectMuscle(id) {
     const muscle = muscleDatabase[id];
     if (!muscle) return;
+    resetSynergistSelection();
     currentMuscleId = id;
     localStorage.setItem(STORAGE_KEYS.lastSelected, id);
     incrementViews(id);
@@ -7300,6 +7303,22 @@ async function loadSvgLayer(layerId, muscles) {
 // ============================================
 // 🎯 ПОДСВЕТКА СИНЕРГИСТОВ
 // ============================================
+function resetSynergistSelection() {
+    synergistHighlightVersion++;
+    if (synergistHighlightTimer !== null) {
+        clearTimeout(synergistHighlightTimer);
+        synergistHighlightTimer = null;
+    }
+    clearSynergistsHighlight();
+}
+function scheduleSynergistHighlight(exNameEn) {
+    resetSynergistSelection();
+    const version = synergistHighlightVersion;
+    synergistHighlightTimer = setTimeout(() => {
+        synergistHighlightTimer = null;
+        if (version === synergistHighlightVersion) highlightSynergists(exNameEn);
+    }, 100);
+}
 function highlightSynergists(exNameEn) {
     // Сброс предыдущей подсветки
     document.querySelectorAll('.body-svg-layer svg path.synergist-active')
@@ -9041,7 +9060,7 @@ document.addEventListener('click', (e) => {
     const isCurrentlyOpen = details && details.style.display === 'block';
 
     // Всегда сбрасываем старую подсветку
-    clearSynergistsHighlight();
+    resetSynergistSelection();
 
     // Если карточка ЗАКРЫВАЕТСЯ — не подсвечиваем
     if (isCurrentlyOpen) return;
@@ -9051,7 +9070,7 @@ document.addEventListener('click', (e) => {
 
     // Если ОТКРЫВАЕТСЯ — подсвечиваем через задержку
     if (card.dataset.exNameEn) {
-        setTimeout(() => highlightSynergists(card.dataset.exNameEn), 100);
+        scheduleSynergistHighlight(card.dataset.exNameEn);
     }
 });
 // ============================================

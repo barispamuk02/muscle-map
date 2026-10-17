@@ -10,14 +10,14 @@
     };
     const labels = {
         ru: {
-            kicker: 'АНАТОМИЯ И ТРЕНИРОВКИ', title: 'Изучай мышцы. Тренируйся лучше.',
+            kicker: 'АНАТОМИЯ И ТРЕНИРОВКИ', title: 'Изучай мышцы.', titleAccent: 'Тренируйся осознанно.',
             description: 'Выбери мышцу и открой подходящие упражнения.', search: 'Найти мышцу…',
             workout: 'Моя тренировка', programs: 'Программы', muscles: 'Мышцы', progress: 'Прогресс',
             more: 'Ещё', menu: 'Все разделы', recovery: 'Восстановление', nutrition: 'Питание',
             premium: 'Премиум', account: 'Аккаунт', share: 'Поделиться', random: 'Случайная мышца', close: 'Закрыть'
         },
         en: {
-            kicker: 'ANATOMY & TRAINING', title: 'Explore muscles. Train smarter.',
+            kicker: 'ANATOMY & TRAINING', title: 'Know your muscles.', titleAccent: 'Own your workout.',
             description: 'Choose a muscle to discover exercises.', search: 'Find a muscle…',
             workout: 'My Workout', programs: 'Programs', muscles: 'Muscles', progress: 'Progress',
             more: 'More', menu: 'All sections', recovery: 'Recovery', nutrition: 'Nutrition',
@@ -27,7 +27,7 @@
     const hero = document.createElement('section');
     hero.id = 'mmMobileHero';
     hero.className = 'mm-mobile-hero';
-    hero.innerHTML = '<div class="mm-mobile-eyebrow" data-mm-text="kicker"></div><h2 data-mm-text="title"></h2><p data-mm-text="description"></p>';
+    hero.innerHTML = '<div class="mm-mobile-eyebrow" data-mm-text="kicker"></div><h2><span data-mm-text="title"></span><span class="mm-hero-accent" data-mm-text="titleAccent"></span></h2><p data-mm-text="description"></p>';
     const header = document.querySelector('.header');
     header.insertAdjacentElement('afterend', hero);
 

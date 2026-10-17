@@ -7543,16 +7543,16 @@ function scheduleSynergistHighlight(exNameEn) {
         if (version === synergistHighlightVersion) highlightSynergists(exNameEn);
     }, 100);
 }
-function highlightSynergists(exNameEn) {
-    // Сброс предыдущей подсветки
+function highlightSynergists(exerciseOrName) {
+    // Exercise database still sends English keys. Manually curated exercises
+    // send a full object so no fabricated English name is required.
     document.querySelectorAll('.body-svg-layer svg path.synergist-active')
         .forEach(p => p.classList.remove('synergist-active'));
 
-    if (!exNameEn) return;
-    if (typeof synergistsData === 'undefined') return;
-
-    const syn = synergistsData[exNameEn];
-    if (!syn || !syn.synergists || syn.synergists.length === 0) return;
+    if (!exerciseOrName) return;
+    const syn = resolveExerciseSynergists(typeof exerciseOrName === 'string'
+        ? {name_en: exerciseOrName} : exerciseOrName);
+    if (!syn?.synergists?.length) return;
 
     // Подсвечиваем каждого синергиста
     syn.synergists.forEach(s => {
@@ -9275,6 +9275,10 @@ document.addEventListener('click', (e) => {
     // Если ОТКРЫВАЕТСЯ — подсвечиваем через задержку
     if (card.dataset.exNameEn) {
         scheduleSynergistHighlight(card.dataset.exNameEn);
+    } else if (card.dataset.exId?.startsWith('custom_')) {
+        const ex = getExercisesForMuscle(currentMuscleId)
+            .find(item => item.id === card.dataset.exId);
+        if (ex && resolveExerciseSynergists(ex)) scheduleSynergistHighlight(ex);
     }
 });
 // ============================================

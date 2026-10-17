@@ -7126,39 +7126,37 @@ console.log('✅ Премиум-раздел готов!');
 // 📱 PWA — РЕГИСТРАЦИЯ SERVICE WORKER
 // ============================================
 if ('serviceWorker' in navigator) {
+    let reloadAfterApprovedUpdate = false;
     window.addEventListener('load', () => {
-        navigator.serviceWorker
-            .register('./service-worker.js')
+        navigator.serviceWorker.register('./service-worker.js', { updateViaCache: 'none' })
             .then((registration) => {
                 console.log('✅ Service Worker зарегистрирован:', registration.scope);
-
-                // Проверка обновлений
+                const requestUpdate = () => registration.update().catch(error =>
+                    console.warn('⚠️ Проверка обновления PWA:', error)
+                );
+                requestUpdate();
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) requestUpdate();
+                });
                 registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    console.log('🔄 Найдено обновление Service Worker');
-
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('✨ Доступно обновление приложения');
-
-                            // Показать пользователю уведомление
-                            if (confirm('✨ Доступно обновление Muscle Map!\n\nОбновить сейчас?')) {
-                                newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                window.location.reload();
-                            }
+                    const worker = registration.installing;
+                    if (!worker) return;
+                    worker.addEventListener('statechange', () => {
+                        if (worker.state !== 'installed' || !navigator.serviceWorker.controller) return;
+                        // Never automatically reload during workout editing.
+                        if (confirm('✨ Доступно обновление Muscle Map!\n\nСохраните незавершённый ввод, затем нажмите OK для обновления.')) {
+                            reloadAfterApprovedUpdate = true;
+                            worker.postMessage({ type: 'SKIP_WAITING' });
+                            // controllerchange below is the only place that reloads.
                         }
                     });
                 });
             })
-            .catch((error) => {
-                console.warn('⚠️ Service Worker не зарегистрирован:', error);
-            });
+            .catch(error => console.warn('⚠️ Service Worker не зарегистрирован:', error));
     });
-
-    // Перезагрузка при обновлении
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
+        if (refreshing || !reloadAfterApprovedUpdate) return;
         refreshing = true;
         window.location.reload();
     });

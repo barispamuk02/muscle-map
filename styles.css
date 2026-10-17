@@ -7196,3 +7196,25 @@ body:has(.premium-modal.show) {
 @media (max-width: 768px) {
   #searchInput { font-size: 16px !important; }
 }
+
+/* Samsung Chrome: suppress rectangular browser tap/selection feedback on SVG anatomy.
+   Preserve visible keyboard focus on ordinary buttons and controls. */
+.body-image-container,
+.body-image-container .body-svg-layer,
+.body-image-container .body-svg-layer svg,
+.body-image-container .body-svg-layer svg path {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.body-image-container .body-svg-layer svg path:focus:not(:focus-visible) {
+  outline: none;
+}
+@media (hover: none) and (pointer: coarse) {
+  /* Touch browsers can keep :hover active after finger release. */
+  .body-svg-layer svg path:hover:not(.active):not(.synergist-active) {
+    opacity: .2 !important;
+    filter: none !important;
+  }
+}

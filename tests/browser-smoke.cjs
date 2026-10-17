@@ -520,6 +520,22 @@ async function main() {
             assert.equal(await page.locator('#premiumModal.show').count(), 0, 'Premium modal should close');
             assert.deepEqual(errors, [], (mobile ? 'Mobile' : 'Desktop') + ' JavaScript errors');
             console.log((mobile ? 'MOBILE' : 'DESKTOP') + '_BROWSER_REGRESSION_OK', JSON.stringify({ exerciseCount, diarySet: result.sets }));
+            // Independently inspect GIF mapping in the non-public QA gallery.
+            const reviewPage = await context.newPage();
+            await reviewPage.goto(origin + '/qa/media-card-audit.html', { waitUntil: 'domcontentloaded' });
+            await reviewPage.waitForFunction(() => document.querySelectorAll('#cards .card').length === 29);
+            assert.equal(await reviewPage.locator('#cards .card').count(), 29,
+                'Every orphan cardio GIF must have a review-only card');
+            await reviewPage.locator('#cards .card button[data-id]').first().click();
+            assert.match(await reviewPage.locator('#cards .card .media img').first().getAttribute('src'), /\.gif$/,
+                'GIF preview must be opt-in and load the real asset');
+            await reviewPage.locator('button[data-group="neck"]').click();
+            assert.equal(await reviewPage.locator('#cards .card').count(), 6,
+                'All six existing neck manual exercise animations must be in QA');
+            await reviewPage.locator('button[data-group="stretch"]').click();
+            assert.equal(await reviewPage.locator('#cards .card').count(), 2,
+                'Both existing levator scapulae stretch media references must be in QA');
+            await reviewPage.close();
             await context.close();
         }
     } finally {

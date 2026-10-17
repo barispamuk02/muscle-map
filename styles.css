@@ -7284,10 +7284,16 @@ body:has(.premium-modal.show) {
 #bodyContainer .mm-abdomen-hud-lines { z-index: 7; }
 @media (max-width: 768px) {
   #bodyContainer .mm-abdomen-hud-choice {
-    width: clamp(72px, 23vw, 98px); font-size: 10px; padding: 7px 4px;
+    /* Labels must fit on BOTH sides without forcing the mobile layout viewport wider. */
+    width: clamp(52px, 15vw, 64px); font-size: 10px; padding: 6px 2px;
+    line-height: 1.18; overflow-wrap: anywhere;
   }
   #bodyContainer .mm-abdomen-hud-choice:nth-child(odd) { right: calc(100% + 3px); }
   #bodyContainer .mm-abdomen-hud-choice:nth-child(even) { left: calc(100% + 3px); }
+  #bodyContainer .mm-abdomen-hud-choice:nth-child(1) { top: 30%; }
+  #bodyContainer .mm-abdomen-hud-choice:nth-child(2) { top: 35%; }
+  #bodyContainer .mm-abdomen-hud-choice:nth-child(3) { top: 44%; }
+  #bodyContainer .mm-abdomen-hud-choice:nth-child(4) { top: 49%; }
 }
 
 /* HUD motion: GPU-friendly opacity/transform and SVG stroke drawing.

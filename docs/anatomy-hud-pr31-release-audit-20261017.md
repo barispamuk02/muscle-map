@@ -58,3 +58,30 @@ Automated Chromium smoke tests verify immediate DOM rendering and guard against 
 
 ## Current release decision
 **HOLD:** The approved animation should be preserved, but anatomical layer files remain identical and real physical-device frame measurements have not been recorded. Keep Draft until these are either completed or the owner explicitly decides a narrower release scope without claiming deep anatomy is finished.
+
+## Additional gate — exercise synergists: PROVISIONAL FIX, FULL EVIDENCE REVIEW PENDING (2026-10-17)
+The user's Samsung report identified missing synergist sections on trapezius and other muscles.
+
+### Runtime findings (real Chromium application audit)
+- `muscleDatabase`: 30 entities, including 2 ligament categories and a face category.
+- Catalogue: 1295 exercise records, **all resolve to keys** in the 1289-entry `synergists-data.js` lookup. The difference is duplicate exercise names, **not** six missing exercise mappings.
+- 14 entities had no rendered synergy section because all of their displayed exercises were in `customExercises`, where `name_en` is intentionally empty; `renderMuscleSynergists` previously looked up by `name_en` only.
+- Two invalid `synergists-data.js` muscle IDs: `male_calves` -> `male_calf`; `male_deltoid posterior` -> `male_deltoid_posterior`.
+
+### Draft solution
+- Added `custom-synergists-data.js`: first-pass exercise-specific qualitative partner sets for 8 muscle categories, including **middle trapezius rows, face pulls and reverse flys**. These are anatomical interpretations requiring further qualified review, not per-exercise EMG measurements.
+- Added `resolveExerciseSynergists(ex)` to keep generated catalogue mappings and curated manual mappings distinct.
+- Showed selected manual-exercise partners in individual exercise details and in the muscle-level summary.
+- Disabled display of generated 70/15/10/5 percentages in exercise synergist cards. Do not pass off default/template weights as measured contribution.
+- Added the custom-exercise click highlighting path while preserving original regular-exercise highlight behavior.
+- New automated checks reject unknown IDs, missing linked exercise destinations, missing rendered synergists for curated groups, and source link failures.
+- **Deliberately left some exercises blank** when reliable co-activation of another *modeled* muscle is not established (e.g. isolated forearm/tibialis actions), for facial movement, or when the entries describe stretching/ligament rehabilitation. Do not convert antagonists to synergists to meet a numeric coverage target.
+
+### Follow-up review required
+- [ ] Check each curated movement and the full generated catalogue for biomechanical accuracy; do not equate stabilizers with primary movers
+- [ ] Resolve catalog-primary mismatch in `dumbbell rear delt raise` and manual middle-trapezius `Шраги` classification before claiming scientific completeness
+- [ ] Resolve dataset quality ticket: https://github.com/barispamuk02/muscle-map/issues/33
+- [ ] Confirm mobile/desktop RU/EN labels, click-through exercise list and amber body highlights on Samsung
+- [ ] Preserve approved Anatomy HUD, current performance, four required release gates, original Production/Neon/Dodo constraints and Draft status
+
+References: https://www.ncbi.nlm.nih.gov/books/NBK518994/ ; https://pmc.ncbi.nlm.nih.gov/articles/PMC6849087/ ; https://pmc.ncbi.nlm.nih.gov/articles/PMC5758546/ .

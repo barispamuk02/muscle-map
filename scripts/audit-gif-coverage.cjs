@@ -24,6 +24,18 @@ function walk(dir,relative){
 walk(path.join(root,'videos'),'videos');walk(path.join(root,'images/exercises'),'images/exercises');
 const customs=Object.values(custom).flatMap(x=>[...(x.primary||[]),...(x.secondary||[])]);
 const listed=new Set([...exercises,...customs].map(x=>x.gif).filter(Boolean));
+// A blank GIF on a custom exercise is separate from an unlinked file on disk.
+const manualMissingGifs=[];
+for(const [muscleId,group] of Object.entries(custom)){
+  for(const kind of ['primary','secondary']){
+    (group[kind]||[]).forEach((exercise,index)=>{
+      if(!exercise.gif)manualMissingGifs.push({
+        id:exercise.stableId||'custom_'+muscleId+'_'+kind+'_'+index,
+        muscleId,name:exercise.name,group:kind,status:'needs_matching_or_new_licensed_media'
+      });
+    });
+  }
+}
 const orphans=paths.filter(x=>x.endsWith('.gif')&&!listed.has(x)).sort();
 const upstream=new Map();
 if(opt('--upstream') && fs.existsSync(opt('--upstream'))){
@@ -68,6 +80,7 @@ const summary={catalogCount:exercises.length,customCount:customs.length,atlasEnt
   totalGifFiles:paths.filter(x=>x.endsWith('.gif')).length,
   linkedCatalogGifs:new Set(exercises.map(x=>x.gif).filter(Boolean)).size,
   linkedCustomGifs:new Set(customs.map(x=>x.gif).filter(Boolean)).size,
+  manualWithoutGif:manualMissingGifs.length,
   orphanGifFiles:orphans.length,orphanWithThumbnail:entries.filter(x=>x.imagePresent).length,
   metadataRecovered:entries.filter(x=>x.metadataFound).length,brokenGifRefs:broken.length,
   sourceEntriesCompared:sourceComparison.checked,
@@ -77,7 +90,7 @@ const summary={catalogCount:exercises.length,customCount:customs.length,atlasEnt
   sourceEquipmentMismatches:sourceComparison.equipmentDisagreements.length,
   sourceGifMismatches:sourceComparison.gifDisagreements.length,
   sourceImageMismatches:sourceComparison.imageDisagreements.length};
-const output={schema:2,summary,sourceComparison,unlinked:entries,broken,notice:'Gym visual media rights must be verified before commercial use; identification is not approval'};
+const output={schema:3,summary,sourceComparison,unlinked:entries,manualWithoutGif:manualMissingGifs,broken,notice:'Gym visual media rights must be verified before commercial use; identification is not approval'};
 function write(flag,content){const dest=opt(flag);if(!dest)return;
   const file=path.resolve(process.cwd(),dest);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,content);
 }
@@ -86,10 +99,14 @@ const escapeText=x=>String(x||'').replace(/\|/g,'\\|').replace(/[\r\n]/g,' ');
 const lines=['# Unlinked GIF inventory','','Read-only inventory: no cards changed. Media licensing and anatomical motion still require review.','',
   '| ID | Source title | Target | GIF file | JPG exists |','|---|---|---|---|---|',
   ...entries.map(e=>'| '+e.id+' | '+escapeText(e.nameEn)+' | '+escapeText(e.target)+' | '+e.gif+' | '+(e.imagePresent?'yes':'no')+' |'),
+  '','## Manual exercises lacking GIF assets',
+  '','| Exercise ID | Muscle ID | Name |','|---|---|---|',
+  ...manualMissingGifs.map(e=>'| '+e.id+' | '+e.muscleId+' | '+escapeText(e.name)+' |'),
   '','WARNING: matching an ID does not prove biomechanical appropriateness or commercial media rights.'];
 write('--markdown',lines.join('\n')+'\n');
 console.log('GIF_COVERAGE_AUDIT '+JSON.stringify(summary));
 console.log('GIF_ORPHAN_CANDIDATES '+JSON.stringify(entries.map(e=>({id:e.id,name:e.nameEn,target:e.target,category:e.category,equipment:e.equipment,thumb:e.imagePresent}))));
+console.log('GIF_MANUAL_UNILLUSTRATED '+JSON.stringify(manualMissingGifs));
 console.log('GIF_SOURCE_COMPARISON '+JSON.stringify({
   counts:summary,
   examples:Object.fromEntries(Object.entries(sourceComparison)

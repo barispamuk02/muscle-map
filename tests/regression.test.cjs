@@ -74,3 +74,22 @@ test('exercise and diary navigation remain reachable in source', () => {
         assert.ok(script.includes(symbol),'Missing '+symbol);
     }
 });
+
+test('weekly Premium progression is fetched from verified Backend only, not bundled in public PWA',()=>{
+    const script=read('script.js');
+    const plans=read('programs-data.js');
+    const price=read('premium-data.js');
+    const sw=read('service-worker.js');
+    assert.match(script,/function loadPremiumProgramProgression\(/);
+    assert.match(script,/\/api\/v2\/me\/programs\//);
+    assert.match(script,/getProductionAuthToken\(\)/);
+    assert.match(script,/Authorization:'Bearer '/);
+    assert.match(price,/server-protected weekly progressions|защищённую прогрессию/);
+    for(const title of ['Find your training load','8-week strength progression',
+        'Прогрессия набора массы на 8 недель','Щадящая прогрессия на 8 недель']){
+        assert.ok(!script.includes(title),'Paid-only text leaked into frontend source');
+        assert.ok(!plans.includes(title),'Paid-only text leaked into public programs');
+        assert.ok(!sw.includes(title),'Paid-only text leaked into service worker');
+    }
+    assert.ok(!sw.includes('premium-program-progression.js'),'Private Backend module must not be cached by PWA');
+});

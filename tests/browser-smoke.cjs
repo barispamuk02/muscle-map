@@ -115,6 +115,14 @@ async function main() {
                         'Curated custom synergies should reach muscle and exercises for ' + id);
                 }
                 assert.deepEqual(coverage.unresolved, [], 'Every synergist muscle ID must exist in muscleDatabase');
+                const missingDestinationExercises = coverage.rows.flatMap(row =>
+                    row.partners.filter(id => {
+                        const destination = coverage.rows.find(candidate => candidate.id === id);
+                        return !destination || destination.total === 0;
+                    }).map(id => ({source: row.id, target: id}))
+                );
+                assert.deepEqual(missingDestinationExercises, [],
+                    'Every displayed partner must have an exercise list users can open');
                 assert.equal(coverage.catalogUnmappedCount, 0,
                     'Every catalogue exercise should resolve to a named synergy record');
                 await page.evaluate(() => selectMuscle('male_trapezius_middle'));

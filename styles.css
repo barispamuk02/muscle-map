@@ -7344,3 +7344,22 @@ body:has(.premium-modal.show) {
 @media (prefers-reduced-motion: reduce) {
   #mmAbdomenHudToggle.mm-hud-revealed { animation: none !important; }
 }
+
+/* Qualitative, evidence-informed muscle partners: never imply measured percentages. */
+.synergist-role {
+  font-size: 11px;
+  color: #9fb7d5;
+  text-align: right;
+  flex: 0 0 auto;
+}
+.synergist-item.primary .synergist-role { color: #ff9da8; }
+.synergist-qualitative-note {
+  font-size: 11px;
+  line-height: 1.35;
+  margin: 8px 2px 0;
+  color: #9cafc8;
+}
+@media (max-width: 600px) {
+  .synergist-item { flex-wrap: wrap; column-gap: 6px; }
+  .synergist-role { font-size: 10px; }
+}

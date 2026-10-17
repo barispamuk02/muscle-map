@@ -64,6 +64,47 @@ async function main() {
             await page.waitForFunction(() => typeof getWorkoutLog === 'function' && typeof openPremium === 'function', {timeout: 25000});
             const exerciseCount = await page.evaluate(() => typeof exerciseDatabase !== 'undefined' ? exerciseDatabase.length : 0);
             assert.ok(exerciseCount >= 1200, 'Full exercise catalogue must load');
+            if (!mobile) {
+                // Audit coverage through the EXACT runtime getExercisesForMuscle path.
+                const coverage = await page.evaluate(() => {
+                    const canonical = Object.keys(muscleDatabase);
+                    const valid = new Set(canonical);
+                    const data = typeof synergistsData === 'undefined' ? {} : synergistsData;
+                    const exercises = typeof exerciseDatabase === 'undefined' ? [] : exerciseDatabase;
+                    const rows = canonical.map(id => {
+                        const list = getExercisesForMuscle(id);
+                        const mapped = list.filter(ex => data[(ex.name_en || '').toLowerCase().trim()]);
+                        const available = [...new Set(mapped.flatMap(ex =>
+                            (data[(ex.name_en || '').toLowerCase().trim()]?.synergists || [])
+                                .map(s => s.muscleId)
+                                .filter(s => s !== id && valid.has(s))
+                        ))];
+                        return {
+                            id, total: list.length, mapped: mapped.length,
+                            custom: list.filter(ex => ex.isCustom).length,
+                            unmappedCustom: list.filter(ex => ex.isCustom && !data[(ex.name_en || '').toLowerCase().trim()]).length,
+                            synergyCount: available.length, partners: available,
+                            rendered: !!renderMuscleSynergists(muscleDatabase[id])
+                        };
+                    });
+                    const unresolved = Object.entries(data).flatMap(([name,details]) => [
+                        ...(details.primary ? [{id:details.primary.muscleId,role:'primary'}] : []),
+                        ...(details.synergists || []).map(x => ({id:x.muscleId,role:'synergist'}))
+                    ].filter(x => !valid.has(x.id)).map(x => ({exercise:name,...x})));
+                    const catalogUnmapped = exercises.filter(ex => !data[(ex.name_en || '').toLowerCase().trim()])
+                        .map(ex => ({name:ex.name_en || ex.name, muscle:ex.muscleId}));
+                    const wrongPrimary = exercises.filter(ex => {
+                        const row = data[(ex.name_en || '').toLowerCase().trim()];
+                        return row?.primary?.muscleId && row.primary.muscleId !== ex.muscleId;
+                    }).map(ex => ({exercise:ex.name_en, catalog:ex.muscleId,
+                        synergy: data[(ex.name_en || '').toLowerCase().trim()].primary.muscleId}));
+                    return {recordCount:Object.keys(data).length, catalogCount:exercises.length,
+                        muscleCount:canonical.length, rows, unresolved,
+                        catalogUnmappedCount:catalogUnmapped.length, catalogUnmapped:catalogUnmapped.slice(0,22),
+                        wrongPrimaryCount:wrongPrimary.length, wrongPrimary:wrongPrimary.slice(0,18)};
+                });
+                console.log('SYNERGIST_COVERAGE_AUDIT', JSON.stringify(coverage));
+            }
             if (mobile) {
                 await page.locator('#mmMobileHero').waitFor();
                 await page.locator('.mm-mobile-bottom-nav').waitFor();

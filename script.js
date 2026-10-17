@@ -5341,11 +5341,113 @@ function bindProgramEvents() {
             }
         });
     });
+    // Enhance an existing FREE program with a new separately protected Premium
+    // progression. Existing exercises and schedule are unchanged.
+    if (isProductionAuthSite() && currentProgramId) {
+        const details = programsContainer.querySelector('.program-details');
+        if (details) {
+            const host=document.createElement('section');
+            host.className='program-progression';
+            const title=document.createElement('h3');
+            title.textContent=currentLang==='en' ? '💎 Premium weekly progression' : '💎 Premium-прогрессия по неделям';
+            const summary=document.createElement('p');
+            summary.textContent=currentLang==='en'
+                ? 'Protected week-by-week progression, available to paid subscribers.'
+                : 'Подробный план по неделям, доступный по оплаченной подписке.';
+            const open=document.createElement('button');
+            open.type='button';
+            open.className='program-progression-open';
+            open.textContent=currentLang==='en' ? 'Open Premium progression' : 'Открыть Premium-прогрессию';
+            const message=document.createElement('div');
+            message.className='program-progression-feedback';
+            message.setAttribute('role','status');
+            message.setAttribute('aria-live','polite');
+            const results=document.createElement('div');
+            results.className='program-progression-results';
+            host.append(title,summary,open,message,results);
+            details.appendChild(host);
+            const targetProgram=currentProgramId;
+            open.addEventListener('click',()=>loadPremiumProgramProgression(targetProgram,host));
+        }
+    }
+
     const firstDay = document.querySelector('.program-day');
     if (firstDay) {
         firstDay.classList.add('open');
         firstDay.querySelector('.program-day-toggle').textContent = '▲';
     }
+}
+
+// Server-only paid content: frontend/PWA ships none of the progression phases.
+// Token validation, verified email and paid-through status are enforced by API.
+async function loadPremiumProgramProgression(programId, host) {
+    const button=host.querySelector('.program-progression-open');
+    const message=host.querySelector('.program-progression-feedback');
+    const target=host.querySelector('.program-progression-results');
+    if(!button || !message || !target || currentProgramId!==programId ||
+       !isProductionAuthSite())return;
+    const english=currentLang==='en';
+    button.disabled=true;
+    target.replaceChildren();
+    message.textContent=english ? 'Checking paid Premium access…' : 'Проверяем оплаченный Premium…';
+    try{
+        let token;
+        try{token=await getProductionAuthToken();}
+        catch{throw Error('auth');}
+        const response=await fetch(
+            BACKEND_URL+'/api/v2/me/programs/'+encodeURIComponent(programId)+
+            '/progression?lang='+(english?'en':'ru'),
+            {method:'GET',headers:{Authorization:'Bearer '+token},
+             cache:'no-store',redirect:'error'}
+        );
+        if(currentProgramId!==programId ||
+           host!==programsContainer.querySelector('.program-progression'))return;
+        if(response.status===403){
+            message.textContent=english
+                ? 'Premium required to unlock detailed weekly progression.'
+                : 'Для подробной прогрессии нужна подписка Premium.';
+            const upgrade=document.createElement('button');
+            upgrade.type='button';
+            upgrade.textContent=english?'View Premium plans':'Посмотреть Premium';
+            upgrade.addEventListener('click',openPremium);
+            target.appendChild(upgrade);
+            return;
+        }
+        if(response.status===401)throw Error('auth');
+        if(!response.ok)throw Error('server');
+        const data=await response.json();
+        if(data.programId!==programId || !Array.isArray(data.phases) ||
+           data.phases.length<1 || data.phases.length>20)throw Error('invalid');
+        if(currentProgramId!==programId ||
+           host!==programsContainer.querySelector('.program-progression'))return;
+        const heading=document.createElement('h3');
+        heading.textContent=String(data.heading||'');
+        const intro=document.createElement('p');
+        intro.textContent=String(data.introduction||'');
+        target.append(heading,intro);
+        for(const phase of data.phases){
+            const article=document.createElement('article');
+            article.className='program-progression-phase';
+            const phaseTitle=document.createElement('strong');
+            phaseTitle.textContent=String(phase.weeks||'')+' · '+String(phase.title||'');
+            const action=document.createElement('p');
+            action.textContent=String(phase.action||'');
+            const check=document.createElement('small');
+            check.textContent=String(phase.check||'');
+            article.append(phaseTitle,action,check);
+            target.appendChild(article);
+        }
+        const disclaimer=document.createElement('small');
+        disclaimer.textContent=String(data.disclaimer||'');
+        target.appendChild(disclaimer);
+        message.textContent=english?'Premium progression unlocked.':'Premium-прогрессия открыта.';
+    }catch(error){
+        if(currentProgramId!==programId ||
+           host!==programsContainer.querySelector('.program-progression'))return;
+        message.textContent=error.message==='auth'
+            ? (english?'Sign in to view Premium progression.':'Войди в аккаунт, чтобы открыть Premium-прогрессию.')
+            : (english?'Could not load progression. Try again.':'Не удалось загрузить прогрессию. Попробуй ещё раз.');
+    }finally{if(button.isConnected)button.disabled=false;}
 }
 
 if (navPrograms) navPrograms.addEventListener('click', switchToPrograms);

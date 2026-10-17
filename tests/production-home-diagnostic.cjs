@@ -83,6 +83,51 @@ const localCandidate = process.env.LOCAL_CANDIDATE === 'true';
         console.error(label+'_PRODUCTION_HOME=FAIL');
         process.exitCode=1;
       } else console.log(label+'_PRODUCTION_HOME=PASS');
+      if(localCandidate){
+        const ui=await page.evaluate(()=>{
+          switchToPrograms();
+          currentProgramId='mass3';
+          renderPrograms();
+          return {freeDays:document.querySelectorAll('.program-day').length,
+            buttons:document.querySelectorAll('.program-progression-open').length,
+            content:document.querySelectorAll('.program-progression-phase').length};
+        });
+        console.log(label+'_PROGRAM_UI='+JSON.stringify(ui));
+        if(ui.freeDays<3 || ui.buttons!==1 || ui.content!==0){
+          console.error(label+'_PREMIUM_PROGRAM_CANDIDATE=FAIL');
+          process.exitCode=1;
+        } else console.log(label+'_PREMIUM_PROGRAM_CANDIDATE=PASS');
+        // Synthetic HTTP responses in-browser. Never call Neon, Dodo or
+        // the live Backend for this paid-content authorization UI test.
+        await page.evaluate(()=>{
+          getProductionAuthToken=async()=> 'ci.synthetic.not.a.real.jwt';
+          const originalFetch=window.fetch.bind(window);
+          window.__ciPaid=403;
+          window.fetch=(url,opts)=>{
+            if(String(url).includes('/api/v2/me/programs/')){
+              const status=window.__ciPaid;
+              const payload=status===403?{error:'premium required'}:{
+                programId:'mass3',heading:'CI SYNTHETIC PREMIUM CONTENT',
+                phases:[{weeks:'1–2',title:'Mock week',action:'Test fixture',check:'CI only'}]
+              };
+              return Promise.resolve(new Response(JSON.stringify(payload),{status,
+                headers:{'Content-Type':'application/json'}}));
+            }
+            return originalFetch(url,opts);
+          };
+        });
+        await page.locator('.program-progression-open').click();
+        await page.waitForFunction(()=>document.querySelector('.program-progression-feedback')
+          ?.textContent.includes('подписка'));
+        if(await page.locator('.program-progression-phase').count()!==0)
+          throw Error('FREE_USER_SAW_PROTECTED_PROGRAM');
+        await page.evaluate(()=>{window.__ciPaid=200;});
+        await page.locator('.program-progression-open').click();
+        await page.locator('.program-progression-phase').waitFor({timeout:10000});
+        if(await page.locator('.program-progression-phase').count()!==1)
+          throw Error('PREMIUM_PROGRAM_CLIENT_RENDER_FAILED');
+        console.log(label+'_FREE_403_AND_PREMIUM_200_UI=PASS');
+      }
       await context.close();
     }
   }finally{await browser.close();}

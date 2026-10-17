@@ -5,14 +5,14 @@
 const premiumFeatures = [
     {
         icon: 'crosshair',
-        title: 'Все 6 программ',
-        titleEn: 'All 6 programs',
-        description: 'Готовые планы под разные цели. Бесплатно — 1 программа.',
-        descriptionEn: 'Ready-made plans for different goals. Free — 1 program.',
-        free: '1',
-        freeEn: '1',
-        premium: '6',
-        premiumEn: '6'
+        title: 'Прогрессия по неделям',
+        titleEn: 'Week-by-week progressions',
+        description: 'Все 6 базовых программ доступны бесплатно. Premium открывает защищённую прогрессию по неделям.',
+        descriptionEn: 'All six basic programs are free. Premium unlocks server-protected weekly progressions.',
+        free: '6 базовых',
+        freeEn: '6 basic',
+        premium: '6 прогрессий',
+        premiumEn: '6 progressions'
     },
     {
         icon: 'chart-column-increasing',
@@ -96,7 +96,7 @@ const premiumPlans = [
         features: [
             '✅ Все 1295 упражнений без ограничений',
             '✅ Все 30 групп мышц',
-            '✅ Все 6 программ тренировок',
+            '✅ Прогрессия по неделям для 6 программ',
             '✅ Расширенный график прогресса',
             '✅ Экспорт прогресса в PDF',
             '✅ Карточка тренировки PNG без ограничений',
@@ -106,7 +106,7 @@ const premiumPlans = [
         featuresEn: [
             '✅ All 1295 exercises unlocked',
             '✅ All 30 muscle groups',
-            '✅ All 6 workout programs',
+            '✅ Week-by-week progression for 6 programs',
             '✅ Advanced progress chart',
             '✅ Progress export to PDF',
             '✅ Unlimited workout card PNG',
